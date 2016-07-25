@@ -227,11 +227,12 @@ local function UpdateName(frame)
         -- Backup Icon Textures
 
     local _,class = UnitClass(frame.displayedUnit)
-
-    if not class then
-        frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\Ability_DualWield')
-    else
-        frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\ClassIcon_'..class)
+    if frame.castBar then
+        if not class then
+            frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\Ability_DualWield')
+        else
+            frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\ClassIcon_'..class)
+        end
     end
 
         -- Color Name To Threat Status
