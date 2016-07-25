@@ -2,7 +2,9 @@
 local _, nPlates = ...
 local cfg = nPlates.Config
 
-local iconOverlay = 'Interface\\AddOns\\nPlates\\media\\textureIconOverlay'
+local texturePath = 'Interface\\AddOns\\nPlates\\media\\'
+local iconOverlay = texturePath..'textureIconOverlay'
+
 DefaultCompactNamePlateEnemyFrameOptions.selectedBorderColor = CreateColor(0, 0, 0, .55)
 
 local function RGBHex(r, g, b)
@@ -84,6 +86,11 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
     frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4, 0)
     frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
+    frame.castBar.Icon.Background = frame.castBar:CreateTexture('$parentIconBackground', 'BACKGROUND', nil, 7)
+    frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    frame.castBar.Icon.Background:ClearAllPoints()
+    frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
+
     frame.castBar.Icon.Overlay = frame.castBar:CreateTexture('$parentIconGlow', 'OVERLAY', nil, 7)
     frame.castBar.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
     frame.castBar.Icon.Overlay:ClearAllPoints()
@@ -112,6 +119,15 @@ local function UpdateName(frame)
         frame.name:SetText(GetUnitName(frame.unit, true));
     else
         frame.name:SetText('|cffffff00|r'..levelColor..targetLevel..'|r '..GetUnitName(frame.unit, true));
+    end
+
+        -- Backup Icon Texture
+
+    local _,class = UnitClass(frame.displayedUnit)
+    if not class then
+        frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\Ability_DualWield')
+    else
+        frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\ClassIcon_'..class)
     end
 
     if not cfg.enableTankMode and not IsTank() then return end
