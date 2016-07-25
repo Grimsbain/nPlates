@@ -53,12 +53,18 @@ end
 
 local function SetupNamePlate(frame, setupOptions, frameOptions)
 
+        -- Name
+
     frame.name:SetFont('Fonts\\ARIALN.ttf', 10, 'OUTLINE')
+
+        -- Healthbar
 
     frame.healthBar:SetHeight(12)
     frame.healthBar:CreateBeautyBorder(7)
     frame.healthBar:SetBeautyBorderPadding(1)
     frame.healthBar:SetBeautyShadowColor(0,0,0)
+
+        -- Update Health Text
 
     if (not frame.healthBar.healthString) then
         frame.healthBar.healthString = frame.healthBar:CreateFontString('$parentHeathValue', 'OVERLAY')
@@ -70,38 +76,52 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         UpdateHealthText(frame)
     end)
 
+        -- Castbar
+
     frame.castBar:CreateBeautyBorder(4)
     frame.castBar:SetBeautyBorderPadding(1)
     frame.castBar:SetBeautyShadowColor(0,0,0)
-    
+
+        -- Castbar Icon
+
     frame.castBar.Icon:SetSize(21,21)
     frame.castBar.Icon:ClearAllPoints()
     frame.castBar.Icon:SetPoint('BOTTOMLEFT', frame.castBar, 'BOTTOMRIGHT', 4, .5)
     frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
-    frame.castBar.Icon.Background = frame.castBar:CreateTexture('$parentIconBackground', 'BACKGROUND')
-    frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-    frame.castBar.Icon.Background:ClearAllPoints()
-    frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
+        -- Castbar Icon Background
 
-    frame.castBar.Icon.Overlay = frame.castBar:CreateTexture('$parentIconOverlay', 'OVERLAY', nil, 7)
-    frame.castBar.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
-    frame.castBar.Icon.Overlay:ClearAllPoints()
-    frame.castBar.Icon.Overlay:SetPoint('TOPRIGHT', frame.castBar.Icon, 2.5, 2.5)
-    frame.castBar.Icon.Overlay:SetPoint('BOTTOMLEFT', frame.castBar.Icon, -2.5, -2.5)
-    frame.castBar.Icon.Overlay:SetTexture(iconOverlay)
-    frame.castBar.Icon.Overlay:SetVertexColor(.5,.5,.5)
+    if (not frame.castBar.Icon.Background ) then
+        frame.castBar.Icon.Background = frame.castBar:CreateTexture('$parentIconBackground', 'BACKGROUND')
+        frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+        frame.castBar.Icon.Background:ClearAllPoints()
+        frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
+    end
+
+        -- Castbar Icon Overlay
+
+    if (not frame.castBar.Icon.Overlay ) then
+        frame.castBar.Icon.Overlay = frame.castBar:CreateTexture('$parentIconOverlay', 'OVERLAY', nil, 7)
+        frame.castBar.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
+        frame.castBar.Icon.Overlay:ClearAllPoints()
+        frame.castBar.Icon.Overlay:SetPoint('TOPRIGHT', frame.castBar.Icon, 2.5, 2.5)
+        frame.castBar.Icon.Overlay:SetPoint('BOTTOMLEFT', frame.castBar.Icon, -2.5, -2.5)
+        frame.castBar.Icon.Overlay:SetTexture(iconOverlay)
+    end
+
+        -- BeautyBroder for Personal Resource Display
 
     ClassNameplateManaBarFrame:CreateBeautyBorder(4)
     ClassNameplateManaBarFrame:SetBeautyBorderPadding(0)
     ClassNameplateManaBarFrame:SetBeautyShadowColor(0,0,0)
-
 end
 hooksecurefunc('DefaultCompactNamePlateFrameSetupInternal', SetupNamePlate)
 
     -- Update Name
 
 local function UpdateName(frame)
+
+        -- Shorten Long Names
 
     local newName = GetUnitName(frame.unit, true)
     if (cfg.abbrevLongNames) then
@@ -117,7 +137,7 @@ local function UpdateName(frame)
         local levelColor = RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
 
         if (targetLevel == -1) then
-            frame.name:SetText(GetUnitName(frame.unit, true));
+            frame.name:SetText(GetUnitName(frame.unit, true))
         else
             frame.name:SetText('|cffffff00|r'..levelColor..targetLevel..'|r '..newName)
         end
@@ -125,14 +145,23 @@ local function UpdateName(frame)
         frame.name:SetText(newName)
     end
 
-        -- Backup Icon Textures
+        -- Icon Overlay Color / Backup Icon Textures
 
     local _,class = UnitClass(frame.displayedUnit)
+
     if not class then
         frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\Ability_DualWield')
+        frame.castBar.Icon.Overlay:SetVertexColor(.5,.5,.5)
     else
         frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\ClassIcon_'..class)
+        local r, g, b
+        r = RAID_CLASS_COLORS[class].r
+        g = RAID_CLASS_COLORS[class].g
+        b = RAID_CLASS_COLORS[class].b
+        frame.castBar.Icon.Overlay:SetVertexColor(r, g, b)
     end
+
+        -- Color Name To Threat Status
 
     if not cfg.colorNameWithThreat then return end
     local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
@@ -143,6 +172,5 @@ local function UpdateName(frame)
             frame.name:SetTextColor(1,0.6,0.2)
         end
     end
-
 end
 hooksecurefunc('CompactUnitFrame_UpdateName', UpdateName)
