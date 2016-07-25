@@ -48,6 +48,26 @@ local function UpdateHealthText(frame)
     end
 end
 
+    -- Update Castbar Timer
+
+local function UpdateCastbarTime(frame)
+    if ( frame.unit ) then
+        if ( frame.castBar.casting ) then
+            local _, _, _, _, startTime = UnitCastingInfo(frame.unit);
+            if ( startTime ) then
+                frame.castBar.value = (GetTime() - (startTime / 1000));
+                frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.maxValue - frame.castBar.value)
+            end
+        else
+            local _, _, _, _, _, endTime = UnitChannelInfo(frame.unit);
+            if ( endTime ) then
+                frame.castBar.value = (GetTime() - (endTime / 1000));
+                frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.value)
+            end
+        end
+    end
+end
+
     -- Setup Frames
 
 local function SetupNamePlate(frame, setupOptions, frameOptions)
@@ -77,13 +97,37 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
 
         -- Castbar
 
-    frame.castBar:CreateBeautyBorder(4)
+    frame.castBar:SetHeight(12)
+    frame.castBar:CreateBeautyBorder(7)
     frame.castBar:SetBeautyBorderPadding(1)
     frame.castBar:SetBeautyShadowColor(0,0,0)
 
+        -- BorderShield
+
+    frame.castBar.BorderShield:ClearAllPoints()
+    frame.castBar.BorderShield:SetPoint('CENTER',frame.castBar,'LEFT',-2,0)
+
+        -- Spell Name
+
+    frame.castBar.Text:ClearAllPoints()
+    frame.castBar.Text:SetFont('Fonts\\ARIALN.ttf', 8, 'OUTLINE')
+    frame.castBar.Text:SetPoint('LEFT',frame.castBar, 'LEFT',3,0)
+
+        -- Set Castbar Timer
+
+    if (not frame.castBar.CastTime) then
+        frame.castBar.CastTime = frame.castBar:CreateFontString(nil, 'OVERLAY')
+        frame.castBar.CastTime:SetPoint('RIGHT', frame.castBar, -1.6666667, 0)
+        frame.castBar.CastTime:SetFont('Fonts\\ARIALN.ttf', 10, 'OUTLINE')
+    end
+
+    frame.castBar:SetScript('OnValueChanged', function()
+        UpdateCastbarTime(frame)
+    end)
+
         -- Castbar Icon
 
-    frame.castBar.Icon:SetSize(21,21)
+    frame.castBar.Icon:SetSize(24,24)
     frame.castBar.Icon:ClearAllPoints()
     frame.castBar.Icon:SetPoint('BOTTOMLEFT', frame.castBar, 'BOTTOMRIGHT', 4, .5)
     frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
