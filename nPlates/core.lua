@@ -100,7 +100,7 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         -- Castbar Icon Overlay
 
     if (not frame.castBar.Icon.Overlay ) then
-        frame.castBar.Icon.Overlay = frame.castBar:CreateTexture('$parentIconOverlay', 'OVERLAY', nil, 7)
+        frame.castBar.Icon.Overlay = frame.castBar:CreateTexture('$parentIconOverlay', 'OVERLAY')
         frame.castBar.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
         frame.castBar.Icon.Overlay:ClearAllPoints()
         frame.castBar.Icon.Overlay:SetPoint('TOPRIGHT', frame.castBar.Icon, 2.5, 2.5)
@@ -162,13 +162,14 @@ local function UpdateName(frame)
 
         -- Color Name To Threat Status
 
-    if not cfg.colorNameWithThreat then return end
-    local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
-    if isTanking and threatStatus then
-        if threatStatus >= 3 then
-            frame.name:SetTextColor(0,1,0)
-        elseif threatStatus == 2 then
-            frame.name:SetTextColor(1,0.6,0.2)
+    if cfg.colorNameWithThreat then
+        local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
+        if isTanking and threatStatus then
+            if threatStatus >= 3 then
+                frame.name:SetTextColor(0,1,0)
+            elseif threatStatus == 2 then
+                frame.name:SetTextColor(1,0.6,0.2)
+            end
         end
     end
 end
