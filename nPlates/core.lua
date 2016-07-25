@@ -7,8 +7,19 @@ local gsub = string.gsub
 
 local texturePath = 'Interface\\AddOns\\nPlates\\media\\'
 local iconOverlay = texturePath..'textureIconOverlay'
+local overlayTexture = texturePath..'textureOverlay'
+
+local borderColor = {0.47, 0.47, 0.47}
 
 DefaultCompactNamePlateEnemyFrameOptions.selectedBorderColor = CreateColor(0, 0, 0, .55)
+
+local function GetUnitReaction(r, g, b)
+    if (g + b == 0) then
+        return true
+    end
+
+    return false
+end
 
 local function RGBHex(r, g, b)
     if (type(r) == 'table') then
@@ -48,15 +59,18 @@ local function UpdateHealthText(frame)
     end
 end
 
-    -- Update Castbar Timer
+    -- Update Castbar
 
-local function UpdateCastbarTime(frame)
+local function UpdateCastbar(frame)
     if ( frame.unit ) then
         if ( frame.castBar.casting ) then
             frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.maxValue - frame.castBar.value)
         else
             frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.value)
         end
+
+        local r, g, b = frame.name:GetTextColor()
+        frame.castBar.Icon.Overlay:SetVertexColor(r, g, b)
     end
 end
 
@@ -71,9 +85,20 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         -- Healthbar
 
     frame.healthBar:SetHeight(12)
-    frame.healthBar:CreateBeautyBorder(7)
-    frame.healthBar:SetBeautyBorderPadding(1)
-    frame.healthBar:SetBeautyShadowColor(0,0,0)
+
+    frame.healthBar:ClearAllPoints()
+    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.5);
+    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.5);
+
+        -- Healthbar Overlay
+
+    if not frame.healthBar.Overlay then
+        frame.healthBar.Overlay = frame.healthBar:CreateTexture('$parentOverlay', 'BORDER')
+        frame.healthBar.Overlay:ClearAllPoints()
+        frame.healthBar.Overlay:SetTexture(overlayTexture)
+        frame.healthBar.Overlay:SetTexCoord(0, 1, 0, 1)
+        frame.healthBar.Overlay:SetVertexColor(unpack(borderColor))
+    end
 
         -- Update Health Text
 
@@ -90,40 +115,43 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         -- Castbar
 
     frame.castBar:SetHeight(12)
-    frame.castBar:CreateBeautyBorder(7)
-    frame.castBar:SetBeautyBorderPadding(1)
-    frame.castBar:SetBeautyShadowColor(0,0,0)
 
-        -- BorderShield
+    if not frame.castBar.Overlay then
+        frame.castBar.Overlay = frame.castBar:CreateTexture('$parentOverlay', 'BORDER')
+        frame.castBar.Overlay:SetTexture(overlayTexture)
+        frame.castBar.Overlay:SetTexCoord(0, 1, 0, 1)
+        frame.castBar.Overlay:SetVertexColor(unpack(borderColor))
+    end
+
+        -- Border Shield
 
     frame.castBar.BorderShield:ClearAllPoints()
-    frame.castBar.BorderShield:SetPoint('CENTER',frame.castBar,'LEFT',-2.2,0)
+    frame.castBar.BorderShield:SetPoint('CENTER',frame.castBar,'LEFT',-2.4,0)
 
         -- Spell Name
 
     frame.castBar.Text:ClearAllPoints()
-    frame.castBar.Text:SetFont('Fonts\\ARIALN.ttf', 8)
+    frame.castBar.Text:SetFont('Fonts\\ARIALN.ttf', 7.5)
     frame.castBar.Text:SetShadowOffset(1, -1)
-    frame.castBar.Text:SetPoint('LEFT',frame.castBar, 'LEFT',3,0)
+    frame.castBar.Text:SetPoint('LEFT',frame.castBar, 'LEFT',4,0)
 
         -- Set Castbar Timer
 
     if (not frame.castBar.CastTime) then
         frame.castBar.CastTime = frame.castBar:CreateFontString(nil, 'OVERLAY')
-        frame.castBar.CastTime:SetPoint('RIGHT', frame.castBar, -1.6666667, 0)
-        frame.castBar.CastTime:SetFont('Fonts\\ARIALN.ttf', 9)
-        frame.castBar.CastTime:SetShadowOffset(1, -1)
+        frame.castBar.CastTime:SetPoint('BOTTOMRIGHT', frame.castBar.Icon, 'BOTTOMRIGHT', 0, 0)
+        frame.castBar.CastTime:SetFont('Fonts\\ARIALN.ttf', 10, 'OUTLINE')
     end
 
     frame.castBar:SetScript('OnValueChanged', function()
-        UpdateCastbarTime(frame)
+        UpdateCastbar(frame)
     end)
 
         -- Castbar Icon
 
     frame.castBar.Icon:SetSize(24,24)
     frame.castBar.Icon:ClearAllPoints()
-    frame.castBar.Icon:SetPoint('BOTTOMLEFT', frame.castBar, 'BOTTOMRIGHT', 4, .5)
+    frame.castBar.Icon:SetPoint('BOTTOMLEFT', frame.castBar, 'BOTTOMRIGHT', 4.5, 0)
     frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
         -- Castbar Icon Background
@@ -146,11 +174,25 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         frame.castBar.Icon.Overlay:SetTexture(iconOverlay)
     end
 
-        -- BeautyBroder for Personal Resource Display
+        -- Set heathBar / castBar Overlay based on current nameplate scale.
 
-    ClassNameplateManaBarFrame:CreateBeautyBorder(4)
-    ClassNameplateManaBarFrame:SetBeautyBorderPadding(0)
-    ClassNameplateManaBarFrame:SetBeautyShadowColor(0,0,0)
+    frame:SetScript('OnSizeChanged', function()
+        frame.healthBar.Overlay:ClearAllPoints()
+        frame.castBar.Overlay:ClearAllPoints()
+        if tonumber(GetCVar("NamePlateVerticalScale")) == 1 then
+            frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 29, 5.66666667)
+            frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -30, -5.66666667)
+
+            frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 29, 5.66666667)
+            frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -30, -5.66666667)
+        else
+            frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 43, 5.66666667)
+            frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -45, -5.66666667)
+
+            frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 43, 5.66666667)
+            frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -45, -5.66666667)
+        end
+    end)
 end
 hooksecurefunc('DefaultCompactNamePlateFrameSetupInternal', SetupNamePlate)
 
@@ -182,20 +224,14 @@ local function UpdateName(frame)
         frame.name:SetText(newName)
     end
 
-        -- Icon Overlay Color / Backup Icon Textures
+        -- Backup Icon Textures
 
     local _,class = UnitClass(frame.displayedUnit)
 
     if not class then
         frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\Ability_DualWield')
-        frame.castBar.Icon.Overlay:SetVertexColor(.5,.5,.5)
     else
         frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\ClassIcon_'..class)
-        local r, g, b
-        r = RAID_CLASS_COLORS[class].r
-        g = RAID_CLASS_COLORS[class].g
-        b = RAID_CLASS_COLORS[class].b
-        frame.castBar.Icon.Overlay:SetVertexColor(r, g, b)
     end
 
         -- Color Name To Threat Status
