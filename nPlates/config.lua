@@ -2,7 +2,9 @@
 local _, nPlates = ...
 
 nPlates.Config = {
-    colorNameWithThreat = true,              -- Colors name by threat. Green = Tanking, Orange = Loosing Threat
+    -- Colors by threat. Green = Tanking, Orange = Loosing Threat, Red = Lost Threat
+    enableTankMode = true,
+    colorNameWithThreat = true,              
 
     showFullHP = true,
     showLevel = true,

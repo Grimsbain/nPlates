@@ -174,7 +174,7 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         frame.castBar.Icon.Overlay:SetTexture(iconOverlay)
     end
 
-        -- Set heathBar / castBar Overlay based on current nameplate scale.
+        -- Set Healthbar / Castbar Overlay based on current nameplate scale.
 
     frame:SetScript('OnSizeChanged', function()
         frame.healthBar.Overlay:ClearAllPoints()
@@ -249,3 +249,70 @@ local function UpdateName(frame)
     end
 end
 hooksecurefunc('CompactUnitFrame_UpdateName', UpdateName)
+
+    -- Update Border Color
+
+local function UpdateBorder(frame)
+    local r,g,b = frame.healthBar:GetStatusBarColor()
+    frame.healthBar.Overlay:SetVertexColor(r,g,b)
+end
+hooksecurefunc('CompactUnitFrame_UpdateHealthBorder',UpdateBorder)
+
+    -- Update Health Color
+
+local function UpdateHealthColor(frame)
+    if not cfg.enableTankMode then return end
+	local r, g, b;
+	if ( not UnitIsConnected(frame.unit) ) then
+		--Color it gray
+		r, g, b = 0.5, 0.5, 0.5;
+	else
+		if ( frame.optionTable.healthBarColorOverride ) then
+			local healthBarColorOverride = frame.optionTable.healthBarColorOverride;
+			r, g, b = healthBarColorOverride.r, healthBarColorOverride.g, healthBarColorOverride.b;
+		else
+			--Try to color it by class.
+			local localizedClass, englishClass = UnitClass(frame.unit);
+			local classColor = RAID_CLASS_COLORS[englishClass];
+			if ( UnitIsPlayer(frame.unit) and classColor and frame.optionTable.useClassColors ) then
+				-- Use class colors for players if class color option is turned on
+				r, g, b = classColor.r, classColor.g, classColor.b;
+			elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
+				-- Use grey if not a player and can't get tap on unit
+				r, g, b = 0.1, 0.1, 0.1;
+			elseif ( frame.optionTable.colorHealthBySelection ) then
+				-- Use color based on the type of unit (neutral, etc.)
+				if ( frame.optionTable.considerSelectionInCombatAsHostile and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) ) then
+                    local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
+                    if isTanking and threatStatus then
+                        if threatStatus >= 3 then
+                            r, g, b = 0.0, 1.0, 0.0;
+                        elseif threatStatus == 2 then
+                            r, g, b = 1.0, 0.6, 0.2;
+                        end
+                    else
+                        r, g, b = 1.0, 0.0, 0.0;
+                    end
+                else
+					r, g, b = UnitSelectionColor(frame.unit, frame.optionTable.colorHealthWithExtendedColors);
+				end
+			elseif ( UnitIsFriend("player", frame.unit) ) then
+				r, g, b = 0.0, 1.0, 0.0;
+			else
+				r, g, b = 1.0, 0.0, 0.0;
+			end
+		end
+	end
+	if ( r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b ) then
+		frame.healthBar:SetStatusBarColor(r, g, b);
+
+		if (frame.optionTable.colorHealthWithExtendedColors) then
+			frame.selectionHighlight:SetVertexColor(r, g, b);
+		else
+			frame.selectionHighlight:SetVertexColor(1, 1, 1);
+		end
+		
+		frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b;
+	end
+end
+hooksecurefunc('CompactUnitFrame_UpdateHealthColor',UpdateHealthColor)
