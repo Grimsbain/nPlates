@@ -254,7 +254,9 @@ hooksecurefunc('CompactUnitFrame_UpdateName', UpdateName)
 
 local function UpdateBorder(frame)
     local r,g,b = frame.healthBar:GetStatusBarColor()
-    frame.healthBar.Overlay:SetVertexColor(r,g,b)
+    if frame.healthBar.Overlay then
+        frame.healthBar.Overlay:SetVertexColor(r,g,b)
+    end
 end
 hooksecurefunc('CompactUnitFrame_UpdateHealthBorder',UpdateBorder)
 
