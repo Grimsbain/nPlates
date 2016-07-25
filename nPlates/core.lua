@@ -49,16 +49,6 @@ local function UpdateHealthText(frame)
     end
 end
 
-    -- Tank Role/Spec Check
-
-local function IsTank()
-    local assignedRole = UnitGroupRolesAssigned('player')
-    if assignedRole == 'TANK' then return true end
-    local role = GetSpecializationRole(GetSpecialization())
-    if role == 'TANK' then return true end
-    return false
-end
-
     -- Setup Frames
 
 local function SetupNamePlate(frame, setupOptions, frameOptions)
@@ -144,7 +134,7 @@ local function UpdateName(frame)
         frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\ClassIcon_'..class)
     end
 
-    if not cfg.enableTankMode and not IsTank() then return end
+    if not cfg.colorNameWithThreat then return end
     local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
     if isTanking and threatStatus then
         if threatStatus >= 3 then
