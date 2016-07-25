@@ -38,7 +38,6 @@ local function UpdateHealthText(frame)
     local health = UnitHealth(frame.displayedUnit)
     local maxHealth = UnitHealthMax(frame.displayedUnit)
     local perc = (health/maxHealth)*100
-    frame.healthBar.healthString:SetText('')
 
     if (perc >= 100 and health > 5 and cfg.showFullHP) then
         frame.healthBar.healthString:SetFormattedText('%s', FormatValue(health))
@@ -123,7 +122,7 @@ local function UpdateName(frame)
 
         -- Shorten Long Names
 
-    local newName = GetUnitName(frame.unit, true)
+    local newName = GetUnitName(frame.unit, showServerName)
     if (cfg.abbrevLongNames) then
         newName = (len(newName) > 20) and gsub(newName, '%s?(.[\128-\191]*)%S+%s', '%1. ') or newName
     end
@@ -137,7 +136,7 @@ local function UpdateName(frame)
         local levelColor = RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
 
         if (targetLevel == -1) then
-            frame.name:SetText(GetUnitName(frame.unit, true))
+            frame.name:SetText(newName)
         else
             frame.name:SetText('|cffffff00|r'..levelColor..targetLevel..'|r '..newName)
         end

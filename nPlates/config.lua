@@ -6,5 +6,6 @@ nPlates.Config = {
 
     showFullHP = true,
     showLevel = true,
+    showServerName = false,
     abbrevLongNames = false,
 }
