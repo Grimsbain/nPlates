@@ -2,6 +2,9 @@
 local _, nPlates = ...
 local cfg = nPlates.Config
 
+local len = string.len
+local gsub = string.gsub
+
 local texturePath = 'Interface\\AddOns\\nPlates\\media\\'
 local iconOverlay = texturePath..'textureIconOverlay'
 
@@ -49,10 +52,10 @@ end
     -- Tank Role/Spec Check
 
 local function IsTank()
-    local assignedRole = UnitGroupRolesAssigned("player")
-    if assignedRole == "TANK" then return true end
+    local assignedRole = UnitGroupRolesAssigned('player')
+    if assignedRole == 'TANK' then return true end
     local role = GetSpecializationRole(GetSpecialization())
-    if role == "TANK" then return true end
+    if role == 'TANK' then return true end
     return false
 end
 
@@ -80,48 +83,59 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
     frame.castBar:CreateBeautyBorder(4)
     frame.castBar:SetBeautyBorderPadding(1)
     frame.castBar:SetBeautyShadowColor(0,0,0)
-
-    frame.castBar.Icon:SetSize(20,20)
+    
+    frame.castBar.Icon:SetSize(21,21)
     frame.castBar.Icon:ClearAllPoints()
-    frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4, 0)
+    frame.castBar.Icon:SetPoint('BOTTOMLEFT', frame.castBar, 'BOTTOMRIGHT', 4, .5)
     frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
-    frame.castBar.Icon.Background = frame.castBar:CreateTexture('$parentIconBackground', 'BACKGROUND', nil, 7)
+    frame.castBar.Icon.Background = frame.castBar:CreateTexture('$parentIconBackground', 'BACKGROUND')
     frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     frame.castBar.Icon.Background:ClearAllPoints()
     frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
 
-    frame.castBar.Icon.Overlay = frame.castBar:CreateTexture('$parentIconGlow', 'OVERLAY', nil, 7)
+    frame.castBar.Icon.Overlay = frame.castBar:CreateTexture('$parentIconOverlay', 'OVERLAY', nil, 7)
     frame.castBar.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
     frame.castBar.Icon.Overlay:ClearAllPoints()
-    frame.castBar.Icon.Overlay:SetPoint('TOPRIGHT', frame.castBar.Icon, 1.85, 1.85)
-    frame.castBar.Icon.Overlay:SetPoint('BOTTOMLEFT', frame.castBar.Icon, -1.85, -1.85)
+    frame.castBar.Icon.Overlay:SetPoint('TOPRIGHT', frame.castBar.Icon, 2.5, 2.5)
+    frame.castBar.Icon.Overlay:SetPoint('BOTTOMLEFT', frame.castBar.Icon, -2.5, -2.5)
     frame.castBar.Icon.Overlay:SetTexture(iconOverlay)
-    frame.castBar.Icon.Overlay:SetVertexColor(.8,.8,.8)
+    frame.castBar.Icon.Overlay:SetVertexColor(.5,.5,.5)
 
     ClassNameplateManaBarFrame:CreateBeautyBorder(4)
     ClassNameplateManaBarFrame:SetBeautyBorderPadding(0)
     ClassNameplateManaBarFrame:SetBeautyShadowColor(0,0,0)
 
 end
-hooksecurefunc("DefaultCompactNamePlateFrameSetupInternal", SetupNamePlate)
+hooksecurefunc('DefaultCompactNamePlateFrameSetupInternal', SetupNamePlate)
 
     -- Update Name
 
 local function UpdateName(frame)
 
-    local playerLevel = UnitLevel ("player")
-    local targetLevel = UnitLevel(frame.displayedUnit)
-    local difficultyColor = GetRelativeDifficultyColor(playerLevel, targetLevel)
-    local levelColor = RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
-
-    if (targetLevel == -1) then
-        frame.name:SetText(GetUnitName(frame.unit, true));
-    else
-        frame.name:SetText('|cffffff00|r'..levelColor..targetLevel..'|r '..GetUnitName(frame.unit, true));
+    local newName = GetUnitName(frame.unit, true)
+    if (cfg.abbrevLongNames) then
+        newName = (len(newName) > 20) and gsub(newName, '%s?(.[\128-\191]*)%S+%s', '%1. ') or newName
     end
 
-        -- Backup Icon Texture
+        -- Level
+
+    if cfg.showLevel then
+        local playerLevel = UnitLevel('player')
+        local targetLevel = UnitLevel(frame.displayedUnit)
+        local difficultyColor = GetRelativeDifficultyColor(playerLevel, targetLevel)
+        local levelColor = RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
+
+        if (targetLevel == -1) then
+            frame.name:SetText(GetUnitName(frame.unit, true));
+        else
+            frame.name:SetText('|cffffff00|r'..levelColor..targetLevel..'|r '..newName)
+        end
+    else
+        frame.name:SetText(newName)
+    end
+
+        -- Backup Icon Textures
 
     local _,class = UnitClass(frame.displayedUnit)
     if not class then
@@ -131,7 +145,7 @@ local function UpdateName(frame)
     end
 
     if not cfg.enableTankMode and not IsTank() then return end
-    local isTanking, threatStatus = UnitDetailedThreatSituation("player", frame.displayedUnit)
+    local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
     if isTanking and threatStatus then
         if threatStatus >= 3 then
             frame.name:SetTextColor(0,1,0)
@@ -141,4 +155,4 @@ local function UpdateName(frame)
     end
 
 end
-hooksecurefunc("CompactUnitFrame_UpdateName", UpdateName)
+hooksecurefunc('CompactUnitFrame_UpdateName', UpdateName)

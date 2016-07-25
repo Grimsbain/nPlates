@@ -2,13 +2,9 @@
 local _, nPlates = ...
 
 nPlates.Config = {
-    enableTankMode = true,              -- Color the nameplate threat border green, if you have no aggro
-    --colorNameWithThreat = true,         -- The name has the same color as the threat of the unit (better visibility)
+    enableTankMode = true,              -- Colors name by threat. Green = Tank, Orange = Loosing Threat
 
     showFullHP = true,
-    --showLevel = true,
-    --showTargetBorder = false,
-    --showEliteBorder = true,
-    --showTotemIcon = true,
-    --abbrevLongNames = false,
+    showLevel = true,
+    abbrevLongNames = true,
 }
