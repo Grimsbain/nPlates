@@ -54,7 +54,7 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
 
         -- Name
 
-    frame.name:SetFont('Fonts\\ARIALN.ttf', 10, 'OUTLINE')
+    frame.name:SetFont('Fonts\\ARIALN.ttf', 11, 'OUTLINE')
 
         -- Healthbar
 
