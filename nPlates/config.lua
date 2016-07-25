@@ -6,5 +6,5 @@ nPlates.Config = {
 
     showFullHP = true,
     showLevel = true,
-    abbrevLongNames = true,
+    abbrevLongNames = false,
 }
