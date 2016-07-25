@@ -202,7 +202,7 @@ local function UpdateName(frame)
 
         -- Shorten Long Names
 
-    local newName = GetUnitName(frame.displayedUnit, showServerName) or 'Unknown'
+    local newName = GetUnitName(frame.displayedUnit, cfg.showServerName) or 'Unknown'
     if (cfg.abbrevLongNames) then
         newName = (len(newName) > 20) and gsub(newName, '%s?(.[\128-\191]*)%S+%s', '%1. ') or newName
     end
