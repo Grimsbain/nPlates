@@ -53,17 +53,9 @@ end
 local function UpdateCastbarTime(frame)
     if ( frame.unit ) then
         if ( frame.castBar.casting ) then
-            local _, _, _, _, startTime = UnitCastingInfo(frame.unit);
-            if ( startTime ) then
-                frame.castBar.value = (GetTime() - (startTime / 1000));
-                frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.maxValue - frame.castBar.value)
-            end
+            frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.maxValue - frame.castBar.value)
         else
-            local _, _, _, _, _, endTime = UnitChannelInfo(frame.unit);
-            if ( endTime ) then
-                frame.castBar.value = (GetTime() - (endTime / 1000));
-                frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.value)
-            end
+            frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.value)
         end
     end
 end
@@ -110,7 +102,7 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         -- Spell Name
 
     frame.castBar.Text:ClearAllPoints()
-    frame.castBar.Text:SetFont('Fonts\\ARIALN.ttf', 9)
+    frame.castBar.Text:SetFont('Fonts\\ARIALN.ttf', 8)
     frame.castBar.Text:SetShadowOffset(1, -1)
     frame.castBar.Text:SetPoint('LEFT',frame.castBar, 'LEFT',3,0)
 
@@ -119,7 +111,7 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
     if (not frame.castBar.CastTime) then
         frame.castBar.CastTime = frame.castBar:CreateFontString(nil, 'OVERLAY')
         frame.castBar.CastTime:SetPoint('RIGHT', frame.castBar, -1.6666667, 0)
-        frame.castBar.CastTime:SetFont('Fonts\\ARIALN.ttf', 10)
+        frame.castBar.CastTime:SetFont('Fonts\\ARIALN.ttf', 9)
         frame.castBar.CastTime:SetShadowOffset(1, -1)
     end
 
