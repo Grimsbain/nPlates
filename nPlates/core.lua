@@ -105,12 +105,13 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         -- BorderShield
 
     frame.castBar.BorderShield:ClearAllPoints()
-    frame.castBar.BorderShield:SetPoint('CENTER',frame.castBar,'LEFT',-2,0)
+    frame.castBar.BorderShield:SetPoint('CENTER',frame.castBar,'LEFT',-2.2,0)
 
         -- Spell Name
 
     frame.castBar.Text:ClearAllPoints()
-    frame.castBar.Text:SetFont('Fonts\\ARIALN.ttf', 8, 'OUTLINE')
+    frame.castBar.Text:SetFont('Fonts\\ARIALN.ttf', 9)
+    frame.castBar.Text:SetShadowOffset(1, -1)
     frame.castBar.Text:SetPoint('LEFT',frame.castBar, 'LEFT',3,0)
 
         -- Set Castbar Timer
@@ -118,7 +119,8 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
     if (not frame.castBar.CastTime) then
         frame.castBar.CastTime = frame.castBar:CreateFontString(nil, 'OVERLAY')
         frame.castBar.CastTime:SetPoint('RIGHT', frame.castBar, -1.6666667, 0)
-        frame.castBar.CastTime:SetFont('Fonts\\ARIALN.ttf', 10, 'OUTLINE')
+        frame.castBar.CastTime:SetFont('Fonts\\ARIALN.ttf', 10)
+        frame.castBar.CastTime:SetShadowOffset(1, -1)
     end
 
     frame.castBar:SetScript('OnValueChanged', function()
