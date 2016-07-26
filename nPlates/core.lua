@@ -43,6 +43,11 @@ local function FormatValue(number)
     end
 end
 
+function IsUsingLargerNamePlateStyle()
+	local namePlateVerticalScale = tonumber(GetCVar('NamePlateVerticalScale'))
+	return namePlateVerticalScale > 1.0
+end
+
     -- Updated Health Text
 
 local function UpdateHealthText(frame)
@@ -87,8 +92,8 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
     frame.healthBar:SetHeight(12)
 
     frame.healthBar:ClearAllPoints()
-    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.5);
-    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.5);
+    frame.healthBar:SetPoint('BOTTOMLEFT', frame.castBar, 'TOPLEFT', 0, 4.5)
+    frame.healthBar:SetPoint('BOTTOMRIGHT', frame.castBar, 'TOPRIGHT', 0, 4.5)
 
         -- Healthbar Overlay
 
@@ -179,7 +184,7 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
     frame:SetScript('OnSizeChanged', function()
         frame.healthBar.Overlay:ClearAllPoints()
         frame.castBar.Overlay:ClearAllPoints()
-        if tonumber(GetCVar("NamePlateVerticalScale")) == 1 then
+        if not IsUsingLargerNamePlateStyle() then
             frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 29, 5.66666667)
             frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -30, -5.66666667)
 
@@ -264,57 +269,113 @@ hooksecurefunc('CompactUnitFrame_UpdateHealthBorder',UpdateBorder)
 
 local function UpdateHealthColor(frame)
     if not cfg.enableTankMode then return end
-	local r, g, b;
-	if ( not UnitIsConnected(frame.unit) ) then
-		--Color it gray
-		r, g, b = 0.5, 0.5, 0.5;
-	else
-		if ( frame.optionTable.healthBarColorOverride ) then
-			local healthBarColorOverride = frame.optionTable.healthBarColorOverride;
-			r, g, b = healthBarColorOverride.r, healthBarColorOverride.g, healthBarColorOverride.b;
-		else
-			--Try to color it by class.
-			local localizedClass, englishClass = UnitClass(frame.unit);
-			local classColor = RAID_CLASS_COLORS[englishClass];
-			if ( UnitIsPlayer(frame.unit) and classColor and frame.optionTable.useClassColors ) then
-				-- Use class colors for players if class color option is turned on
-				r, g, b = classColor.r, classColor.g, classColor.b;
-			elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
-				-- Use grey if not a player and can't get tap on unit
-				r, g, b = 0.1, 0.1, 0.1;
-			elseif ( frame.optionTable.colorHealthBySelection ) then
-				-- Use color based on the type of unit (neutral, etc.)
-				if ( frame.optionTable.considerSelectionInCombatAsHostile and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) ) then
+    local r, g, b
+    if ( not UnitIsConnected(frame.unit) ) then
+        --Color it gray
+        r, g, b = 0.5, 0.5, 0.5
+    else
+        if ( frame.optionTable.healthBarColorOverride ) then
+            local healthBarColorOverride = frame.optionTable.healthBarColorOverride
+            r, g, b = healthBarColorOverride.r, healthBarColorOverride.g, healthBarColorOverride.b
+        else
+            --Try to color it by class.
+            local localizedClass, englishClass = UnitClass(frame.unit)
+            local classColor = RAID_CLASS_COLORS[englishClass]
+            if ( UnitIsPlayer(frame.unit) and classColor and frame.optionTable.useClassColors ) then
+                -- Use class colors for players if class color option is turned on
+                r, g, b = classColor.r, classColor.g, classColor.b
+            elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
+                -- Use grey if not a player and can't get tap on unit
+                r, g, b = 0.1, 0.1, 0.1
+            elseif ( frame.optionTable.colorHealthBySelection ) then
+                -- Use color based on the type of unit (neutral, etc.)
+                if ( frame.optionTable.considerSelectionInCombatAsHostile and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) ) then
                     local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
                     if isTanking and threatStatus then
                         if threatStatus >= 3 then
-                            r, g, b = 0.0, 1.0, 0.0;
+                            r, g, b = 0.0, 1.0, 0.0
                         elseif threatStatus == 2 then
-                            r, g, b = 1.0, 0.6, 0.2;
+                            r, g, b = 1.0, 0.6, 0.2
                         end
                     else
-                        r, g, b = 1.0, 0.0, 0.0;
+                        r, g, b = 1.0, 0.0, 0.0
                     end
                 else
-					r, g, b = UnitSelectionColor(frame.unit, frame.optionTable.colorHealthWithExtendedColors);
-				end
-			elseif ( UnitIsFriend("player", frame.unit) ) then
-				r, g, b = 0.0, 1.0, 0.0;
-			else
-				r, g, b = 1.0, 0.0, 0.0;
-			end
-		end
-	end
-	if ( r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b ) then
-		frame.healthBar:SetStatusBarColor(r, g, b);
+                    r, g, b = UnitSelectionColor(frame.unit, frame.optionTable.colorHealthWithExtendedColors)
+                end
+            elseif ( UnitIsFriend('player', frame.unit) ) then
+                r, g, b = 0.0, 1.0, 0.0
+            else
+                r, g, b = 1.0, 0.0, 0.0
+            end
+        end
+    end
+    if ( r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b ) then
+        frame.healthBar:SetStatusBarColor(r, g, b)
 
-		if (frame.optionTable.colorHealthWithExtendedColors) then
-			frame.selectionHighlight:SetVertexColor(r, g, b);
-		else
-			frame.selectionHighlight:SetVertexColor(1, 1, 1);
-		end
-		
-		frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b;
-	end
+        if (frame.optionTable.colorHealthWithExtendedColors) then
+            frame.selectionHighlight:SetVertexColor(r, g, b)
+        else
+            frame.selectionHighlight:SetVertexColor(1, 1, 1)
+        end
+
+        frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b
+    end
 end
 hooksecurefunc('CompactUnitFrame_UpdateHealthColor',UpdateHealthColor)
+
+    -- Fix for broken Blizzard function.
+
+function DebuffOffsets(self)
+    local showSelf = GetCVarBool('nameplateShowSelf')
+	local targetMode = GetCVarBool('nameplateResourceOnTarget')
+	if showSelf and targetMode then
+        if self.driverFrame:IsUsingLargerNamePlateStyle() then
+            self.UnitFrame.BuffFrame:SetBaseYOffset(0)
+        else
+            self.UnitFrame.BuffFrame:SetBaseYOffset(0)
+        end
+    end
+	if showSelf and targetMode then
+		self.UnitFrame.BuffFrame:SetTargetYOffset(18)
+	else
+		self.UnitFrame.BuffFrame:SetTargetYOffset(0)
+	end
+end
+hooksecurefunc(NamePlateBaseMixin,'ApplyOffsets',DebuffOffsets)
+
+    -- Move Nameplate Debuff Frames
+
+function DebuffAnchor(self)
+    local showSelf = GetCVarBool('nameplateShowSelf')
+    local targetMode = GetCVarBool('nameplateResourceOnTarget') 
+    local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, 'target')
+    local targetYOffset = self:GetBaseYOffset() + (isTarget and self:GetTargetYOffset() or 0.0)
+    
+        -- Check for large nameplates.
+
+    if IsUsingLargerNamePlateStyle() then
+        -- Check if nameplate is showing name.
+        if (self:GetParent().unit and ShouldShowName(self:GetParent())) then
+            -- Check if personal resources are on.
+            if showSelf and targetMode then
+                self:SetPoint('BOTTOM', self:GetParent(), 'TOP', 0, 7)
+            else
+                self:SetPoint('BOTTOM', self:GetParent().healthBar, 'TOP', 0, targetYOffset)
+            end
+        else
+            self:SetPoint('BOTTOM', self:GetParent().healthBar, 'TOP', 0, 5)
+        end
+    else
+        if (self:GetParent().unit and ShouldShowName(self:GetParent())) then
+            if showSelf and targetMode then
+                self:SetPoint('BOTTOM', self:GetParent(), 'TOP', 0, targetYOffset+8)
+            else
+                self:SetPoint('BOTTOM', self:GetParent(), 'TOP', 0, targetYOffset+5)
+            end
+        else
+            self:SetPoint('BOTTOM', self:GetParent().healthBar, 'TOP', 0, targetYOffset+5)
+        end
+    end
+end
+hooksecurefunc(NameplateBuffContainerMixin,'UpdateAnchor',DebuffAnchor)
