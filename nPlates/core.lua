@@ -8,18 +8,10 @@ local gsub = string.gsub
 local texturePath = 'Interface\\AddOns\\nPlates\\media\\'
 local iconOverlay = texturePath..'textureIconOverlay'
 local overlayTexture = texturePath..'textureOverlay'
+local statusBar = texturePath..'UI-StatusBar'
 
 local borderColor = {0.47, 0.47, 0.47}
-
 DefaultCompactNamePlateEnemyFrameOptions.selectedBorderColor = CreateColor(0, 0, 0, .55)
-
-local function GetUnitReaction(r, g, b)
-    if (g + b == 0) then
-        return true
-    end
-
-    return false
-end
 
 local function RGBHex(r, g, b)
     if (type(r) == 'table') then
@@ -43,9 +35,82 @@ local function FormatValue(number)
     end
 end
 
+    -- Totem Data and Functions
+
+local function TotemName(SpellID)
+    local name = GetSpellInfo(SpellID)
+    return name
+end
+
+local totemData = {
+    [TotemName(192058)] = 'Interface\\Icons\\spell_nature_brilliance',          -- Lightning Surge Totem
+    [TotemName(98008)]  = 'Interface\\Icons\\spell_shaman_spiritlink',          -- Spirit Link Totem
+    [TotemName(192077)] = 'Interface\\Icons\\ability_shaman_windwalktotem',     -- Wind Rush Totem
+    [TotemName(204331)] = 'Interface\\Icons\\spell_nature_wrathofair_totem',    -- Counterstrike Totem
+    [TotemName(204332)] = 'Interface\\Icons\\spell_nature_windfury',            -- Windfury Totem
+    [TotemName(204336)] = 'Interface\\Icons\\spell_nature_groundingtotem',      -- Grounding Totem
+    -- Water
+    [TotemName(157153)] = 'Interface\\Icons\\ability_shaman_condensationtotem', -- Cloudburst Totem
+    [TotemName(5394)]   = 'Interface\\Icons\\INV_Spear_04',                     -- Healing Stream Totem
+    [TotemName(108280)] = 'Interface\\Icons\\ability_shaman_healingtide',       -- Healing Tide Totem
+    -- Earth
+    [TotemName(207399)] = 'Interface\\Icons\\spell_nature_reincarnation',       -- Ancestral Protection Totem
+    [TotemName(198838)] = 'Interface\\Icons\\spell_nature_stoneskintotem',      -- Earthen Shield Totem
+    [TotemName(51485)]  = 'Interface\\Icons\\spell_nature_stranglevines',       -- Earthgrab Totem
+    [TotemName(61882)]  = 'Interface\\Icons\\spell_shaman_earthquake',          -- Earthquake Totem
+    [TotemName(196932)] = 'Interface\\Icons\\spell_totem_wardofdraining',       -- Voodoo Totem
+    -- Fire
+    [TotemName(192222)] = 'Interface\\Icons\\spell_shaman_spewlava',            -- Liquid Magma Totem
+    [TotemName(204330)] = 'Interface\\Icons\\spell_fire_totemofwrath',          -- Skyfury Totem
+    -- Totem Mastery
+    [TotemName(202188)] = 'Interface\\Icons\\spell_nature_stoneskintotem',      -- Resonance Totem
+    [TotemName(210651)] = 'Interface\\Icons\\spell_shaman_stormtotem',          -- Storm Totem
+    [TotemName(210657)] = 'Interface\\Icons\\spell_fire_searingtotem',          -- Ember Totem
+    [TotemName(210660)] = 'Interface\\Icons\\spell_nature_invisibilitytotem',   -- Tailwind Totem
+}
+
+local function UpdateTotemIcon(frame)
+    local name = UnitName(frame.displayedUnit)
+
+    if name == nil then return end
+    if (totemData[name]) then
+        if (not frame.TotemIcon) then
+            frame.TotemIcon = CreateFrame('Frame', '$parentTotem', frame)
+            frame.TotemIcon:EnableMouse(false)
+            frame.TotemIcon:SetSize(24, 24)
+            frame.TotemIcon:SetPoint('BOTTOM', frame.BuffFrame, 'TOP', 0, 10)
+            frame.TotemIcon:Show()
+        end
+
+        if (not frame.TotemIcon.Icon) then
+            frame.TotemIcon.Icon = frame.TotemIcon:CreateTexture('$parentIcon','BACKGROUND')
+            frame.TotemIcon.Icon:SetSize(24,24)
+            frame.TotemIcon.Icon:SetAllPoints(frame.TotemIcon)
+            frame.TotemIcon.Icon:SetTexture(totemData[name])
+            frame.TotemIcon.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+        end
+
+        if (not frame.TotemIcon.Icon.Overlay) then
+            frame.TotemIcon.Icon.Overlay = frame.TotemIcon:CreateTexture('$parentOverlay', 'OVERLAY')
+            frame.TotemIcon.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
+            frame.TotemIcon.Icon.Overlay:ClearAllPoints()
+            frame.TotemIcon.Icon.Overlay:SetPoint('TOPRIGHT', frame.TotemIcon.Icon, 2.5, 2.5)
+            frame.TotemIcon.Icon.Overlay:SetPoint('BOTTOMLEFT', frame.TotemIcon.Icon, -2.5, -2.5)
+            frame.TotemIcon.Icon.Overlay:SetTexture(iconOverlay)
+            frame.TotemIcon.Icon.Overlay:SetVertexColor(unpack(borderColor))
+        end
+    else
+        if (frame.TotemIcon) then
+            frame.TotemIcon:Hide()
+        end
+    end
+end
+
+    -- Check for 'Larger Nameplates'
+
 function IsUsingLargerNamePlateStyle()
-	local namePlateVerticalScale = tonumber(GetCVar('NamePlateVerticalScale'))
-	return namePlateVerticalScale > 1.0
+    local namePlateVerticalScale = tonumber(GetCVar('NamePlateVerticalScale'))
+    return namePlateVerticalScale > 1.0
 end
 
     -- Updated Health Text
@@ -74,7 +139,8 @@ local function UpdateCastbar(frame)
             frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.value)
         end
 
-        local r, g, b = frame.name:GetTextColor()
+        local r, g, b = frame.healthBar:GetStatusBarColor()
+        frame.castBar.Overlay:SetVertexColor(r,g,b)
         frame.castBar.Icon.Overlay:SetVertexColor(r, g, b)
     end
 end
@@ -94,6 +160,7 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
     frame.healthBar:ClearAllPoints()
     frame.healthBar:SetPoint('BOTTOMLEFT', frame.castBar, 'TOPLEFT', 0, 4.5)
     frame.healthBar:SetPoint('BOTTOMRIGHT', frame.castBar, 'TOPRIGHT', 0, 4.5)
+    frame.healthBar:SetStatusBarTexture(statusBar)
 
         -- Healthbar Overlay
 
@@ -120,6 +187,7 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         -- Castbar
 
     frame.castBar:SetHeight(12)
+    frame.castBar:SetStatusBarTexture(statusBar)
 
     if not frame.castBar.Overlay then
         frame.castBar.Overlay = frame.castBar:CreateTexture('$parentOverlay', 'BORDER')
@@ -204,6 +272,19 @@ hooksecurefunc('DefaultCompactNamePlateFrameSetupInternal', SetupNamePlate)
     -- Update Name
 
 local function UpdateName(frame)
+
+        -- Totem Icon
+
+    if cfg.showTotemIcon then
+        UpdateTotemIcon(frame)
+    end
+
+        -- Friendly Nameplate Class Color
+
+    if cfg.alwaysUseClassColors then
+        frame.name:SetTextColor(frame.healthBar:GetStatusBarColor())
+        DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = true
+    end
 
         -- Shorten Long Names
 
@@ -328,19 +409,19 @@ hooksecurefunc('CompactUnitFrame_UpdateHealthColor',UpdateHealthColor)
 
 function DebuffOffsets(self)
     local showSelf = GetCVarBool('nameplateShowSelf')
-	local targetMode = GetCVarBool('nameplateResourceOnTarget')
-	if showSelf and targetMode then
+    local targetMode = GetCVarBool('nameplateResourceOnTarget')
+    if showSelf and targetMode then
         if self.driverFrame:IsUsingLargerNamePlateStyle() then
             self.UnitFrame.BuffFrame:SetBaseYOffset(0)
         else
             self.UnitFrame.BuffFrame:SetBaseYOffset(0)
         end
     end
-	if showSelf and targetMode then
-		self.UnitFrame.BuffFrame:SetTargetYOffset(18)
-	else
-		self.UnitFrame.BuffFrame:SetTargetYOffset(0)
-	end
+    if showSelf and targetMode then
+        self.UnitFrame.BuffFrame:SetTargetYOffset(18)
+    else
+        self.UnitFrame.BuffFrame:SetTargetYOffset(0)
+    end
 end
 hooksecurefunc(NamePlateBaseMixin,'ApplyOffsets',DebuffOffsets)
 
@@ -348,10 +429,10 @@ hooksecurefunc(NamePlateBaseMixin,'ApplyOffsets',DebuffOffsets)
 
 function DebuffAnchor(self)
     local showSelf = GetCVarBool('nameplateShowSelf')
-    local targetMode = GetCVarBool('nameplateResourceOnTarget') 
+    local targetMode = GetCVarBool('nameplateResourceOnTarget')
     local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, 'target')
     local targetYOffset = self:GetBaseYOffset() + (isTarget and self:GetTargetYOffset() or 0.0)
-    
+
         -- Check for large nameplates.
 
     if IsUsingLargerNamePlateStyle() then
