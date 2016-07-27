@@ -8,7 +8,9 @@ nPlates.Config = {
 
     -- Use class colors on all player nameplates.
     alwaysUseClassColors = true,
-
+    displaySelectionHighlight = false,
+    showClassificationIndicator = true,
+    
     showFullHP = true,
     showLevel = true,
     showServerName = false,

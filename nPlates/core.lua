@@ -9,10 +9,27 @@ local texturePath = 'Interface\\AddOns\\nPlates\\media\\'
 local statusBar = texturePath..'UI-StatusBar'
 local overlayTexture = texturePath..'textureOverlay'
 local iconOverlay = texturePath..'textureIconOverlay'
-
 local borderColor = {0.47, 0.47, 0.47}
 
-DefaultCompactNamePlateEnemyFrameOptions.selectedBorderColor = CreateColor(0, 0, 0, .55)
+local groups = {
+  "Friendly",
+  "Enemy",
+}
+
+local options = {
+  displaySelectionHighlight = cfg.displaySelectionHighlight,
+  showClassificationIndicator = cfg.showClassificationIndicator,
+
+  tankBorderColor = false,
+  selectedBorderColor = CreateColor(0, 0, 0, 0.8),
+  defaultBorderColor = CreateColor(0, 0, 0, 0.5),
+}
+
+for i, group  in next, groups do
+  for key, value in next, options do
+    _G["DefaultCompactNamePlate"..group.."FrameOptions"][key] = value
+  end
+end
 
 local function RGBHex(r, g, b)
     if (type(r) == 'table') then
@@ -34,6 +51,13 @@ local function FormatValue(number)
     else
         return number
     end
+end
+
+    -- Check for 'Larger Nameplates'
+
+function IsUsingLargerNamePlateStyle()
+    local namePlateVerticalScale = tonumber(GetCVar('NamePlateVerticalScale'))
+    return namePlateVerticalScale > 1.0
 end
 
     -- Totem Data and Functions
@@ -107,12 +131,20 @@ local function UpdateTotemIcon(frame)
     end
 end
 
-    -- Check for 'Larger Nameplates'
+    -- Update Border Color
 
-function IsUsingLargerNamePlateStyle()
-    local namePlateVerticalScale = tonumber(GetCVar('NamePlateVerticalScale'))
-    return namePlateVerticalScale > 1.0
+local function UpdateBorder(frame)
+    local r,g,b = frame.healthBar:GetStatusBarColor()
+    if frame.healthBar.Overlay then
+        frame.healthBar.Overlay:SetVertexColor(r,g,b)
+
+        if UnitIsUnit(frame.displayedUnit,'player')then
+            frame.healthBar.Overlay:ClearAllPoints()
+            frame.healthBar.Overlay:SetTexture(nil)
+        end
+    end
 end
+hooksecurefunc('CompactUnitFrame_UpdateHealthBorder',UpdateBorder)
 
     -- Updated Health Text
 
@@ -129,6 +161,65 @@ local function UpdateHealthText(frame)
         frame.healthBar.healthString:SetText('')
     end
 end
+
+    -- Update Health Color
+
+local function UpdateHealthColor(frame)
+    if not cfg.enableTankMode then return end
+    local r, g, b
+    if ( not UnitIsConnected(frame.unit) ) then
+        --Color it gray
+        r, g, b = 0.5, 0.5, 0.5
+    else
+        if ( frame.optionTable.healthBarColorOverride ) then
+            local healthBarColorOverride = frame.optionTable.healthBarColorOverride
+            r, g, b = healthBarColorOverride.r, healthBarColorOverride.g, healthBarColorOverride.b
+        else
+            --Try to color it by class.
+            local localizedClass, englishClass = UnitClass(frame.unit)
+            local classColor = RAID_CLASS_COLORS[englishClass]
+            if ( UnitIsPlayer(frame.unit) and classColor and frame.optionTable.useClassColors ) then
+                -- Use class colors for players if class color option is turned on
+                r, g, b = classColor.r, classColor.g, classColor.b
+            elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
+                -- Use grey if not a player and can't get tap on unit
+                r, g, b = 0.1, 0.1, 0.1
+            elseif ( frame.optionTable.colorHealthBySelection ) then
+                -- Use color based on the type of unit (neutral, etc.)
+                if ( frame.optionTable.considerSelectionInCombatAsHostile and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) ) then
+                    local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
+                    if isTanking and threatStatus then
+                        if threatStatus >= 3 then
+                            r, g, b = 0.0, 1.0, 0.0
+                        elseif threatStatus == 2 then
+                            r, g, b = 1.0, 0.6, 0.2
+                        end
+                    else
+                        r, g, b = 1.0, 0.0, 0.0
+                    end
+                else
+                    r, g, b = UnitSelectionColor(frame.unit, frame.optionTable.colorHealthWithExtendedColors)
+                end
+            elseif ( UnitIsFriend('player', frame.unit) ) then
+                r, g, b = 0.0, 1.0, 0.0
+            else
+                r, g, b = 1.0, 0.0, 0.0
+            end
+        end
+    end
+    if ( r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b ) then
+        frame.healthBar:SetStatusBarColor(r, g, b)
+
+        if (frame.optionTable.colorHealthWithExtendedColors) then
+            frame.selectionHighlight:SetVertexColor(r, g, b)
+        else
+            frame.selectionHighlight:SetVertexColor(1, 1, 1)
+        end
+
+        frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b
+    end
+end
+hooksecurefunc('CompactUnitFrame_UpdateHealthColor',UpdateHealthColor)
 
     -- Update Castbar
 
@@ -286,8 +377,7 @@ hooksecurefunc('DefaultCompactNamePlateFrameSetup', SetupNamePlate)
 
     -- Personal Resource Display
 
-local function PersonalFrame(frame, setupOptions, frameOptions)
-
+local function PersonalFrame(frame)
         -- Healthbar
 
     frame.healthBar:SetHeight(12)
@@ -304,7 +394,7 @@ local function PersonalFrame(frame, setupOptions, frameOptions)
         UpdateHealthText(frame)
     end)
 end
-hooksecurefunc('DefaultCompactNamePlateFrameSetupInternal',PersonalFrame)
+hooksecurefunc('DefaultCompactNamePlatePlayerFrameSetup',PersonalFrame)
 
     -- Update Name
 
@@ -361,80 +451,6 @@ local function UpdateName(frame)
     end
 end
 hooksecurefunc('CompactUnitFrame_UpdateName', UpdateName)
-
-    -- Update Border Color
-
-local function UpdateBorder(frame)
-    local r,g,b = frame.healthBar:GetStatusBarColor()
-    if frame.healthBar.Overlay then
-        frame.healthBar.Overlay:SetVertexColor(r,g,b)
-
-        if UnitIsUnit(frame.displayedUnit,'player')then
-            frame.healthBar.Overlay:ClearAllPoints()
-            frame.healthBar.Overlay:SetTexture(nil)
-        end
-    end
-end
-hooksecurefunc('CompactUnitFrame_UpdateHealthBorder',UpdateBorder)
-
-    -- Update Health Color
-
-local function UpdateHealthColor(frame)
-    if not cfg.enableTankMode then return end
-    local r, g, b
-    if ( not UnitIsConnected(frame.unit) ) then
-        --Color it gray
-        r, g, b = 0.5, 0.5, 0.5
-    else
-        if ( frame.optionTable.healthBarColorOverride ) then
-            local healthBarColorOverride = frame.optionTable.healthBarColorOverride
-            r, g, b = healthBarColorOverride.r, healthBarColorOverride.g, healthBarColorOverride.b
-        else
-            --Try to color it by class.
-            local localizedClass, englishClass = UnitClass(frame.unit)
-            local classColor = RAID_CLASS_COLORS[englishClass]
-            if ( UnitIsPlayer(frame.unit) and classColor and frame.optionTable.useClassColors ) then
-                -- Use class colors for players if class color option is turned on
-                r, g, b = classColor.r, classColor.g, classColor.b
-            elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
-                -- Use grey if not a player and can't get tap on unit
-                r, g, b = 0.1, 0.1, 0.1
-            elseif ( frame.optionTable.colorHealthBySelection ) then
-                -- Use color based on the type of unit (neutral, etc.)
-                if ( frame.optionTable.considerSelectionInCombatAsHostile and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) ) then
-                    local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
-                    if isTanking and threatStatus then
-                        if threatStatus >= 3 then
-                            r, g, b = 0.0, 1.0, 0.0
-                        elseif threatStatus == 2 then
-                            r, g, b = 1.0, 0.6, 0.2
-                        end
-                    else
-                        r, g, b = 1.0, 0.0, 0.0
-                    end
-                else
-                    r, g, b = UnitSelectionColor(frame.unit, frame.optionTable.colorHealthWithExtendedColors)
-                end
-            elseif ( UnitIsFriend('player', frame.unit) ) then
-                r, g, b = 0.0, 1.0, 0.0
-            else
-                r, g, b = 1.0, 0.0, 0.0
-            end
-        end
-    end
-    if ( r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b ) then
-        frame.healthBar:SetStatusBarColor(r, g, b)
-
-        if (frame.optionTable.colorHealthWithExtendedColors) then
-            frame.selectionHighlight:SetVertexColor(r, g, b)
-        else
-            frame.selectionHighlight:SetVertexColor(1, 1, 1)
-        end
-
-        frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b
-    end
-end
-hooksecurefunc('CompactUnitFrame_UpdateHealthColor',UpdateHealthColor)
 
     -- Fix for broken Blizzard function.
 
