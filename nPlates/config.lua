@@ -14,5 +14,5 @@ nPlates.Config = {
     showServerName = false,
     abbrevLongNames = false,
 
-    showTotemIcon = false, -- May be buggy.
+    showTotemIcon = false,
 }

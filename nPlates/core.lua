@@ -6,11 +6,12 @@ local len = string.len
 local gsub = string.gsub
 
 local texturePath = 'Interface\\AddOns\\nPlates\\media\\'
-local iconOverlay = texturePath..'textureIconOverlay'
-local overlayTexture = texturePath..'textureOverlay'
 local statusBar = texturePath..'UI-StatusBar'
+local overlayTexture = texturePath..'textureOverlay'
+local iconOverlay = texturePath..'textureIconOverlay'
 
 local borderColor = {0.47, 0.47, 0.47}
+
 DefaultCompactNamePlateEnemyFrameOptions.selectedBorderColor = CreateColor(0, 0, 0, .55)
 
 local function RGBHex(r, g, b)
@@ -143,11 +144,24 @@ local function UpdateCastbar(frame)
         frame.castBar.Overlay:SetVertexColor(r,g,b)
         frame.castBar.Icon.Overlay:SetVertexColor(r, g, b)
     end
+
+        -- Backup Icon Textures
+
+    if frame.castBar.Icon.Background then
+        local _,class = UnitClass(frame.displayedUnit)
+        if frame.castBar then
+            if not class then
+                frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\Ability_DualWield')
+            else
+                frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\ClassIcon_'..class)
+            end
+        end
+    end
 end
 
     -- Setup Frames
 
-local function SetupNamePlate(frame, setupOptions, frameOptions)
+local function SetupNamePlate(frame, options)
 
         -- Name
 
@@ -156,7 +170,6 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         -- Healthbar
 
     frame.healthBar:SetHeight(12)
-
     frame.healthBar:ClearAllPoints()
     frame.healthBar:SetPoint('BOTTOMLEFT', frame.castBar, 'TOPLEFT', 0, 4.5)
     frame.healthBar:SetPoint('BOTTOMRIGHT', frame.castBar, 'TOPRIGHT', 0, 4.5)
@@ -216,10 +229,6 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         frame.castBar.CastTime:SetFont('Fonts\\ARIALN.ttf', 10, 'OUTLINE')
     end
 
-    frame.castBar:SetScript('OnValueChanged', function()
-        UpdateCastbar(frame)
-    end)
-
         -- Castbar Icon
 
     frame.castBar.Icon:SetSize(24,24)
@@ -247,6 +256,12 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         frame.castBar.Icon.Overlay:SetTexture(iconOverlay)
     end
 
+        -- Update Castbar
+
+    frame.castBar:SetScript('OnValueChanged', function()
+        UpdateCastbar(frame)
+    end)
+
         -- Set Healthbar / Castbar Overlay based on current nameplate scale.
 
     frame:SetScript('OnSizeChanged', function()
@@ -267,17 +282,33 @@ local function SetupNamePlate(frame, setupOptions, frameOptions)
         end
     end)
 end
-hooksecurefunc('DefaultCompactNamePlateFrameSetupInternal', SetupNamePlate)
+hooksecurefunc('DefaultCompactNamePlateFrameSetup', SetupNamePlate)
+
+    -- Personal Resource Display
+
+local function PersonalFrame(frame, setupOptions, frameOptions)
+
+        -- Healthbar
+
+    frame.healthBar:SetHeight(12)
+
+        -- Update Health Text
+
+    if (not frame.healthBar.healthString) then
+        frame.healthBar.healthString = frame.healthBar:CreateFontString('$parentHeathValue', 'OVERLAY')
+        frame.healthBar.healthString:SetPoint('CENTER', frame.healthBar, 0, 0)
+        frame.healthBar.healthString:SetFont('Fonts\\ARIALN.ttf', 10, 'OUTLINE')
+    end
+
+    frame.healthBar:SetScript('OnValueChanged', function()
+        UpdateHealthText(frame)
+    end)
+end
+hooksecurefunc('DefaultCompactNamePlateFrameSetupInternal',PersonalFrame)
 
     -- Update Name
 
 local function UpdateName(frame)
-
-        -- Totem Icon
-
-    if cfg.showTotemIcon then
-        UpdateTotemIcon(frame)
-    end
 
         -- Friendly Nameplate Class Color
 
@@ -310,17 +341,6 @@ local function UpdateName(frame)
         frame.name:SetText(newName)
     end
 
-        -- Backup Icon Textures
-
-    local _,class = UnitClass(frame.displayedUnit)
-    if frame.castBar then
-        if not class then
-            frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\Ability_DualWield')
-        else
-            frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\ClassIcon_'..class)
-        end
-    end
-
         -- Color Name To Threat Status
 
     if cfg.colorNameWithThreat then
@@ -333,6 +353,12 @@ local function UpdateName(frame)
             end
         end
     end
+
+        -- Totem Icon
+
+    if cfg.showTotemIcon then
+        UpdateTotemIcon(frame)
+    end
 end
 hooksecurefunc('CompactUnitFrame_UpdateName', UpdateName)
 
@@ -342,6 +368,11 @@ local function UpdateBorder(frame)
     local r,g,b = frame.healthBar:GetStatusBarColor()
     if frame.healthBar.Overlay then
         frame.healthBar.Overlay:SetVertexColor(r,g,b)
+
+        if UnitIsUnit(frame.displayedUnit,'player')then
+            frame.healthBar.Overlay:ClearAllPoints()
+            frame.healthBar.Overlay:SetTexture(nil)
+        end
     end
 end
 hooksecurefunc('CompactUnitFrame_UpdateHealthBorder',UpdateBorder)
