@@ -378,6 +378,7 @@ hooksecurefunc('DefaultCompactNamePlateFrameSetup', SetupNamePlate)
     -- Personal Resource Display
 
 local function PersonalFrame(frame)
+
         -- Healthbar
 
     frame.healthBar:SetHeight(12)
@@ -403,8 +404,10 @@ local function UpdateName(frame)
         -- Friendly Nameplate Class Color
 
     if cfg.alwaysUseClassColors then
-        frame.name:SetTextColor(frame.healthBar:GetStatusBarColor())
-        DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = true
+        if UnitIsPlayer(frame.displayedUnit) then
+            frame.name:SetTextColor(frame.healthBar:GetStatusBarColor())
+            DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = true
+        end
     end
 
         -- Shorten Long Names
