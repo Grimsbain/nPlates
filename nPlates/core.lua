@@ -11,6 +11,8 @@ local overlayTexture = texturePath..'textureOverlay'
 local iconOverlay = texturePath..'textureIconOverlay'
 local borderColor = {0.47, 0.47, 0.47}
 
+    -- Set DefaultCompactNamePlate Options
+
 local groups = {
   "Friendly",
   "Enemy",
@@ -35,6 +37,13 @@ end
 
 C_Timer.After(.1, function()
 	if not InCombatLockdown() then
+        -- Nameplate Scale
+        if cfg.nameplateScale then
+            SetCVar("nameplateGlobalScale", cfg.nameplateScale)
+        else
+            SetCVar("nameplateGlobalScale", GetCVarDefault("nameplateGlobalScale"))
+        end
+        
         -- Sets nameplate non-target alpha.
         if cfg.nameplateMinAlpha then
             SetCVar("nameplateMinAlpha", cfg.nameplateMinAlpha)
@@ -337,7 +346,7 @@ local function SetupNamePlate(frame, options)
 
     frame.castBar.Text:ClearAllPoints()
     frame.castBar.Text:SetFont('Fonts\\ARIALN.ttf', 7.5)
-    frame.castBar.Text:SetShadowOffset(1, -1)
+    frame.castBar.Text:SetShadowOffset(.5, -.5)
     frame.castBar.Text:SetPoint('LEFT',frame.castBar, 'LEFT',4,0)
 
         -- Set Castbar Timer
