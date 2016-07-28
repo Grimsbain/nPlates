@@ -31,6 +31,34 @@ for i, group  in next, groups do
   end
 end
 
+    -- Set CVar Options
+
+C_Timer.After(.1, function()
+	if not InCombatLockdown() then
+        -- Sets nameplate non-target alpha.
+        if cfg.nameplateMinAlpha then
+            SetCVar("nameplateMinAlpha", cfg.nameplateMinAlpha)
+        else
+            SetCVar("nameplateMinAlpha", GetCVarDefault("nameplateMinAlpha"))
+        end
+        
+		-- Makes all nameplates the same size.
+        if cfg.dontZoom then
+            SetCVar("namePlateMinScale", 1)
+        else
+            SetCVar("namePlateMinScale", GetCVarDefault("namePlateMinScale"))
+        end
+        
+        -- Stop nameplates from clamping to screen.
+        if cfg.dontClampToBorder then
+            SetCVar("nameplateOtherTopInset", -1)
+            SetCVar("nameplateOtherBottomInset", -1)
+        else
+            for _, v in pairs({"nameplateOtherTopInset", "nameplateOtherBottomInset"}) do SetCVar(v, GetCVarDefault(v)) end
+        end
+	end
+end)
+
 local function RGBHex(r, g, b)
     if (type(r) == 'table') then
         if (r.r) then
@@ -378,7 +406,11 @@ hooksecurefunc('DefaultCompactNamePlateFrameSetup', SetupNamePlate)
     -- Personal Resource Display
 
 local function PersonalFrame(frame)
-
+    
+        -- Check to see if personal should be skinned.
+    
+    if not cfg.skinPersonalResourceDisplay then return end
+    
         -- Healthbar
 
     frame.healthBar:SetHeight(12)

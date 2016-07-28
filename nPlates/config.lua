@@ -11,6 +11,11 @@ nPlates.Config = {
     displaySelectionHighlight = false,
     showClassificationIndicator = true,
     
+    -- 0 to 1. Default is .5.
+    nameplateMinAlpha = .8,
+    dontClampToBorder = true,
+    dontZoom = false,
+        
     showFullHP = true,
     showLevel = true,
     showServerName = false,
