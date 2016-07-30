@@ -14,63 +14,60 @@ local borderColor = {0.47, 0.47, 0.47}
     -- Set DefaultCompactNamePlate Options
 
 local groups = {
-  "Friendly",
-  "Enemy",
+    'Friendly',
+    'Enemy',
 }
 
 local options = {
-  displaySelectionHighlight = cfg.displaySelectionHighlight,
-  showClassificationIndicator = cfg.showClassificationIndicator,
+    displaySelectionHighlight = cfg.displaySelectionHighlight,
+    showClassificationIndicator = cfg.showClassificationIndicator,
 
-  tankBorderColor = false,
-  selectedBorderColor = CreateColor(0, 0, 0, 0.8),
-  defaultBorderColor = CreateColor(0, 0, 0, 0.5),
+    tankBorderColor = false,
+    selectedBorderColor = false,
+    defaultBorderColor = false,
 }
 
 for i, group  in next, groups do
-  for key, value in next, options do
-    _G["DefaultCompactNamePlate"..group.."FrameOptions"][key] = value
-  end
+    for key, value in next, options do
+        _G['DefaultCompactNamePlate'..group..'FrameOptions'][key] = value
+    end
 end
 
     -- Set CVar Options
 
 C_Timer.After(.1, function()
-	if not InCombatLockdown() then
+    if not InCombatLockdown() then
         -- Nameplate Scale
-        if cfg.nameplateScale then
-            SetCVar("nameplateGlobalScale", cfg.nameplateScale)
+        if ( cfg.nameplateScale ) then
+            SetCVar('nameplateGlobalScale', cfg.nameplateScale)
         else
-            SetCVar("nameplateGlobalScale", GetCVarDefault("nameplateGlobalScale"))
+            SetCVar('nameplateGlobalScale', GetCVarDefault('nameplateGlobalScale'))
         end
-        
+
         -- Sets nameplate non-target alpha.
-        if cfg.nameplateMinAlpha then
-            SetCVar("nameplateMinAlpha", cfg.nameplateMinAlpha)
+        if ( cfg.nameplateMinAlpha ) then
+            SetCVar('nameplateMinAlpha', cfg.nameplateMinAlpha)
         else
-            SetCVar("nameplateMinAlpha", GetCVarDefault("nameplateMinAlpha"))
+            SetCVar('nameplateMinAlpha', GetCVarDefault('nameplateMinAlpha'))
         end
-        
-		-- Makes all nameplates the same size.
-        if cfg.dontZoom then
-            SetCVar("namePlateMinScale", 1)
-        else
-            SetCVar("namePlateMinScale", GetCVarDefault("namePlateMinScale"))
-        end
-        
+
+        -- Set min and max scale. (For performance issues.)
+        SetCVar('namePlateMinScale', 1)
+        SetCVar('namePlateMaxScale', 1)
+
         -- Stop nameplates from clamping to screen.
-        if cfg.dontClampToBorder then
-            SetCVar("nameplateOtherTopInset", -1)
-            SetCVar("nameplateOtherBottomInset", -1)
+        if ( cfg.dontClampToBorder ) then
+            SetCVar('nameplateOtherTopInset', -1)
+            SetCVar('nameplateOtherBottomInset', -1)
         else
-            for _, v in pairs({"nameplateOtherTopInset", "nameplateOtherBottomInset"}) do SetCVar(v, GetCVarDefault(v)) end
+            for _, v in pairs({'nameplateOtherTopInset', 'nameplateOtherBottomInset'}) do SetCVar(v, GetCVarDefault(v)) end
         end
-	end
+    end
 end)
 
 local function RGBHex(r, g, b)
-    if (type(r) == 'table') then
-        if (r.r) then
+    if ( type(r) == 'table' ) then
+        if ( r.r ) then
             r, g, b = r.r, r.g, r.b
         else
             r, g, b = unpack(r)
@@ -81,18 +78,40 @@ local function RGBHex(r, g, b)
 end
 
 local function FormatValue(number)
-    if (number >= 1e6) then
-        return tonumber(format('%.1f', number/1e6))..'m'
-    elseif (number >= 1e3) then
-        return tonumber(format('%.1f', number/1e3))..'k'
-    else
-        return number
+    if number < 1e3 then
+        return floor(number)
+    elseif number >= 1e12 then
+        return string.format('%.3ft', number/1e12)
+    elseif number >= 1e9 then
+        return string.format('%.3fb', number/1e9)
+    elseif number >= 1e6 then
+        return string.format('%.2fm', number/1e6)
+    elseif number >= 1e3 then
+        return string.format('%.1fk', number/1e3)
     end
+end
+
+local function FormatTime(s)
+    if s > 86400 then
+        -- Days
+        return ceil(s/86400) .. 'd', s%86400
+    elseif s >= 3600 then
+        -- Hours
+        return ceil(s/3600) .. 'h', s%3600
+    elseif s >= 60 then
+        -- Minutes
+        return ceil(s/60) .. 'm', s%60
+    elseif s <= 10 then
+        -- Seconds
+        return format('%.1f', s)
+    end
+
+    return floor(s), s - floor(s)
 end
 
     -- Check for 'Larger Nameplates'
 
-function IsUsingLargerNamePlateStyle()
+local function IsUsingLargerNamePlateStyle()
     local namePlateVerticalScale = tonumber(GetCVar('NamePlateVerticalScale'))
     return namePlateVerticalScale > 1.0
 end
@@ -132,6 +151,7 @@ local totemData = {
 }
 
 local function UpdateTotemIcon(frame)
+    if string.match(frame.displayedUnit,'nameplate') ~= 'nameplate' then return end
     local name = UnitName(frame.displayedUnit)
 
     if name == nil then return end
@@ -140,6 +160,7 @@ local function UpdateTotemIcon(frame)
             frame.TotemIcon = CreateFrame('Frame', '$parentTotem', frame)
             frame.TotemIcon:EnableMouse(false)
             frame.TotemIcon:SetSize(24, 24)
+            frame.TotemIcon:Hide()
             frame.TotemIcon:SetPoint('BOTTOM', frame.BuffFrame, 'TOP', 0, 10)
             frame.TotemIcon:Show()
         end
@@ -147,19 +168,23 @@ local function UpdateTotemIcon(frame)
         if (not frame.TotemIcon.Icon) then
             frame.TotemIcon.Icon = frame.TotemIcon:CreateTexture('$parentIcon','BACKGROUND')
             frame.TotemIcon.Icon:SetSize(24,24)
+            frame.TotemIcon.Icon:Hide()
             frame.TotemIcon.Icon:SetAllPoints(frame.TotemIcon)
             frame.TotemIcon.Icon:SetTexture(totemData[name])
             frame.TotemIcon.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+            frame.TotemIcon.Icon:Show()
         end
 
         if (not frame.TotemIcon.Icon.Overlay) then
             frame.TotemIcon.Icon.Overlay = frame.TotemIcon:CreateTexture('$parentOverlay', 'OVERLAY')
             frame.TotemIcon.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
+            frame.TotemIcon.Icon.Overlay:Hide()
             frame.TotemIcon.Icon.Overlay:ClearAllPoints()
             frame.TotemIcon.Icon.Overlay:SetPoint('TOPRIGHT', frame.TotemIcon.Icon, 2.5, 2.5)
             frame.TotemIcon.Icon.Overlay:SetPoint('BOTTOMLEFT', frame.TotemIcon.Icon, -2.5, -2.5)
             frame.TotemIcon.Icon.Overlay:SetTexture(iconOverlay)
             frame.TotemIcon.Icon.Overlay:SetVertexColor(unpack(borderColor))
+            frame.TotemIcon.Icon.Overlay:Show()
         end
     else
         if (frame.TotemIcon) then
@@ -168,67 +193,59 @@ local function UpdateTotemIcon(frame)
     end
 end
 
-    -- Update Border Color
-
-local function UpdateBorder(frame)
-    local r,g,b = frame.healthBar:GetStatusBarColor()
-    if frame.healthBar.Overlay then
-        frame.healthBar.Overlay:SetVertexColor(r,g,b)
-
-        if UnitIsUnit(frame.displayedUnit,'player')then
-            frame.healthBar.Overlay:ClearAllPoints()
-            frame.healthBar.Overlay:SetTexture(nil)
-        end
-    end
-end
-hooksecurefunc('CompactUnitFrame_UpdateHealthBorder',UpdateBorder)
-
     -- Updated Health Text
 
 local function UpdateHealthText(frame)
+    if ( string.match(frame.displayedUnit,'nameplate') ~= 'nameplate' or not cfg.showHP ) then return end
+
     local health = UnitHealth(frame.displayedUnit)
     local maxHealth = UnitHealthMax(frame.displayedUnit)
     local perc = (health/maxHealth)*100
 
-    if (perc >= 100 and health > 5 and cfg.showFullHP) then
+    if ( not frame.healthBar.healthString ) then
+        frame.healthBar.healthString = frame.healthBar:CreateFontString('$parentHeathValue', 'OVERLAY')
+        frame.healthBar.healthString:Hide()
+        frame.healthBar.healthString:SetPoint('CENTER', frame.healthBar, 0, 0)
+        frame.healthBar.healthString:SetFont('Fonts\\ARIALN.ttf', 10)--, 'OUTLINE')
+        frame.healthBar.healthString:SetShadowOffset(.5, -.5)
+    end
+
+    if ( perc >= 100 and health > 5 and cfg.showFullHP ) then
         frame.healthBar.healthString:SetFormattedText('%s', FormatValue(health))
-    elseif (perc < 100 and health > 5) then
+    elseif ( perc < 100 and health > 5 ) then
         frame.healthBar.healthString:SetFormattedText('%s - %.0f%%', FormatValue(health), perc-0.5)
     else
         frame.healthBar.healthString:SetText('')
     end
+    frame.healthBar.healthString:Show()
 end
+hooksecurefunc('CompactUnitFrame_UpdateStatusText',UpdateHealthText)
 
     -- Update Health Color
 
 local function UpdateHealthColor(frame)
-    if not cfg.enableTankMode then return end
-    local r, g, b
+    if ( string.match(frame.displayedUnit,'nameplate') ~= 'nameplate' ) then return end
+
     if ( not UnitIsConnected(frame.unit) ) then
-        --Color it gray
-        r, g, b = 0.5, 0.5, 0.5
+        local r, g, b = 0.5, 0.5, 0.5
     else
         if ( frame.optionTable.healthBarColorOverride ) then
             local healthBarColorOverride = frame.optionTable.healthBarColorOverride
             r, g, b = healthBarColorOverride.r, healthBarColorOverride.g, healthBarColorOverride.b
         else
-            --Try to color it by class.
             local localizedClass, englishClass = UnitClass(frame.unit)
             local classColor = RAID_CLASS_COLORS[englishClass]
             if ( UnitIsPlayer(frame.unit) and classColor and frame.optionTable.useClassColors ) then
-                -- Use class colors for players if class color option is turned on
                 r, g, b = classColor.r, classColor.g, classColor.b
             elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
-                -- Use grey if not a player and can't get tap on unit
                 r, g, b = 0.1, 0.1, 0.1
             elseif ( frame.optionTable.colorHealthBySelection ) then
-                -- Use color based on the type of unit (neutral, etc.)
-                if ( frame.optionTable.considerSelectionInCombatAsHostile and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) ) then
+                if ( frame.optionTable.considerSelectionInCombatAsHostile and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) and cfg.enableTankMode ) then
                     local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
-                    if isTanking and threatStatus then
-                        if threatStatus >= 3 then
+                    if ( isTanking and threatStatus ) then
+                        if ( threatStatus >= 3 ) then
                             r, g, b = 0.0, 1.0, 0.0
-                        elseif threatStatus == 2 then
+                        elseif ( threatStatus == 2 ) then
                             r, g, b = 1.0, 0.6, 0.2
                         end
                     else
@@ -247,7 +264,7 @@ local function UpdateHealthColor(frame)
     if ( r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b ) then
         frame.healthBar:SetStatusBarColor(r, g, b)
 
-        if (frame.optionTable.colorHealthWithExtendedColors) then
+        if ( frame.optionTable.colorHealthWithExtendedColors ) then
             frame.selectionHighlight:SetVertexColor(r, g, b)
         else
             frame.selectionHighlight:SetVertexColor(1, 1, 1)
@@ -255,34 +272,53 @@ local function UpdateHealthColor(frame)
 
         frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b
     end
+
+        -- Healthbar Overlay Coloring
+
+    r,g,b = frame.healthBar:GetStatusBarColor()
+    if ( frame.healthBar.Overlay ) then
+        frame.healthBar.Overlay:SetVertexColor(r,g,b)
+
+        if ( UnitIsUnit(frame.displayedUnit,'player') ) then
+            frame.healthBar.Overlay:Hide()
+        else
+            frame.healthBar.border:Hide()
+        end
+    end
 end
 hooksecurefunc('CompactUnitFrame_UpdateHealthColor',UpdateHealthColor)
 
     -- Update Castbar
 
 local function UpdateCastbar(frame)
+
+        -- Cast Time
+
     if ( frame.unit ) then
         if ( frame.castBar.casting ) then
-            frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.maxValue - frame.castBar.value)
+            local current = frame.castBar.maxValue - frame.castBar.value
+            if ( current > 0.0 ) then
+                frame.castBar.CastTime:SetText(FormatTime(current))
+            end
         else
-            frame.castBar.CastTime:SetFormattedText('%.1fs', frame.castBar.value)
+            if ( frame.castBar.value > 0 ) then
+                frame.castBar.CastTime:SetFormattedText('%.1f', frame.castBar.value)
+            end
         end
-
-        local r, g, b = frame.healthBar:GetStatusBarColor()
-        frame.castBar.Overlay:SetVertexColor(r,g,b)
-        frame.castBar.Icon.Overlay:SetVertexColor(r, g, b)
     end
 
-        -- Backup Icon Textures
+            -- Castbar Overlay Coloring / Icon Background
 
-    if frame.castBar.Icon.Background then
+    if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(r,g,b) end
+    if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(r, g, b) end
+
+    if ( frame.castBar.Icon.Background ) then
         local _,class = UnitClass(frame.displayedUnit)
-        if frame.castBar then
-            if not class then
-                frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\Ability_DualWield')
-            else
-                frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\ClassIcon_'..class)
-            end
+
+        if ( not class ) then
+            frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\Ability_DualWield')
+        else
+            frame.castBar.Icon.Background:SetTexture('Interface\\Icons\\ClassIcon_'..class)
         end
     end
 end
@@ -291,16 +327,14 @@ end
 
 local function SetupNamePlate(frame, options)
 
-        -- Name
-
-    frame.name:SetFont('Fonts\\ARIALN.ttf', 11, 'OUTLINE')
-
         -- Healthbar
 
     frame.healthBar:SetHeight(12)
+    frame.healthBar:Hide()
     frame.healthBar:ClearAllPoints()
     frame.healthBar:SetPoint('BOTTOMLEFT', frame.castBar, 'TOPLEFT', 0, 4.5)
     frame.healthBar:SetPoint('BOTTOMRIGHT', frame.castBar, 'TOPRIGHT', 0, 4.5)
+    frame.healthBar:Show()
     frame.healthBar:SetStatusBarTexture(statusBar)
 
         -- Healthbar Overlay
@@ -311,19 +345,16 @@ local function SetupNamePlate(frame, options)
         frame.healthBar.Overlay:SetTexture(overlayTexture)
         frame.healthBar.Overlay:SetTexCoord(0, 1, 0, 1)
         frame.healthBar.Overlay:SetVertexColor(unpack(borderColor))
+        frame.healthBar.Overlay:Hide()
+        if ( not IsUsingLargerNamePlateStyle() ) then
+            frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 29, 5.66666667)
+            frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -30, -5.66666667)
+        else
+            frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 43, 5.66666667)
+            frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -45, -5.66666667)
+        end
+        frame.healthBar.Overlay:Show()
     end
-
-        -- Update Health Text
-
-    if (not frame.healthBar.healthString) then
-        frame.healthBar.healthString = frame.healthBar:CreateFontString('$parentHeathValue', 'OVERLAY')
-        frame.healthBar.healthString:SetPoint('CENTER', frame.healthBar, 0, 0)
-        frame.healthBar.healthString:SetFont('Fonts\\ARIALN.ttf', 10, 'OUTLINE')
-    end
-
-    frame.healthBar:SetScript('OnValueChanged', function()
-        UpdateHealthText(frame)
-    end)
 
         -- Castbar
 
@@ -332,183 +363,185 @@ local function SetupNamePlate(frame, options)
 
     if not frame.castBar.Overlay then
         frame.castBar.Overlay = frame.castBar:CreateTexture('$parentOverlay', 'BORDER')
+        frame.castBar.Overlay:ClearAllPoints()
         frame.castBar.Overlay:SetTexture(overlayTexture)
         frame.castBar.Overlay:SetTexCoord(0, 1, 0, 1)
         frame.castBar.Overlay:SetVertexColor(unpack(borderColor))
+        frame.castBar.Overlay:Hide()
+        if ( not IsUsingLargerNamePlateStyle() ) then
+            frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 29, 5.66666667)
+            frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -30, -5.66666667)
+        else
+            frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 43, 5.66666667)
+            frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -45, -5.66666667)
+        end
+        frame.castBar.Overlay:Show()
     end
 
         -- Border Shield
 
+    frame.castBar.BorderShield:Hide()
     frame.castBar.BorderShield:ClearAllPoints()
     frame.castBar.BorderShield:SetPoint('CENTER',frame.castBar,'LEFT',-2.4,0)
+    frame.castBar.BorderShield:Show()
 
         -- Spell Name
 
+    frame.castBar.Text:Hide()
     frame.castBar.Text:ClearAllPoints()
     frame.castBar.Text:SetFont('Fonts\\ARIALN.ttf', 7.5)
     frame.castBar.Text:SetShadowOffset(.5, -.5)
     frame.castBar.Text:SetPoint('LEFT',frame.castBar, 'LEFT',4,0)
+    frame.castBar.Text:Show()
 
         -- Set Castbar Timer
 
-    if (not frame.castBar.CastTime) then
+    if ( not frame.castBar.CastTime ) then
         frame.castBar.CastTime = frame.castBar:CreateFontString(nil, 'OVERLAY')
+        frame.castBar.CastTime:Hide()
         frame.castBar.CastTime:SetPoint('BOTTOMRIGHT', frame.castBar.Icon, 'BOTTOMRIGHT', 0, 0)
         frame.castBar.CastTime:SetFont('Fonts\\ARIALN.ttf', 10, 'OUTLINE')
+        frame.castBar.CastTime:Show()
     end
 
         -- Castbar Icon
 
     frame.castBar.Icon:SetSize(24,24)
+    frame.castBar.Icon:Hide()
     frame.castBar.Icon:ClearAllPoints()
     frame.castBar.Icon:SetPoint('BOTTOMLEFT', frame.castBar, 'BOTTOMRIGHT', 4.5, 0)
     frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    frame.castBar.Icon:Show()
 
         -- Castbar Icon Background
 
-    if (not frame.castBar.Icon.Background ) then
+    if ( not frame.castBar.Icon.Background ) then
         frame.castBar.Icon.Background = frame.castBar:CreateTexture('$parentIconBackground', 'BACKGROUND')
         frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+        frame.castBar.Icon.Background:Hide()
         frame.castBar.Icon.Background:ClearAllPoints()
         frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
+        frame.castBar.Icon.Background:Show()
     end
 
         -- Castbar Icon Overlay
 
-    if (not frame.castBar.Icon.Overlay ) then
+    if ( not frame.castBar.Icon.Overlay ) then
         frame.castBar.Icon.Overlay = frame.castBar:CreateTexture('$parentIconOverlay', 'OVERLAY')
         frame.castBar.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
+        frame.castBar.Icon.Overlay:Hide()
         frame.castBar.Icon.Overlay:ClearAllPoints()
         frame.castBar.Icon.Overlay:SetPoint('TOPRIGHT', frame.castBar.Icon, 2.5, 2.5)
         frame.castBar.Icon.Overlay:SetPoint('BOTTOMLEFT', frame.castBar.Icon, -2.5, -2.5)
         frame.castBar.Icon.Overlay:SetTexture(iconOverlay)
+        frame.castBar.Icon.Overlay:Show()
     end
 
         -- Update Castbar
 
-    frame.castBar:SetScript('OnValueChanged', function()
+    frame.castBar:SetScript('OnValueChanged', function(self, value)
         UpdateCastbar(frame)
     end)
 
-        -- Set Healthbar / Castbar Overlay based on current nameplate scale.
-
-    frame:SetScript('OnSizeChanged', function()
+    frame:SetScript('OnShow', function(self)
+        frame.healthBar.Overlay:Hide()
+        frame.castBar.Overlay:Hide()
         frame.healthBar.Overlay:ClearAllPoints()
         frame.castBar.Overlay:ClearAllPoints()
         if not IsUsingLargerNamePlateStyle() then
             frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 29, 5.66666667)
             frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -30, -5.66666667)
-
             frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 29, 5.66666667)
             frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -30, -5.66666667)
         else
             frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 43, 5.66666667)
             frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -45, -5.66666667)
-
             frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 43, 5.66666667)
             frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -45, -5.66666667)
         end
+        frame.healthBar.Overlay:Show()
+        frame.castBar.Overlay:Show()
     end)
 end
 hooksecurefunc('DefaultCompactNamePlateFrameSetup', SetupNamePlate)
 
-    -- Personal Resource Display
-
-local function PersonalFrame(frame)
-    
-        -- Check to see if personal should be skinned.
-    
-    if not cfg.skinPersonalResourceDisplay then return end
-    
-        -- Healthbar
-
-    frame.healthBar:SetHeight(12)
-
-        -- Update Health Text
-
-    if (not frame.healthBar.healthString) then
-        frame.healthBar.healthString = frame.healthBar:CreateFontString('$parentHeathValue', 'OVERLAY')
-        frame.healthBar.healthString:SetPoint('CENTER', frame.healthBar, 0, 0)
-        frame.healthBar.healthString:SetFont('Fonts\\ARIALN.ttf', 10, 'OUTLINE')
-    end
-
-    frame.healthBar:SetScript('OnValueChanged', function()
-        UpdateHealthText(frame)
-    end)
-end
-hooksecurefunc('DefaultCompactNamePlatePlayerFrameSetup',PersonalFrame)
-
     -- Update Name
 
 local function UpdateName(frame)
-
-        -- Friendly Nameplate Class Color
-
-    if cfg.alwaysUseClassColors then
-        if UnitIsPlayer(frame.displayedUnit) then
-            frame.name:SetTextColor(frame.healthBar:GetStatusBarColor())
-            DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = true
-        end
-    end
-
-        -- Shorten Long Names
-
-    local newName = GetUnitName(frame.displayedUnit, cfg.showServerName) or 'Unknown'
-    if (cfg.abbrevLongNames) then
-        newName = (len(newName) > 20) and gsub(newName, '%s?(.[\128-\191]*)%S+%s', '%1. ') or newName
-    end
-
-        -- Level
-
-    if cfg.showLevel then
-        local playerLevel = UnitLevel('player')
-        local targetLevel = UnitLevel(frame.displayedUnit)
-        local difficultyColor = GetRelativeDifficultyColor(playerLevel, targetLevel)
-        local levelColor = RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
-
-        if (targetLevel == -1) then
-            frame.name:SetText(newName)
-        else
-            frame.name:SetText('|cffffff00|r'..levelColor..targetLevel..'|r '..newName)
-        end
-    else
-        frame.name:SetText(newName)
-    end
-
-        -- Color Name To Threat Status
-
-    if cfg.colorNameWithThreat then
-        local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
-        if isTanking and threatStatus then
-            if threatStatus >= 3 then
-                frame.name:SetTextColor(0,1,0)
-            elseif threatStatus == 2 then
-                frame.name:SetTextColor(1,0.6,0.2)
-            end
-        end
-    end
+    if ( string.match(frame.displayedUnit,'nameplate') ~= 'nameplate' ) then return end
 
         -- Totem Icon
 
     if cfg.showTotemIcon then
         UpdateTotemIcon(frame)
     end
+
+    if ( not ShouldShowName(frame) ) then
+        frame.name:Hide()
+    else
+
+            -- Friendly Nameplate Class Color
+
+        if ( cfg.alwaysUseClassColors ) then
+            if ( UnitIsPlayer(frame.displayedUnit) ) then
+                frame.name:SetTextColor(frame.healthBar:GetStatusBarColor())
+                DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = true
+            end
+        end
+
+            -- Shorten Long Names
+
+        local newName = GetUnitName(frame.displayedUnit, cfg.showServerName) or 'Unknown'
+        if ( cfg.abbrevLongNames ) then
+            newName = (len(newName) > 20) and gsub(newName, '%s?(.[\128-\191]*)%S+%s', '%1. ') or newName
+        end
+
+            -- Level
+
+        if ( cfg.showLevel ) then
+            local playerLevel = UnitLevel('player')
+            local targetLevel = UnitLevel(frame.displayedUnit)
+            local difficultyColor = GetRelativeDifficultyColor(playerLevel, targetLevel)
+            local levelColor = RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
+
+            if ( targetLevel == -1 ) then
+                frame.name:SetText(newName)
+            else
+                frame.name:SetText('|cffffff00|r'..levelColor..targetLevel..'|r '..newName)
+            end
+        else
+            frame.name:SetText(newName)
+        end
+
+            -- Color Name To Threat Status
+
+        if ( cfg.colorNameWithThreat ) then
+            local isTanking, threatStatus = UnitDetailedThreatSituation('player', frame.displayedUnit)
+            if ( isTanking and threatStatus ) then
+                if ( threatStatus >= 3 ) then
+                    frame.name:SetTextColor(0,1,0)
+                elseif ( threatStatus == 2 ) then
+                    frame.name:SetTextColor(1,0.6,0.2)
+                end
+            end
+        end
+    end
 end
 hooksecurefunc('CompactUnitFrame_UpdateName', UpdateName)
 
     -- Fix for broken Blizzard function.
 
-function DebuffOffsets(self)
+local function DebuffOffsets(self)
     local showSelf = GetCVarBool('nameplateShowSelf')
     local targetMode = GetCVarBool('nameplateResourceOnTarget')
-    if showSelf and targetMode then
-        if self.driverFrame:IsUsingLargerNamePlateStyle() then
+    if ( showSelf and targetMode ) then
+        if ( self.driverFrame:IsUsingLargerNamePlateStyle() ) then
             self.UnitFrame.BuffFrame:SetBaseYOffset(0)
         else
             self.UnitFrame.BuffFrame:SetBaseYOffset(0)
         end
     end
-    if showSelf and targetMode then
+    if ( showSelf and targetMode ) then
         self.UnitFrame.BuffFrame:SetTargetYOffset(18)
     else
         self.UnitFrame.BuffFrame:SetTargetYOffset(0)
@@ -518,19 +551,16 @@ hooksecurefunc(NamePlateBaseMixin,'ApplyOffsets',DebuffOffsets)
 
     -- Move Nameplate Debuff Frames
 
-function DebuffAnchor(self)
+local function DebuffAnchor(self)
     local showSelf = GetCVarBool('nameplateShowSelf')
     local targetMode = GetCVarBool('nameplateResourceOnTarget')
     local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, 'target')
     local targetYOffset = self:GetBaseYOffset() + (isTarget and self:GetTargetYOffset() or 0.0)
 
-        -- Check for large nameplates.
-
-    if IsUsingLargerNamePlateStyle() then
-        -- Check if nameplate is showing name.
-        if (self:GetParent().unit and ShouldShowName(self:GetParent())) then
-            -- Check if personal resources are on.
-            if showSelf and targetMode then
+    self:Hide()
+    if ( IsUsingLargerNamePlateStyle() ) then
+        if ( self:GetParent().unit and ShouldShowName(self:GetParent()) ) then
+            if ( showSelf and targetMode ) then
                 self:SetPoint('BOTTOM', self:GetParent(), 'TOP', 0, 7)
             else
                 self:SetPoint('BOTTOM', self:GetParent().healthBar, 'TOP', 0, targetYOffset)
@@ -539,15 +569,16 @@ function DebuffAnchor(self)
             self:SetPoint('BOTTOM', self:GetParent().healthBar, 'TOP', 0, 5)
         end
     else
-        if (self:GetParent().unit and ShouldShowName(self:GetParent())) then
-            if showSelf and targetMode then
-                self:SetPoint('BOTTOM', self:GetParent(), 'TOP', 0, targetYOffset+8)
+        if ( self:GetParent().unit and ShouldShowName(self:GetParent()) ) then
+            if ( showSelf and targetMode ) then
+                self:SetPoint('BOTTOM', self:GetParent(), 'TOP', 0, targetYOffset+10)
             else
-                self:SetPoint('BOTTOM', self:GetParent(), 'TOP', 0, targetYOffset+5)
+                self:SetPoint('BOTTOM', self:GetParent(), 'TOP', 0, targetYOffset+10)
             end
         else
-            self:SetPoint('BOTTOM', self:GetParent().healthBar, 'TOP', 0, targetYOffset+5)
+            self:SetPoint('BOTTOM', self:GetParent().healthBar, 'TOP', 0, targetYOffset+10)
         end
     end
+    self:Show()
 end
 hooksecurefunc(NameplateBuffContainerMixin,'UpdateAnchor',DebuffAnchor)
