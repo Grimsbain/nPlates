@@ -347,12 +347,14 @@ local function SetupNamePlate(frame, options)
         frame.healthBar.border.Overlay = frame.healthBar.border:CreateTexture('$parentCustomTexture','BORDER')
         frame.healthBar.border.Overlay:SetTexture(overlayTexture)
         frame.healthBar.border.Overlay:SetTexCoord(0,0.921875,0,0.625)
+        frame.healthBar.border.Overlay:Hide()
         frame.healthBar.border.Overlay:SetAllPoints(frame.healthBar.border)
         frame.healthBar.border.Overlay:SetPoint('TOPLEFT', frame.healthBar.border, -3.1, 3.1)
         frame.healthBar.border.Overlay:SetPoint('TOPRIGHT', frame.healthBar.border, 3.1, 3.1)
         frame.healthBar.border.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar.border, -3.1, -3.1)
         frame.healthBar.border.Overlay:SetPoint('BOTTOMRIGHT', frame.healthBar.border, 3.1, -3.1)
         frame.healthBar.border.Overlay:SetVertexColor(unpack(borderColor))
+        frame.healthBar.border.Overlay:Show()
     end
 
         -- Castbar
