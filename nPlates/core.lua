@@ -284,7 +284,7 @@ hooksecurefunc('CompactUnitFrame_UpdateHealthColor',UpdateHealthColor)
 
     -- Update Castbar
 
-local function UpdateCastbar(frame)
+local function UpdateCastbarTimer(frame)
 
         -- Cast Time
 
@@ -300,12 +300,22 @@ local function UpdateCastbar(frame)
             end
         end
     end
+end
+
+local function UpdateCastbarColors(frame)
 
         -- Castbar Overlay Coloring / Icon Background
 
-    local r,g,b = frame.healthBar:GetStatusBarColor()
-    if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(r/2,g/2,b/2,1) end
-    if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(r/2,g/2,b/2,1) end
+    local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(frame.unit)
+
+    if ( notInterruptible ) then
+        if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(.75,0,0,1) end
+        if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(.75,0,0,1) end
+    else
+        if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(0,.75,0,1) end
+        if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(0,.75,0,1) end
+    end
+
     if ( frame.castBar.Icon.Background ) then
         local _,class = UnitClass(frame.displayedUnit)
 
@@ -368,8 +378,6 @@ local function SetupNamePlate(frame, options)
 
     frame.castBar.BorderShield:Hide()
     frame.castBar.BorderShield:ClearAllPoints()
-    frame.castBar.BorderShield:SetPoint('CENTER',frame.castBar,'LEFT', -2.4, 0)
-    frame.castBar.BorderShield:Show()
 
         -- Spell Name
 
@@ -426,7 +434,11 @@ local function SetupNamePlate(frame, options)
         -- Update Castbar
 
     frame.castBar:SetScript('OnValueChanged', function(self, value)
-        UpdateCastbar(frame)
+        UpdateCastbarTimer(frame)
+    end)
+    
+    frame.castBar:SetScript('OnShow', function(self)
+        UpdateCastbarColors(frame)
     end)
 end
 hooksecurefunc('DefaultCompactNamePlateFrameSetup', SetupNamePlate)
