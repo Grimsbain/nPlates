@@ -22,9 +22,9 @@ local options = {
     displaySelectionHighlight = cfg.displaySelectionHighlight,
     showClassificationIndicator = cfg.showClassificationIndicator,
 
-    tankBorderColor = false,
-    selectedBorderColor = false,
-    defaultBorderColor = false,
+    tankBorderColor = CreateColor(.45,.45,.45,.55),
+    selectedBorderColor = CreateColor(.45,.45,.45,.55),
+    defaultBorderColor = CreateColor(.45,.45,.45,.55),
 }
 
 for i, group  in next, groups do
@@ -275,11 +275,9 @@ local function UpdateHealthColor(frame)
 
         -- Healthbar Overlay Coloring
 
-    if ( frame.healthBar.Overlay ) then frame.healthBar.Overlay:SetVertexColor(r,g,b,1) end
+    if ( frame.healthBar.border.Overlay ) then frame.healthBar.border.Overlay:SetVertexColor(r/2,g/2,b/2,1) end
     if ( UnitIsUnit(frame.displayedUnit,'player') ) then
-        if ( frame.healthBar.Overlay ) then frame.healthBar.Overlay:Hide() end
-    else
-        if ( frame.healthBar.border ) then frame.healthBar.border:Hide() end
+        if ( frame.healthBar.border.Overlay ) then frame.healthBar.border.Overlay:Hide() end
     end
 end
 hooksecurefunc('CompactUnitFrame_UpdateHealthColor',UpdateHealthColor)
@@ -306,8 +304,8 @@ local function UpdateCastbar(frame)
         -- Castbar Overlay Coloring / Icon Background
 
     local r,g,b = frame.healthBar:GetStatusBarColor()
-    if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(r,g,b) end
-    if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(r,g,b) end
+    if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(r/2,g/2,b/2,1) end
+    if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(r/2,g/2,b/2,1) end
     if ( frame.castBar.Icon.Background ) then
         local _,class = UnitClass(frame.displayedUnit)
 
@@ -333,20 +331,18 @@ local function SetupNamePlate(frame, options)
     frame.healthBar:Show()
     frame.healthBar:SetStatusBarTexture(statusBar)
 
-        -- Healthbar Overlay
+        -- Healthbar Border Overlay
 
-    if not frame.healthBar.Overlay then
-        frame.healthBar.Overlay = frame.healthBar:CreateTexture('$parentOverlay', 'BORDER')
-        frame.healthBar.Overlay:ClearAllPoints()
-        frame.healthBar.Overlay:SetTexture(overlayTexture)
-        frame.healthBar.Overlay:SetTexCoord(0,0.921875,0,0.625)
-        frame.healthBar.Overlay:SetVertexColor(unpack(borderColor))
-        frame.healthBar.Overlay:Hide()
-        frame.healthBar.Overlay:SetPoint('TOPLEFT', frame.healthBar, -3.0, 3.0)
-        frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 3.0, 3.0)
-        frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -3.0, -3.0)
-        frame.healthBar.Overlay:SetPoint('BOTTOMRIGHT', frame.healthBar, 3.0, -3.0)
-        frame.healthBar.Overlay:Show()
+    if ( not frame.healthBar.border.Overlay ) then
+        frame.healthBar.border.Overlay = frame.healthBar.border:CreateTexture('$parentCustomTexture','BORDER')
+        frame.healthBar.border.Overlay:SetTexture(overlayTexture)
+        frame.healthBar.border.Overlay:SetTexCoord(0,0.921875,0,0.625)
+        frame.healthBar.border.Overlay:SetAllPoints(frame.healthBar.border)
+        frame.healthBar.border.Overlay:SetPoint('TOPLEFT', frame.healthBar.border, -3.1, 3.1)
+        frame.healthBar.border.Overlay:SetPoint('TOPRIGHT', frame.healthBar.border, 3.1, 3.1)
+        frame.healthBar.border.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar.border, -3.1, -3.1)
+        frame.healthBar.border.Overlay:SetPoint('BOTTOMRIGHT', frame.healthBar.border, 3.1, -3.1)
+        frame.healthBar.border.Overlay:SetVertexColor(unpack(borderColor))
     end
 
         -- Castbar
@@ -361,10 +357,10 @@ local function SetupNamePlate(frame, options)
         frame.castBar.Overlay:SetTexCoord(0,0.921875,0,0.625)
         frame.castBar.Overlay:SetVertexColor(unpack(borderColor))
         frame.castBar.Overlay:Hide()
-        frame.castBar.Overlay:SetPoint('TOPLEFT', frame.castBar, -3.0, 3.0)
-        frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 3.0, 3.0)
-        frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -3.0, -3.0)
-        frame.castBar.Overlay:SetPoint('BOTTOMRIGHT', frame.castBar, 3.0, -3.0)
+        frame.castBar.Overlay:SetPoint('TOPLEFT', frame.castBar, -3.1, 3.1)
+        frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 3.1, 3.1)
+        frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -3.1, -3.1)
+        frame.castBar.Overlay:SetPoint('BOTTOMRIGHT', frame.castBar, 3.1, -3.1)
         frame.castBar.Overlay:Show()
     end
 
@@ -399,7 +395,7 @@ local function SetupNamePlate(frame, options)
     frame.castBar.Icon:SetSize(24,24)
     frame.castBar.Icon:Hide()
     frame.castBar.Icon:ClearAllPoints()
-    frame.castBar.Icon:SetPoint('BOTTOMLEFT', frame.castBar, 'BOTTOMRIGHT', 4.5, 0)
+    frame.castBar.Icon:SetPoint('BOTTOMLEFT', frame.castBar, 'BOTTOMRIGHT', 4.8, -0.5)
     frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     frame.castBar.Icon:Show()
 
