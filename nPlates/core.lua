@@ -60,12 +60,8 @@ C_Timer.After(.1, function()
         end
 
         -- Set min and max scale.
-        if ( cfg.dontZoom ) then
-            SetCVar('namePlateMinScale', 1)
-            SetCVar('namePlateMaxScale', 1)
-        else
-            for _, v in pairs({'namePlateMinScale', 'namePlateMaxScale'}) do SetCVar(v, GetCVarDefault(v)) end
-        end
+        SetCVar('namePlateMinScale', 1)
+        SetCVar('namePlateMaxScale', 1)
     end
 end)
 
