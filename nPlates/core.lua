@@ -7,9 +7,9 @@ local gsub = string.gsub
 
 local texturePath = 'Interface\\AddOns\\nPlates\\media\\'
 local statusBar = texturePath..'UI-StatusBar'
-local overlayTexture = texturePath..'textureOverlay'
+local overlayTexture = texturePath..'textureOverlay_new'
 local iconOverlay = texturePath..'textureIconOverlay'
-local borderColor = {0.47, 0.47, 0.47}
+local borderColor = {0.47, 0.47, 0.47, 1}
 
     -- Set DefaultCompactNamePlate Options
 
@@ -51,16 +51,20 @@ C_Timer.After(.1, function()
             SetCVar('nameplateMinAlpha', GetCVarDefault('nameplateMinAlpha'))
         end
 
-        -- Set min and max scale. (For performance issues.)
-        SetCVar('namePlateMinScale', 1)
-        SetCVar('namePlateMaxScale', 1)
-
         -- Stop nameplates from clamping to screen.
         if ( cfg.dontClampToBorder ) then
             SetCVar('nameplateOtherTopInset', -1)
             SetCVar('nameplateOtherBottomInset', -1)
         else
             for _, v in pairs({'nameplateOtherTopInset', 'nameplateOtherBottomInset'}) do SetCVar(v, GetCVarDefault(v)) end
+        end
+
+        -- Set min and max scale.
+        if ( cfg.dontZoom ) then
+            SetCVar('namePlateMinScale', 1)
+            SetCVar('namePlateMaxScale', 1)
+        else
+            for _, v in pairs({'namePlateMinScale', 'namePlateMaxScale'}) do SetCVar(v, GetCVarDefault(v)) end
         end
     end
 end)
@@ -275,15 +279,11 @@ local function UpdateHealthColor(frame)
 
         -- Healthbar Overlay Coloring
 
-    r,g,b = frame.healthBar:GetStatusBarColor()
-    if ( frame.healthBar.Overlay ) then
-        frame.healthBar.Overlay:SetVertexColor(r,g,b)
-
-        if ( UnitIsUnit(frame.displayedUnit,'player') ) then
-            frame.healthBar.Overlay:Hide()
-        else
-            frame.healthBar.border:Hide()
-        end
+    if ( frame.healthBar.Overlay ) then frame.healthBar.Overlay:SetVertexColor(r,g,b,1) end
+    if ( UnitIsUnit(frame.displayedUnit,'player') ) then
+        if ( frame.healthBar.Overlay ) then frame.healthBar.Overlay:Hide() end
+    else
+        if ( frame.healthBar.border ) then frame.healthBar.border:Hide() end
     end
 end
 hooksecurefunc('CompactUnitFrame_UpdateHealthColor',UpdateHealthColor)
@@ -307,11 +307,11 @@ local function UpdateCastbar(frame)
         end
     end
 
-            -- Castbar Overlay Coloring / Icon Background
+        -- Castbar Overlay Coloring / Icon Background
 
+    local r,g,b = frame.healthBar:GetStatusBarColor()
     if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(r,g,b) end
-    if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(r, g, b) end
-
+    if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(r,g,b) end
     if ( frame.castBar.Icon.Background ) then
         local _,class = UnitClass(frame.displayedUnit)
 
@@ -343,16 +343,13 @@ local function SetupNamePlate(frame, options)
         frame.healthBar.Overlay = frame.healthBar:CreateTexture('$parentOverlay', 'BORDER')
         frame.healthBar.Overlay:ClearAllPoints()
         frame.healthBar.Overlay:SetTexture(overlayTexture)
-        frame.healthBar.Overlay:SetTexCoord(0, 1, 0, 1)
+        frame.healthBar.Overlay:SetTexCoord(0,0.921875,0,0.625)
         frame.healthBar.Overlay:SetVertexColor(unpack(borderColor))
         frame.healthBar.Overlay:Hide()
-        if ( not IsUsingLargerNamePlateStyle() ) then
-            frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 29, 5.66666667)
-            frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -30, -5.66666667)
-        else
-            frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 43, 5.66666667)
-            frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -45, -5.66666667)
-        end
+        frame.healthBar.Overlay:SetPoint('TOPLEFT', frame.healthBar, -3.0, 3.0)
+        frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 3.0, 3.0)
+        frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -3.0, -3.0)
+        frame.healthBar.Overlay:SetPoint('BOTTOMRIGHT', frame.healthBar, 3.0, -3.0)
         frame.healthBar.Overlay:Show()
     end
 
@@ -365,16 +362,13 @@ local function SetupNamePlate(frame, options)
         frame.castBar.Overlay = frame.castBar:CreateTexture('$parentOverlay', 'BORDER')
         frame.castBar.Overlay:ClearAllPoints()
         frame.castBar.Overlay:SetTexture(overlayTexture)
-        frame.castBar.Overlay:SetTexCoord(0, 1, 0, 1)
+        frame.castBar.Overlay:SetTexCoord(0,0.921875,0,0.625)
         frame.castBar.Overlay:SetVertexColor(unpack(borderColor))
         frame.castBar.Overlay:Hide()
-        if ( not IsUsingLargerNamePlateStyle() ) then
-            frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 29, 5.66666667)
-            frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -30, -5.66666667)
-        else
-            frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 43, 5.66666667)
-            frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -45, -5.66666667)
-        end
+        frame.castBar.Overlay:SetPoint('TOPLEFT', frame.castBar, -3.0, 3.0)
+        frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 3.0, 3.0)
+        frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -3.0, -3.0)
+        frame.castBar.Overlay:SetPoint('BOTTOMRIGHT', frame.castBar, 3.0, -3.0)
         frame.castBar.Overlay:Show()
     end
 
@@ -382,7 +376,7 @@ local function SetupNamePlate(frame, options)
 
     frame.castBar.BorderShield:Hide()
     frame.castBar.BorderShield:ClearAllPoints()
-    frame.castBar.BorderShield:SetPoint('CENTER',frame.castBar,'LEFT',-2.4,0)
+    frame.castBar.BorderShield:SetPoint('CENTER',frame.castBar,'LEFT', -2.4, 0)
     frame.castBar.BorderShield:Show()
 
         -- Spell Name
@@ -391,7 +385,7 @@ local function SetupNamePlate(frame, options)
     frame.castBar.Text:ClearAllPoints()
     frame.castBar.Text:SetFont('Fonts\\ARIALN.ttf', 7.5)
     frame.castBar.Text:SetShadowOffset(.5, -.5)
-    frame.castBar.Text:SetPoint('LEFT',frame.castBar, 'LEFT',4,0)
+    frame.castBar.Text:SetPoint('LEFT',frame.castBar, 'LEFT', 4, 0)
     frame.castBar.Text:Show()
 
         -- Set Castbar Timer
@@ -441,26 +435,6 @@ local function SetupNamePlate(frame, options)
 
     frame.castBar:SetScript('OnValueChanged', function(self, value)
         UpdateCastbar(frame)
-    end)
-
-    frame:SetScript('OnShow', function(self)
-        frame.healthBar.Overlay:Hide()
-        frame.castBar.Overlay:Hide()
-        frame.healthBar.Overlay:ClearAllPoints()
-        frame.castBar.Overlay:ClearAllPoints()
-        if not IsUsingLargerNamePlateStyle() then
-            frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 29, 5.66666667)
-            frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -30, -5.66666667)
-            frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 29, 5.66666667)
-            frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -30, -5.66666667)
-        else
-            frame.healthBar.Overlay:SetPoint('TOPRIGHT', frame.healthBar, 43, 5.66666667)
-            frame.healthBar.Overlay:SetPoint('BOTTOMLEFT', frame.healthBar, -45, -5.66666667)
-            frame.castBar.Overlay:SetPoint('TOPRIGHT', frame.castBar, 43, 5.66666667)
-            frame.castBar.Overlay:SetPoint('BOTTOMLEFT', frame.castBar, -45, -5.66666667)
-        end
-        frame.healthBar.Overlay:Show()
-        frame.castBar.Overlay:Show()
     end)
 end
 hooksecurefunc('DefaultCompactNamePlateFrameSetup', SetupNamePlate)

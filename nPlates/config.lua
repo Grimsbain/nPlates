@@ -15,7 +15,7 @@ nPlates.Config = {
     -- Use class colors on all player nameplates.
     alwaysUseClassColors = true,
     -- Turns on/off selection highlight.
-    displaySelectionHighlight = false,
+    displaySelectionHighlight = true,
     -- Turns on/off elite icon.
     showClassificationIndicator = true,
     
@@ -29,4 +29,6 @@ nPlates.Config = {
     nameplateMinAlpha = .8,
     -- Prevents nameplates from sticking to the edge of the screen.
     dontClampToBorder = true,
+    -- Makes all nameplates the same size. False may cause fps issues.
+    dontZoom = true,
 }
