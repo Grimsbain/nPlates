@@ -200,7 +200,7 @@ local function UpdateHealthText(frame)
             frame.healthBar.healthString:SetShadowOffset(.5, -.5)
         end
     else
-        frame.healthBar.healthString:Hide()
+        if ( frame.healthBar.healthString ) then frame.healthBar.healthString:Hide() end
         return
     end
 
@@ -274,9 +274,6 @@ local function UpdateHealthColor(frame)
         -- Healthbar Overlay Coloring
 
     if ( frame.healthBar.border.Overlay ) then frame.healthBar.border.Overlay:SetVertexColor(r/2,g/2,b/2,1) end
-    if ( UnitIsUnit(frame.displayedUnit,"player") ) then
-        if ( frame.healthBar.border.Overlay ) then frame.healthBar.border.Overlay:Hide() end
-    end
 end
 hooksecurefunc("CompactUnitFrame_UpdateHealthColor",UpdateHealthColor)
 
