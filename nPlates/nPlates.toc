@@ -1,5 +1,9 @@
 ## Interface: 70000
 ## Title: |cffCC3333 n|rPlates 2.0
+## Notes: Nameplates for NeavUI.
+## Author: Grimsbain
+## Version: 2.0
+## SavedVariablesPerCharacter: nPlatesDB
 
 config.lua
 slash.lua
