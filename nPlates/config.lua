@@ -163,6 +163,7 @@ Options:SetScript("OnShow", function()
     NameplateScale:SetAutoFocus(false)
     NameplateScale:SetCursorPosition(0)
     NameplateScale:SetMaxLetters(4)
+    NameplateScale:SetJustifyH("CENTER")
 
     local NameplateScaleLabel = Options:CreateFontString("NameplateScaleLabel", "ARTWORK", "GameFontHighlightSmall")
     NameplateScaleLabel:SetPoint("RIGHT", NameplateScale, "LEFT", -10, 0)
@@ -197,7 +198,7 @@ Options:SetScript("OnShow", function()
     NameplateAlpha:SetAutoFocus(false)
     NameplateAlpha:SetCursorPosition(0)
     NameplateAlpha:SetMaxLetters(4)
-
+    NameplateAlpha:SetJustifyH("CENTER")
 
     local NameplateAlphaLabel = Options:CreateFontString("NameplateAlphaLabel", "ARTWORK", "GameFontHighlightSmall")
     NameplateAlphaLabel:SetPoint("RIGHT", NameplateAlpha, "LEFT", -10, 0)

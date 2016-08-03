@@ -21,9 +21,9 @@ if ( nPlatesDB == nil ) then
         ["ShowLevel"] = true,
         ["ShowServerName"] = false,
         ["AbrrevLongNames"] = true,
-        ["ShowTotemIcon"] = false,
         ["ShowClassColors"] = true,
         ["DontClamp"] = false,
+        ["ShowTotemIcon"] = false,
     }
 end
 
@@ -291,7 +291,7 @@ local function UpdateCastbarTimer(frame)
             end
         else
             if ( frame.castBar.value > 0 ) then
-                frame.castBar.CastTime:SetFormattedText("%.1f", frame.castBar.value)
+                frame.castBar.CastTime:SetText(FormatTime(frame.castBar.value))
             end
         end
     end
