@@ -21,6 +21,7 @@ if ( nPlatesDB == nil ) then
         ["ShowLevel"] = true,
         ["ShowServerName"] = false,
         ["AbrrevLongNames"] = true,
+        ["UseLargeNameFont"] = false,
         ["ShowClassColors"] = true,
         ["DontClamp"] = false,
         ["ShowTotemIcon"] = false,
@@ -59,144 +60,17 @@ C_Timer.After(.1, function()
     end
 end)
 
-local function RGBHex(r, g, b)
-    if ( type(r) == "table" ) then
-        if ( r.r ) then
-            r, g, b = r.r, r.g, r.b
-        else
-            r, g, b = unpack(r)
-        end
-    end
-
-    return ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
-end
-
-local function FormatValue(number)
-    if number < 1e3 then
-        return floor(number)
-    elseif number >= 1e12 then
-        return string.format("%.3ft", number/1e12)
-    elseif number >= 1e9 then
-        return string.format("%.3fb", number/1e9)
-    elseif number >= 1e6 then
-        return string.format("%.2fm", number/1e6)
-    elseif number >= 1e3 then
-        return string.format("%.1fk", number/1e3)
-    end
-end
-
-local function FormatTime(s)
-    if s > 86400 then
-        -- Days
-        return ceil(s/86400) .. "d", s%86400
-    elseif s >= 3600 then
-        -- Hours
-        return ceil(s/3600) .. "h", s%3600
-    elseif s >= 60 then
-        -- Minutes
-        return ceil(s/60) .. "m", s%60
-    elseif s <= 10 then
-        -- Seconds
-        return format("%.1f", s)
-    end
-
-    return floor(s), s - floor(s)
-end
-
-    -- Check for "Larger Nameplates"
-
-local function IsUsingLargerNamePlateStyle()
-    local namePlateVerticalScale = tonumber(GetCVar("NamePlateVerticalScale"))
-    return namePlateVerticalScale > 1.0
-end
-
-    -- Totem Data and Functions
-
-local function TotemName(SpellID)
-    local name = GetSpellInfo(SpellID)
-    return name
-end
-
-local totemData = {
-    [TotemName(192058)] = "Interface\\Icons\\spell_nature_brilliance",          -- Lightning Surge Totem
-    [TotemName(98008)]  = "Interface\\Icons\\spell_shaman_spiritlink",          -- Spirit Link Totem
-    [TotemName(192077)] = "Interface\\Icons\\ability_shaman_windwalktotem",     -- Wind Rush Totem
-    [TotemName(204331)] = "Interface\\Icons\\spell_nature_wrathofair_totem",    -- Counterstrike Totem
-    [TotemName(204332)] = "Interface\\Icons\\spell_nature_windfury",            -- Windfury Totem
-    [TotemName(204336)] = "Interface\\Icons\\spell_nature_groundingtotem",      -- Grounding Totem
-    -- Water
-    [TotemName(157153)] = "Interface\\Icons\\ability_shaman_condensationtotem", -- Cloudburst Totem
-    [TotemName(5394)]   = "Interface\\Icons\\INV_Spear_04",                     -- Healing Stream Totem
-    [TotemName(108280)] = "Interface\\Icons\\ability_shaman_healingtide",       -- Healing Tide Totem
-    -- Earth
-    [TotemName(207399)] = "Interface\\Icons\\spell_nature_reincarnation",       -- Ancestral Protection Totem
-    [TotemName(198838)] = "Interface\\Icons\\spell_nature_stoneskintotem",      -- Earthen Shield Totem
-    [TotemName(51485)]  = "Interface\\Icons\\spell_nature_stranglevines",       -- Earthgrab Totem
-    [TotemName(61882)]  = "Interface\\Icons\\spell_shaman_earthquake",          -- Earthquake Totem
-    [TotemName(196932)] = "Interface\\Icons\\spell_totem_wardofdraining",       -- Voodoo Totem
-    -- Fire
-    [TotemName(192222)] = "Interface\\Icons\\spell_shaman_spewlava",            -- Liquid Magma Totem
-    [TotemName(204330)] = "Interface\\Icons\\spell_fire_totemofwrath",          -- Skyfury Totem
-    -- Totem Mastery
-    [TotemName(202188)] = "Interface\\Icons\\spell_nature_stoneskintotem",      -- Resonance Totem
-    [TotemName(210651)] = "Interface\\Icons\\spell_shaman_stormtotem",          -- Storm Totem
-    [TotemName(210657)] = "Interface\\Icons\\spell_fire_searingtotem",          -- Ember Totem
-    [TotemName(210660)] = "Interface\\Icons\\spell_nature_invisibilitytotem",   -- Tailwind Totem
-}
-
-local function UpdateTotemIcon(frame)
-    if string.match(frame.displayedUnit,"nameplate") ~= "nameplate" then return end
-    local name = UnitName(frame.displayedUnit)
-
-    if name == nil then return end
-    if (totemData[name]) then
-        if (not frame.TotemIcon) then
-            frame.TotemIcon = CreateFrame("Frame", "$parentTotem", frame)
-            frame.TotemIcon:EnableMouse(false)
-            frame.TotemIcon:SetSize(24, 24)
-            frame.TotemIcon:Hide()
-            frame.TotemIcon:SetPoint("BOTTOM", frame.BuffFrame, "TOP", 0, 10)
-            frame.TotemIcon:Show()
-        end
-
-        if (not frame.TotemIcon.Icon) then
-            frame.TotemIcon.Icon = frame.TotemIcon:CreateTexture("$parentIcon","BACKGROUND")
-            frame.TotemIcon.Icon:SetSize(24,24)
-            frame.TotemIcon.Icon:Hide()
-            frame.TotemIcon.Icon:SetAllPoints(frame.TotemIcon)
-            frame.TotemIcon.Icon:SetTexture(totemData[name])
-            frame.TotemIcon.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-            frame.TotemIcon.Icon:Show()
-        end
-
-        if (not frame.TotemIcon.Icon.Overlay) then
-            frame.TotemIcon.Icon.Overlay = frame.TotemIcon:CreateTexture("$parentOverlay", "OVERLAY")
-            frame.TotemIcon.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
-            frame.TotemIcon.Icon.Overlay:Hide()
-            frame.TotemIcon.Icon.Overlay:ClearAllPoints()
-            frame.TotemIcon.Icon.Overlay:SetPoint("TOPRIGHT", frame.TotemIcon.Icon, 2.5, 2.5)
-            frame.TotemIcon.Icon.Overlay:SetPoint("BOTTOMLEFT", frame.TotemIcon.Icon, -2.5, -2.5)
-            frame.TotemIcon.Icon.Overlay:SetTexture(iconOverlay)
-            frame.TotemIcon.Icon.Overlay:SetVertexColor(unpack(borderColor))
-            frame.TotemIcon.Icon.Overlay:Show()
-        end
-    else
-        if (frame.TotemIcon) then
-            frame.TotemIcon:Hide()
-        end
-    end
-end
-
     -- Updated Health Text
+
 local function UpdateHealthText(frame)
-    if ( string.match(frame.displayedUnit,"nameplate") ~= "nameplate") then return end
+    if ( not nPlates.FrameIsNameplate(frame) ) then return end
 
     if ( nPlatesDB.ShowHP ) then
         if ( not frame.healthBar.healthString ) then
             frame.healthBar.healthString = frame.healthBar:CreateFontString("$parentHeathValue", "OVERLAY")
             frame.healthBar.healthString:Hide()
             frame.healthBar.healthString:SetPoint("CENTER", frame.healthBar, 0, 0)
-            frame.healthBar.healthString:SetFont("Fonts\\ARIALN.ttf", 10)--, "OUTLINE")
+            frame.healthBar.healthString:SetFont("Fonts\\ARIALN.ttf", 10)
             frame.healthBar.healthString:SetShadowOffset(.5, -.5)
         end
     else
@@ -209,9 +83,9 @@ local function UpdateHealthText(frame)
     local perc = (health/maxHealth)*100
 
     if ( perc >= 100 and health > 5 and nPlatesDB.ShowFullHP ) then
-        frame.healthBar.healthString:SetFormattedText("%s", FormatValue(health))
+        frame.healthBar.healthString:SetFormattedText("%s", nPlates.FormatValue(health))
     elseif ( perc < 100 and health > 5 ) then
-        frame.healthBar.healthString:SetFormattedText("%s - %.0f%%", FormatValue(health), perc-0.5)
+        frame.healthBar.healthString:SetFormattedText("%s - %.0f%%", nPlates.FormatValue(health), perc-0.5)
     else
         frame.healthBar.healthString:SetText("")
     end
@@ -222,7 +96,7 @@ hooksecurefunc("CompactUnitFrame_UpdateStatusText",UpdateHealthText)
     -- Update Health Color
 
 local function UpdateHealthColor(frame)
-    if ( string.match(frame.displayedUnit,"nameplate") ~= "nameplate" ) then return end
+    if ( not nPlates.FrameIsNameplate(frame) ) then return end
 
     if ( not UnitIsConnected(frame.unit) ) then
         local r, g, b = 0.5, 0.5, 0.5
@@ -274,6 +148,12 @@ local function UpdateHealthColor(frame)
         -- Healthbar Overlay Coloring
 
     if ( frame.healthBar.border.Overlay ) then frame.healthBar.border.Overlay:SetVertexColor(r/2,g/2,b/2,1) end
+
+    if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
+        if ( frame.healthBar.border.Overlay ) then frame.healthBar.border.Overlay:Hide() end
+    else
+        if ( frame.healthBar.border.Overlay ) then frame.healthBar.border.Overlay:Show() end
+    end
 end
 hooksecurefunc("CompactUnitFrame_UpdateHealthColor",UpdateHealthColor)
 
@@ -287,11 +167,11 @@ local function UpdateCastbarTimer(frame)
         if ( frame.castBar.casting ) then
             local current = frame.castBar.maxValue - frame.castBar.value
             if ( current > 0.0 ) then
-                frame.castBar.CastTime:SetText(FormatTime(current))
+                frame.castBar.CastTime:SetText(nPlates.FormatTime(current))
             end
         else
             if ( frame.castBar.value > 0 ) then
-                frame.castBar.CastTime:SetText(FormatTime(frame.castBar.value))
+                frame.castBar.CastTime:SetText(nPlates.FormatTime(frame.castBar.value))
             end
         end
     end
@@ -299,11 +179,11 @@ end
 
 local function UpdateCastbarColors(frame)
 
-        -- Castbar Overlay Coloring / Icon Background
+        -- Castbar Overlay Coloring
 
-    local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(frame.unit)
+    local notInterruptible = select(9,UnitCastingInfo(frame.displayedUnit))
 
-    if ( UnitCanAttack("player",frame.unit) ) then
+    if ( UnitCanAttack("player",frame.displayedUnit) ) then
         if ( notInterruptible ) then
             if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(.75,0,0,1) end
             if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(.75,0,0,1) end
@@ -316,6 +196,8 @@ local function UpdateCastbarColors(frame)
         if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(unpack(borderColor)) end
     end
 
+        -- Backup Icon Background
+
     if ( frame.castBar.Icon.Background ) then
         local _,class = UnitClass(frame.displayedUnit)
         if ( not class ) then
@@ -324,11 +206,21 @@ local function UpdateCastbarColors(frame)
             frame.castBar.Icon.Background:SetTexture("Interface\\Icons\\ClassIcon_"..class)
         end
     end
+
+    local spellName = frame.castBar.Text:GetText()
+    if ( spellName ~= nil ) then
+        spellName = (len(spellName) > 20) and gsub(spellName, "%s?(.[\128-\191]*)%S+%s", "%1. ") or spellName
+        frame.castBar.Text:SetText(spellName)
+    end
 end
 
     -- Setup Frames
 
 local function SetupNamePlate(frame, options)
+
+        -- Name
+
+    nPlates.NameSize(frame)
 
         -- Healthbar
 
@@ -447,20 +339,20 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", SetupNamePlate)
 
     -- Player Frame
 
-local function PlayerFrame(frame, setupOptions, frameOptions)
+local function InternalSetup(frame, setupOptions, frameOptions)
     frame.healthBar:SetHeight(12)
 end
-hooksecurefunc("DefaultCompactNamePlatePlayerFrameSetup", PlayerFrame)
+hooksecurefunc("DefaultCompactNamePlatePlayerFrameSetup", InternalSetup)
 
     -- Update Name
 
 local function UpdateName(frame)
-    if ( string.match(frame.displayedUnit,"nameplate") ~= "nameplate" ) then return end
+    if ( not nPlates.FrameIsNameplate(frame) ) then return end
 
         -- Totem Icon
 
     if ( nPlatesDB.ShowTotemIcon ) then
-        UpdateTotemIcon(frame)
+        nPlates.UpdateTotemIcon(frame)
     end
 
     if ( not ShouldShowName(frame) ) then
@@ -486,7 +378,7 @@ local function UpdateName(frame)
             local playerLevel = UnitLevel("player")
             local targetLevel = UnitLevel(frame.displayedUnit)
             local difficultyColor = GetRelativeDifficultyColor(playerLevel, targetLevel)
-            local levelColor = RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
+            local levelColor = nPlates.RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
 
             if ( targetLevel == -1 ) then
                 frame.name:SetText(newName)
@@ -542,7 +434,7 @@ local function DebuffAnchor(self)
     local targetYOffset = self:GetBaseYOffset() + (isTarget and self:GetTargetYOffset() or 0.0)
 
     self:Hide()
-    if ( IsUsingLargerNamePlateStyle() ) then
+    if ( nPlates.IsUsingLargerNamePlateStyle() ) then
         if ( self:GetParent().unit and ShouldShowName(self:GetParent()) ) then
             if ( showSelf and targetMode ) then
                 self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, 7)
@@ -560,7 +452,7 @@ local function DebuffAnchor(self)
                 self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, targetYOffset+10)
             end
         else
-            self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, targetYOffset+10)
+            self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, targetYOffset+5)
         end
     end
     self:Show()

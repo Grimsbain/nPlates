@@ -6,6 +6,7 @@ local ShowFullHP
 local function ForceUpdate()
     for i, frame in ipairs(C_NamePlate.GetNamePlates()) do
         CompactUnitFrame_UpdateAll(frame.UnitFrame)
+        nPlates.NameSize(frame.UnitFrame)
     end
 end
 
@@ -102,9 +103,19 @@ Options:SetScript("OnShow", function()
         nPlatesDB.AbrrevLongNames = checked
         ForceUpdate()
     end)
+    
+    local UseLargeNameFont = CreateFrame("CheckButton", "$parentUseBigNames", Options, "InterfaceOptionsCheckButtonTemplate")
+    UseLargeNameFont:SetPoint("TOPLEFT", AbrrevLongNames, "BOTTOMLEFT", 0, -12)
+    UseLargeNameFont.Text:SetText("Use Large Names")
+    UseLargeNameFont:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        nPlatesDB.UseLargeNameFont = checked
+        ForceUpdate()
+    end)
 
     local ShowClassColors = CreateFrame("CheckButton", "$parentShowClassColors", Options, "InterfaceOptionsCheckButtonTemplate")
-    ShowClassColors:SetPoint("TOPLEFT", AbrrevLongNames, "BOTTOMLEFT", 0, -12)
+    ShowClassColors:SetPoint("TOPLEFT", UseLargeNameFont, "BOTTOMLEFT", 0, -12)
     ShowClassColors.Text:SetText("Display Class Colors")
     ShowClassColors:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
@@ -232,6 +243,7 @@ Options:SetScript("OnShow", function()
         ShowLevel:SetChecked(nPlatesDB.ShowLevel)
         ShowServerName:SetChecked(nPlatesDB.ShowServerName)
         AbrrevLongNames:SetChecked(nPlatesDB.AbrrevLongNames)
+        UseLargeNameFont:SetChecked(nPlatesDB.UseLargeNameFont)
         ShowClassColors:SetChecked(nPlatesDB.ShowClassColors)
         DontClamp:SetChecked(nPlatesDB.DontClamp)
         ShowTotemIcon:SetChecked(nPlatesDB.ShowTotemIcon)

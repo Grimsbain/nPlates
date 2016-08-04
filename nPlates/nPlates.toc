@@ -5,6 +5,7 @@
 ## Version: 2.0
 ## SavedVariablesPerCharacter: nPlatesDB
 
+func.lua
 config.lua
-slash.lua
 core.lua
+slash.lua
