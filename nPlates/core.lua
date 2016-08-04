@@ -65,12 +65,14 @@ end)
 local function UpdateHealthText(frame)
     if ( not nPlates.FrameIsNameplate(frame) ) then return end
 
+    local font = select(1,frame.name:GetFont())
+
     if ( nPlatesDB.ShowHP ) then
         if ( not frame.healthBar.healthString ) then
             frame.healthBar.healthString = frame.healthBar:CreateFontString("$parentHeathValue", "OVERLAY")
             frame.healthBar.healthString:Hide()
             frame.healthBar.healthString:SetPoint("CENTER", frame.healthBar, 0, 0)
-            frame.healthBar.healthString:SetFont("Fonts\\ARIALN.ttf", 10)
+            frame.healthBar.healthString:SetFont(font, 10)
             frame.healthBar.healthString:SetShadowOffset(.5, -.5)
         end
     else
@@ -149,6 +151,8 @@ local function UpdateHealthColor(frame)
 
     if ( frame.healthBar.border.Overlay ) then frame.healthBar.border.Overlay:SetVertexColor(r/2,g/2,b/2,1) end
 
+        -- Hide Overlay for Personal Frame
+
     if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
         if ( frame.healthBar.border.Overlay ) then frame.healthBar.border.Overlay:Hide() end
     else
@@ -175,7 +179,7 @@ local function UpdateCastbarTimer(frame)
     end
 end
 
-local function UpdateCastbarColors(frame)
+local function UpdateCastbar(frame)
 
         -- Castbar Overlay Coloring
 
@@ -216,7 +220,7 @@ end
 
     -- Setup Frames
 
-local function SetupNamePlate(frame, options)
+local function NamePlateFrameSetup(frame, options)
 
         -- Name
 
@@ -250,6 +254,8 @@ local function SetupNamePlate(frame, options)
 
         -- Castbar
 
+    local castbarFont = select(1,frame.castBar.Text:GetFont())
+    
     frame.castBar:SetHeight(12)
     frame.castBar:SetStatusBarTexture(statusBar)
 
@@ -276,7 +282,7 @@ local function SetupNamePlate(frame, options)
 
     frame.castBar.Text:Hide()
     frame.castBar.Text:ClearAllPoints()
-    frame.castBar.Text:SetFont("Fonts\\ARIALN.ttf", 7.5)
+    frame.castBar.Text:SetFont(castbarFont, 7.5)
     frame.castBar.Text:SetShadowOffset(.5, -.5)
     frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
     frame.castBar.Text:Show()
@@ -287,7 +293,7 @@ local function SetupNamePlate(frame, options)
         frame.castBar.CastTime = frame.castBar:CreateFontString(nil, "OVERLAY")
         frame.castBar.CastTime:Hide()
         frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon, "BOTTOMRIGHT", 0, 0)
-        frame.castBar.CastTime:SetFont("Fonts\\ARIALN.ttf", 10, "OUTLINE")
+        frame.castBar.CastTime:SetFont(castbarFont, 10, "OUTLINE")
         frame.castBar.CastTime:Show()
     end
 
@@ -332,10 +338,10 @@ local function SetupNamePlate(frame, options)
     end)
 
     frame.castBar:SetScript("OnShow", function(self)
-        UpdateCastbarColors(frame)
+        UpdateCastbar(frame)
     end)
 end
-hooksecurefunc("DefaultCompactNamePlateFrameSetup", SetupNamePlate)
+hooksecurefunc("DefaultCompactNamePlateFrameSetup", NamePlateFrameSetup)
 
     -- Player Frame
 
@@ -408,12 +414,11 @@ hooksecurefunc("CompactUnitFrame_UpdateName", UpdateName)
     -- Buff Frame Offsets
 
 local function ApplyOffsets(self)
-    local showSelf = GetCVarBool("nameplateShowSelf")
-    local targetMode = GetCVarBool("nameplateResourceOnTarget")
+    local targetMode = GetCVarBool("nameplateShowSelf") and GetCVarBool("nameplateResourceOnTarget")
 
     self.UnitFrame.BuffFrame:SetBaseYOffset(0)
 
-    if ( showSelf and targetMode ) then
+    if ( targetMode ) then
         self.UnitFrame.BuffFrame:SetTargetYOffset(25)
     else
         self.UnitFrame.BuffFrame:SetTargetYOffset(0)
@@ -424,14 +429,13 @@ hooksecurefunc(NamePlateBaseMixin,"ApplyOffsets",ApplyOffsets)
     -- Update Buff Frame Anchor
 
 local function UpdateAnchor(self)
-    local showSelf = GetCVarBool("nameplateShowSelf")
-    local targetMode = GetCVarBool("nameplateResourceOnTarget")
+    local targetMode = GetCVarBool("nameplateShowSelf") and GetCVarBool("nameplateResourceOnTarget")
     local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, "target")
-    local targetYOffset = self:GetBaseYOffset() + (isTarget and self:GetTargetYOffset() or 0.0)
+    local targetYOffset = isTarget and self:GetTargetYOffset() or 0.0
     local nameHeight = self:GetParent().name:GetHeight()
 
     if (self:GetParent().unit and ShouldShowName(self:GetParent())) then
-        if ( showSelf and targetMode ) then
+        if ( targetMode ) then
             self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, nameHeight+targetYOffset+5 )
         else
             self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, nameHeight+5 )
