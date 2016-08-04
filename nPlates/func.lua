@@ -116,7 +116,8 @@ local totemData = {
 }
 
 nPlates.UpdateTotemIcon = function(frame)
-    if string.match(frame.displayedUnit,"nameplate") ~= "nameplate" then return end
+    if ( not nPlates.FrameIsNameplate(frame) ) then return end
+
     local name = UnitName(frame.displayedUnit)
 
     if name == nil then return end

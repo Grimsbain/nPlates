@@ -157,11 +157,9 @@ local function UpdateHealthColor(frame)
 end
 hooksecurefunc("CompactUnitFrame_UpdateHealthColor",UpdateHealthColor)
 
-    -- Update Castbar
+    -- Update Castbar Time
 
 local function UpdateCastbarTimer(frame)
-
-        -- Cast Time
 
     if ( frame.unit ) then
         if ( frame.castBar.casting ) then
@@ -206,6 +204,8 @@ local function UpdateCastbarColors(frame)
             frame.castBar.Icon.Background:SetTexture("Interface\\Icons\\ClassIcon_"..class)
         end
     end
+
+        -- Abbreviate Long Spell Names
 
     local spellName = frame.castBar.Text:GetText()
     if ( spellName ~= nil ) then
@@ -405,56 +405,39 @@ local function UpdateName(frame)
 end
 hooksecurefunc("CompactUnitFrame_UpdateName", UpdateName)
 
-    -- Fix for broken Blizzard function.
+    -- Buff Frame Offsets
 
-local function DebuffOffsets(self)
+local function ApplyOffsets(self)
     local showSelf = GetCVarBool("nameplateShowSelf")
     local targetMode = GetCVarBool("nameplateResourceOnTarget")
+
+    self.UnitFrame.BuffFrame:SetBaseYOffset(0)
+
     if ( showSelf and targetMode ) then
-        if ( self.driverFrame:IsUsingLargerNamePlateStyle() ) then
-            self.UnitFrame.BuffFrame:SetBaseYOffset(0)
-        else
-            self.UnitFrame.BuffFrame:SetBaseYOffset(0)
-        end
-    end
-    if ( showSelf and targetMode ) then
-        self.UnitFrame.BuffFrame:SetTargetYOffset(18)
+        self.UnitFrame.BuffFrame:SetTargetYOffset(25)
     else
         self.UnitFrame.BuffFrame:SetTargetYOffset(0)
     end
 end
-hooksecurefunc(NamePlateBaseMixin,"ApplyOffsets",DebuffOffsets)
+hooksecurefunc(NamePlateBaseMixin,"ApplyOffsets",ApplyOffsets)
 
-    -- Move Nameplate Debuff Frames
+    -- Update Buff Frame Anchor
 
-local function DebuffAnchor(self)
+local function UpdateAnchor(self)
     local showSelf = GetCVarBool("nameplateShowSelf")
     local targetMode = GetCVarBool("nameplateResourceOnTarget")
     local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, "target")
     local targetYOffset = self:GetBaseYOffset() + (isTarget and self:GetTargetYOffset() or 0.0)
+    local nameHeight = self:GetParent().name:GetHeight()
 
-    self:Hide()
-    if ( nPlates.IsUsingLargerNamePlateStyle() ) then
-        if ( self:GetParent().unit and ShouldShowName(self:GetParent()) ) then
-            if ( showSelf and targetMode ) then
-                self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, 7)
-            else
-                self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, targetYOffset)
-            end
+    if (self:GetParent().unit and ShouldShowName(self:GetParent())) then
+        if ( showSelf and targetMode ) then
+            self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, nameHeight+targetYOffset+5 )
         else
-            self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, 5)
+            self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, nameHeight+5 )
         end
     else
-        if ( self:GetParent().unit and ShouldShowName(self:GetParent()) ) then
-            if ( showSelf and targetMode ) then
-                self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, targetYOffset+10)
-            else
-                self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, targetYOffset+10)
-            end
-        else
-            self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, targetYOffset+5)
-        end
+        self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, 5 );
     end
-    self:Show()
 end
-hooksecurefunc(NameplateBuffContainerMixin,"UpdateAnchor",DebuffAnchor)
+hooksecurefunc(NameplateBuffContainerMixin,"UpdateAnchor",UpdateAnchor)
