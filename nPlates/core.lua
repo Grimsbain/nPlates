@@ -301,7 +301,6 @@ local function UpdateCastbarColors(frame)
 
         -- Castbar Overlay Coloring / Icon Background
 
-
     local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(frame.unit)
 
     if ( UnitCanAttack("player",frame.unit) ) then
@@ -313,10 +312,8 @@ local function UpdateCastbarColors(frame)
             if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(0,.75,0,1) end
         end
     else
-        local r,g,b = frame.healthBar:GetStatusBarColor()
-
-        if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(r/2,g/2,b/2) end
-        if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(r/2,g/2,b/2) end
+        if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(unpack(borderColor)) end
+        if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(unpack(borderColor)) end
     end
 
     if ( frame.castBar.Icon.Background ) then
@@ -389,7 +386,7 @@ local function SetupNamePlate(frame, options)
     frame.castBar.Text:ClearAllPoints()
     frame.castBar.Text:SetFont("Fonts\\ARIALN.ttf", 7.5)
     frame.castBar.Text:SetShadowOffset(.5, -.5)
-    frame.castBar.Text:SetPoint("LEFT",frame.castBar, "LEFT", 4, 0)
+    frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
     frame.castBar.Text:Show()
 
         -- Set Castbar Timer
@@ -432,6 +429,7 @@ local function SetupNamePlate(frame, options)
         frame.castBar.Icon.Overlay:SetPoint("TOPRIGHT", frame.castBar.Icon, 2.5, 2.5)
         frame.castBar.Icon.Overlay:SetPoint("BOTTOMLEFT", frame.castBar.Icon, -2.5, -2.5)
         frame.castBar.Icon.Overlay:SetTexture(iconOverlay)
+        frame.castBar.Icon.Overlay:SetVertexColor(unpack(borderColor))
         frame.castBar.Icon.Overlay:Show()
     end
 
@@ -446,6 +444,13 @@ local function SetupNamePlate(frame, options)
     end)
 end
 hooksecurefunc("DefaultCompactNamePlateFrameSetup", SetupNamePlate)
+
+    -- Player Frame
+
+local function PlayerFrame(frame, setupOptions, frameOptions)
+    frame.healthBar:SetHeight(12)
+end
+hooksecurefunc("DefaultCompactNamePlatePlayerFrameSetup", PlayerFrame)
 
     -- Update Name
 
