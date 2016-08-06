@@ -422,13 +422,27 @@ hooksecurefunc(NamePlateBaseMixin,"ApplyOffsets",ApplyOffsets)
     -- Update Buff Frame Anchor
 
 local function UpdateAnchor(self)
+    local targetMode = GetCVarBool("nameplateShowSelf") and GetCVarBool("nameplateResourceOnTarget")
+    local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, "target")
+    local targetYOffset = isTarget and self:GetTargetYOffset() or 0.0
     local nameHeight = self:GetParent().name:GetHeight()
-    local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, "target");
-    local targetYOffset = self:GetBaseYOffset() + (isTarget and self:GetTargetYOffset() or 0.0);
+
     if (self:GetParent().unit and ShouldShowName(self:GetParent())) then
-        self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, nameHeight+targetYOffset);
+        if ( targetMode ) then
+            if ( nPlates.IsUsingLargerNamePlateStyle() ) then
+                self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, targetYOffset+5 )
+            else
+                self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, nameHeight+targetYOffset+5 )
+            end
+        else
+            if ( nPlates.IsUsingLargerNamePlateStyle() ) then
+                self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, 0 )
+            else
+                self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, nameHeight+5 )
+            end
+        end
     else
-        self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, 5);
+        self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, 5 )
     end
 end
 hooksecurefunc(NameplateBuffContainerMixin,"UpdateAnchor",UpdateAnchor)
