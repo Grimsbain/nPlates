@@ -210,10 +210,12 @@ local function UpdateCastbar(frame)
 
         -- Abbreviate Long Spell Names
 
-    local spellName = frame.castBar.Text:GetText()
-    if ( spellName ~= nil ) then
-        spellName = (len(spellName) > 20) and gsub(spellName, "%s?(.[\128-\191]*)%S+%s", "%1. ") or spellName
-        frame.castBar.Text:SetText(spellName)
+    if ( not nPlates.IsUsingLargerNamePlateStyle() ) then
+        local spellName = frame.castBar.Text:GetText()
+        if ( spellName ~= nil ) then
+            spellName = (len(spellName) > 20) and gsub(spellName, "%s?(.[\128-\191]*)%S+%s", "%1. ") or spellName
+            frame.castBar.Text:SetText(spellName)
+        end
     end
 end
 
@@ -335,7 +337,7 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", NamePlateFrameSetup)
 local function InternalSetup(frame, setupOptions, frameOptions)
     frame.healthBar:SetHeight(12)
 end
-hooksecurefunc("DefaultCompactNamePlatePlayerFrameSetup", InternalSetup)
+hooksecurefunc("DefaultCompactNamePlatePlayerFrameSetup",InternalSetup)
 
     -- Update Name
 
@@ -390,7 +392,7 @@ local function UpdateName(frame)
         end
     end
 end
-hooksecurefunc("CompactUnitFrame_UpdateName", UpdateName)
+hooksecurefunc("CompactUnitFrame_UpdateName",UpdateName)
 
     -- Buff Frame Offsets
 
