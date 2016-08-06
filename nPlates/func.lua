@@ -4,6 +4,10 @@ local ADDON, nPlates = ...
 local len = string.len
 local gsub = string.gsub
 
+local texturePath = "Interface\\AddOns\\nPlates\\media\\"
+local iconOverlay = texturePath.."textureIconOverlay"
+local borderColor = {0.47, 0.47, 0.47, 1}
+
     -- RBG to Hex Colors
 
 nPlates.RGBHex = function(r, g, b)

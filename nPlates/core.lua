@@ -24,7 +24,6 @@ if ( nPlatesDB == nil ) then
         ["UseLargeNameFont"] = false,
         ["ShowClassColors"] = true,
         ["DontClamp"] = false,
-        ["ShowTotemIcon"] = false,
     }
 end
 
@@ -187,15 +186,15 @@ local function UpdateCastbar(frame)
 
     if ( UnitCanAttack("player",frame.displayedUnit) ) then
         if ( notInterruptible ) then
-            if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(.75,0,0,1) end
-            if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(.75,0,0,1) end
+            if ( frame.castBar.Border ) then frame.castBar.Border:SetVertexColor(.75,0,0,1) end
+            if ( frame.castBar.Icon.Border ) then frame.castBar.Icon.Border:SetVertexColor(.75,0,0,1) end
         else
-            if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(0,.75,0,1) end
-            if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(0,.75,0,1) end
+            if ( frame.castBar.Border ) then frame.castBar.Border:SetVertexColor(0,.75,0,1) end
+            if ( frame.castBar.Icon.Border ) then frame.castBar.Icon.Border:SetVertexColor(0,.75,0,1) end
         end
     else
-        if ( frame.castBar.Overlay ) then frame.castBar.Overlay:SetVertexColor(unpack(borderColor)) end
-        if ( frame.castBar.Icon.Overlay ) then frame.castBar.Icon.Overlay:SetVertexColor(unpack(borderColor)) end
+        if ( frame.castBar.Border ) then frame.castBar.Border:SetVertexColor(unpack(borderColor)) end
+        if ( frame.castBar.Icon.Border ) then frame.castBar.Icon.Border:SetVertexColor(unpack(borderColor)) end
     end
 
         -- Backup Icon Background
@@ -255,22 +254,22 @@ local function NamePlateFrameSetup(frame, options)
         -- Castbar
 
     local castbarFont = select(1,frame.castBar.Text:GetFont())
-    
+
     frame.castBar:SetHeight(12)
     frame.castBar:SetStatusBarTexture(statusBar)
 
-    if not frame.castBar.Overlay then
-        frame.castBar.Overlay = frame.castBar:CreateTexture("$parentOverlay", "BORDER")
-        frame.castBar.Overlay:ClearAllPoints()
-        frame.castBar.Overlay:SetTexture(overlayTexture)
-        frame.castBar.Overlay:SetTexCoord(0,0.921875,0,0.625)
-        frame.castBar.Overlay:SetVertexColor(unpack(borderColor))
-        frame.castBar.Overlay:Hide()
-        frame.castBar.Overlay:SetPoint("TOPLEFT", frame.castBar, -3.1, 3.1)
-        frame.castBar.Overlay:SetPoint("TOPRIGHT", frame.castBar, 3.1, 3.1)
-        frame.castBar.Overlay:SetPoint("BOTTOMLEFT", frame.castBar, -3.1, -3.1)
-        frame.castBar.Overlay:SetPoint("BOTTOMRIGHT", frame.castBar, 3.1, -3.1)
-        frame.castBar.Overlay:Show()
+    if not frame.castBar.Border then
+        frame.castBar.Border = frame.castBar:CreateTexture("$parentBorder", "BORDER")
+        frame.castBar.Border:ClearAllPoints()
+        frame.castBar.Border:SetTexture(overlayTexture)
+        frame.castBar.Border:SetTexCoord(0,0.921875,0,0.625)
+        frame.castBar.Border:SetVertexColor(unpack(borderColor))
+        frame.castBar.Border:Hide()
+        frame.castBar.Border:SetPoint("TOPLEFT", frame.castBar, -3.1, 3.1)
+        frame.castBar.Border:SetPoint("TOPRIGHT", frame.castBar, 3.1, 3.1)
+        frame.castBar.Border:SetPoint("BOTTOMLEFT", frame.castBar, -3.1, -3.1)
+        frame.castBar.Border:SetPoint("BOTTOMRIGHT", frame.castBar, 3.1, -3.1)
+        frame.castBar.Border:Show()
     end
 
         -- Border Shield
@@ -282,7 +281,7 @@ local function NamePlateFrameSetup(frame, options)
 
     frame.castBar.Text:Hide()
     frame.castBar.Text:ClearAllPoints()
-    frame.castBar.Text:SetFont(castbarFont, 7.5)
+    frame.castBar.Text:SetFont(castbarFont, 8.5)
     frame.castBar.Text:SetShadowOffset(.5, -.5)
     frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
     frame.castBar.Text:Show()
@@ -293,7 +292,7 @@ local function NamePlateFrameSetup(frame, options)
         frame.castBar.CastTime = frame.castBar:CreateFontString(nil, "OVERLAY")
         frame.castBar.CastTime:Hide()
         frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon, "BOTTOMRIGHT", 0, 0)
-        frame.castBar.CastTime:SetFont(castbarFont, 10, "OUTLINE")
+        frame.castBar.CastTime:SetFont(castbarFont, 12, "OUTLINE")
         frame.castBar.CastTime:Show()
     end
 
@@ -302,7 +301,7 @@ local function NamePlateFrameSetup(frame, options)
     frame.castBar.Icon:SetSize(24,24)
     frame.castBar.Icon:Hide()
     frame.castBar.Icon:ClearAllPoints()
-    frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4.8, -0.5)
+    frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4.9, -0.5)
     frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     frame.castBar.Icon:Show()
 
@@ -319,16 +318,16 @@ local function NamePlateFrameSetup(frame, options)
 
         -- Castbar Icon Overlay
 
-    if ( not frame.castBar.Icon.Overlay ) then
-        frame.castBar.Icon.Overlay = frame.castBar:CreateTexture("$parentIconOverlay", "OVERLAY")
-        frame.castBar.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
-        frame.castBar.Icon.Overlay:Hide()
-        frame.castBar.Icon.Overlay:ClearAllPoints()
-        frame.castBar.Icon.Overlay:SetPoint("TOPRIGHT", frame.castBar.Icon, 2.5, 2.5)
-        frame.castBar.Icon.Overlay:SetPoint("BOTTOMLEFT", frame.castBar.Icon, -2.5, -2.5)
-        frame.castBar.Icon.Overlay:SetTexture(iconOverlay)
-        frame.castBar.Icon.Overlay:SetVertexColor(unpack(borderColor))
-        frame.castBar.Icon.Overlay:Show()
+    if ( not frame.castBar.Icon.Border ) then
+        frame.castBar.Icon.Border = frame.castBar:CreateTexture("$parentIconBorder", "BORDER")
+        frame.castBar.Icon.Border:SetTexCoord(0, 1, 0, 1)
+        frame.castBar.Icon.Border:Hide()
+        frame.castBar.Icon.Border:ClearAllPoints()
+        frame.castBar.Icon.Border:SetPoint("TOPRIGHT", frame.castBar.Icon, 2.5, 2.5)
+        frame.castBar.Icon.Border:SetPoint("BOTTOMLEFT", frame.castBar.Icon, -2.5, -2.5)
+        frame.castBar.Icon.Border:SetTexture(iconOverlay)
+        frame.castBar.Icon.Border:SetVertexColor(unpack(borderColor))
+        frame.castBar.Icon.Border:Show()
     end
 
         -- Update Castbar
@@ -354,12 +353,6 @@ hooksecurefunc("DefaultCompactNamePlatePlayerFrameSetup", InternalSetup)
 
 local function UpdateName(frame)
     if ( not nPlates.FrameIsNameplate(frame) ) then return end
-
-        -- Totem Icon
-
-    if ( nPlatesDB.ShowTotemIcon ) then
-        nPlates.UpdateTotemIcon(frame)
-    end
 
     if ( not ShouldShowName(frame) ) then
         frame.name:Hide()
@@ -416,7 +409,7 @@ hooksecurefunc("CompactUnitFrame_UpdateName", UpdateName)
 local function ApplyOffsets(self)
     local targetMode = GetCVarBool("nameplateShowSelf") and GetCVarBool("nameplateResourceOnTarget")
 
-    self.UnitFrame.BuffFrame:SetBaseYOffset(0)
+    self.UnitFrame.BuffFrame:SetBaseYOffset(0);
 
     if ( targetMode ) then
         self.UnitFrame.BuffFrame:SetTargetYOffset(25)
@@ -429,19 +422,13 @@ hooksecurefunc(NamePlateBaseMixin,"ApplyOffsets",ApplyOffsets)
     -- Update Buff Frame Anchor
 
 local function UpdateAnchor(self)
-    local targetMode = GetCVarBool("nameplateShowSelf") and GetCVarBool("nameplateResourceOnTarget")
-    local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, "target")
-    local targetYOffset = isTarget and self:GetTargetYOffset() or 0.0
     local nameHeight = self:GetParent().name:GetHeight()
-
+    local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, "target");
+    local targetYOffset = self:GetBaseYOffset() + (isTarget and self:GetTargetYOffset() or 0.0);
     if (self:GetParent().unit and ShouldShowName(self:GetParent())) then
-        if ( targetMode ) then
-            self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, nameHeight+targetYOffset+5 )
-        else
-            self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, nameHeight+5 )
-        end
+        self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, nameHeight+targetYOffset);
     else
-        self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, 5 );
+        self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, 5);
     end
 end
 hooksecurefunc(NameplateBuffContainerMixin,"UpdateAnchor",UpdateAnchor)
