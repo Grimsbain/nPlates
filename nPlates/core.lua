@@ -24,6 +24,7 @@ if ( nPlatesDB == nil ) then
         ["UseLargeNameFont"] = false,
         ["ShowClassColors"] = true,
         ["DontClamp"] = false,
+        ["ShowTotemIcon"] = false,
     }
 end
 
@@ -277,7 +278,7 @@ local function NamePlateFrameSetup(frame, options)
 
     frame.castBar.Text:Hide()
     frame.castBar.Text:ClearAllPoints()
-    frame.castBar.Text:SetFont(castbarFont, 8.5)
+    frame.castBar.Text:SetFont(castbarFont, 8)
     frame.castBar.Text:SetShadowOffset(.5, -.5)
     frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
     frame.castBar.Text:Show()
@@ -343,6 +344,12 @@ hooksecurefunc("DefaultCompactNamePlatePlayerFrameSetup",InternalSetup)
 
 local function UpdateName(frame)
     if ( not nPlates.FrameIsNameplate(frame) ) then return end
+
+        -- Totem Icon
+
+    if ( nPlatesDB.ShowTotemIcon ) then
+        nPlates.UpdateTotemIcon(frame)
+    end
 
     if ( not ShouldShowName(frame) ) then
         frame.name:Hide()

@@ -125,36 +125,34 @@ nPlates.UpdateTotemIcon = function(frame)
     local name = UnitName(frame.displayedUnit)
 
     if name == nil then return end
-    if (totemData[name]) then
+    if (totemData[name] and nPlatesDB.ShowTotemIcon ) then
         if (not frame.TotemIcon) then
             frame.TotemIcon = CreateFrame("Frame", "$parentTotem", frame)
             frame.TotemIcon:EnableMouse(false)
             frame.TotemIcon:SetSize(24, 24)
-            frame.TotemIcon:Hide()
             frame.TotemIcon:SetPoint("BOTTOM", frame.BuffFrame, "TOP", 0, 10)
-            frame.TotemIcon:Show()
         end
 
         if (not frame.TotemIcon.Icon) then
             frame.TotemIcon.Icon = frame.TotemIcon:CreateTexture("$parentIcon","BACKGROUND")
             frame.TotemIcon.Icon:SetSize(24,24)
-            frame.TotemIcon.Icon:Hide()
             frame.TotemIcon.Icon:SetAllPoints(frame.TotemIcon)
             frame.TotemIcon.Icon:SetTexture(totemData[name])
             frame.TotemIcon.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-            frame.TotemIcon.Icon:Show()
         end
 
-        if (not frame.TotemIcon.Icon.Overlay) then
-            frame.TotemIcon.Icon.Overlay = frame.TotemIcon:CreateTexture("$parentOverlay", "OVERLAY")
-            frame.TotemIcon.Icon.Overlay:SetTexCoord(0, 1, 0, 1)
-            frame.TotemIcon.Icon.Overlay:Hide()
-            frame.TotemIcon.Icon.Overlay:ClearAllPoints()
-            frame.TotemIcon.Icon.Overlay:SetPoint("TOPRIGHT", frame.TotemIcon.Icon, 2.5, 2.5)
-            frame.TotemIcon.Icon.Overlay:SetPoint("BOTTOMLEFT", frame.TotemIcon.Icon, -2.5, -2.5)
-            frame.TotemIcon.Icon.Overlay:SetTexture(iconOverlay)
-            frame.TotemIcon.Icon.Overlay:SetVertexColor(unpack(borderColor))
-            frame.TotemIcon.Icon.Overlay:Show()
+        if (not frame.TotemIcon.Icon.Border) then
+            frame.TotemIcon.Icon.Border = frame.TotemIcon:CreateTexture("$parentOverlay", "BORDER")
+            frame.TotemIcon.Icon.Border:SetTexCoord(0, 1, 0, 1)
+            frame.TotemIcon.Icon.Border:ClearAllPoints()
+            frame.TotemIcon.Icon.Border:SetPoint("TOPRIGHT", frame.TotemIcon.Icon, 2.5, 2.5)
+            frame.TotemIcon.Icon.Border:SetPoint("BOTTOMLEFT", frame.TotemIcon.Icon, -2.5, -2.5)
+            frame.TotemIcon.Icon.Border:SetTexture(iconOverlay)
+            frame.TotemIcon.Icon.Border:SetVertexColor(unpack(borderColor))
+        end
+
+        if ( frame.TotemIcon ) then
+            frame.TotemIcon:Show()
         end
     else
         if (frame.TotemIcon) then

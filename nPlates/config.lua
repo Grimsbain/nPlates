@@ -7,7 +7,7 @@ local function ForceUpdate()
     for i, frame in ipairs(C_NamePlate.GetNamePlates()) do
         CompactUnitFrame_UpdateAll(frame.UnitFrame)
         nPlates.NameSize(frame.UnitFrame)
-        -- nPlates.UpdateTotemIcon(frame.UnitFrame)
+        nPlates.UpdateTotemIcon(frame.UnitFrame)
     end
 end
 
@@ -156,15 +156,15 @@ Options:SetScript("OnShow", function()
         end
     end)
 
-    -- local ShowTotemIcon = CreateFrame("CheckButton", "$parentShowTotemIcon", Options, "InterfaceOptionsCheckButtonTemplate")
-    -- ShowTotemIcon:SetPoint("TOPLEFT", DontClamp, "BOTTOMLEFT", 0, -12)
-    -- ShowTotemIcon.Text:SetText("Display Totem Icon")
-    -- ShowTotemIcon:SetScript("OnClick", function(this)
-        -- local checked = not not this:GetChecked()
-        -- PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-        -- nPlatesDB.ShowTotemIcon = checked
-        -- ForceUpdate()
-    -- end)
+    local ShowTotemIcon = CreateFrame("CheckButton", "$parentShowTotemIcon", Options, "InterfaceOptionsCheckButtonTemplate")
+    ShowTotemIcon:SetPoint("TOPLEFT", DontClamp, "BOTTOMLEFT", 0, -12)
+    ShowTotemIcon.Text:SetText("Display Totem Icon")
+    ShowTotemIcon:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        nPlatesDB.ShowTotemIcon = checked
+        ForceUpdate()
+    end)
 
     local NameplateScale = CreateFrame("EditBox", "$parentNameplateScale", Options, "InputBoxTemplate")
     NameplateScale:SetPoint("LEFT", TankMode, "RIGHT", 375, 0)
@@ -247,7 +247,7 @@ Options:SetScript("OnShow", function()
         UseLargeNameFont:SetChecked(nPlatesDB.UseLargeNameFont)
         ShowClassColors:SetChecked(nPlatesDB.ShowClassColors)
         DontClamp:SetChecked(nPlatesDB.DontClamp)
-        --ShowTotemIcon:SetChecked(nPlatesDB.ShowTotemIcon)
+        ShowTotemIcon:SetChecked(nPlatesDB.ShowTotemIcon)
     end
 
     Options:Refresh()
