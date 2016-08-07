@@ -57,6 +57,14 @@ C_Timer.After(.1, function()
         -- Set min and max scale.
         SetCVar("namePlateMinScale", 1)
         SetCVar("namePlateMaxScale", 1)
+        
+        -- Set sticky nameplates.
+        if ( not nPlatesDB.DontClamp ) then
+            SetCVar("nameplateOtherTopInset", -1,true)
+            SetCVar("nameplateOtherBottomInset", -1,true)
+        else
+            for _, v in pairs({"nameplateOtherTopInset", "nameplateOtherBottomInset"}) do SetCVar(v, GetCVarDefault(v),true) end
+        end
     end
 end)
 
