@@ -231,10 +231,12 @@ local function NamePlateFrameSetup(frame, options)
         -- Healthbar
 
     frame.healthBar:SetHeight(12)
+    frame.healthBar:Hide()
     frame.healthBar:ClearAllPoints()
     frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.5)
     frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.5)
     frame.healthBar:SetStatusBarTexture(statusBar)
+    frame.healthBar:Show()
 
         -- Healthbar Border Overlay
 
@@ -242,12 +244,13 @@ local function NamePlateFrameSetup(frame, options)
         frame.healthBar.border.Overlay = frame.healthBar.border:CreateTexture("$parentCustomTexture","BORDER")
         frame.healthBar.border.Overlay:SetTexture(overlayTexture)
         frame.healthBar.border.Overlay:SetTexCoord(0,0.921875,0,0.625)
-        frame.healthBar.border.Overlay:SetAllPoints(frame.healthBar.border)
+        frame.healthBar.border.Overlay:Hide()
         frame.healthBar.border.Overlay:SetPoint("TOPLEFT", frame.healthBar.border, -3.1, 3.1)
         frame.healthBar.border.Overlay:SetPoint("TOPRIGHT", frame.healthBar.border, 3.1, 3.1)
         frame.healthBar.border.Overlay:SetPoint("BOTTOMLEFT", frame.healthBar.border, -3.1, -3.1)
         frame.healthBar.border.Overlay:SetPoint("BOTTOMRIGHT", frame.healthBar.border, 3.1, -3.1)
         frame.healthBar.border.Overlay:SetVertexColor(unpack(borderColor))
+        frame.healthBar.border.Overlay:Show()
     end
 
         -- Castbar
@@ -259,6 +262,7 @@ local function NamePlateFrameSetup(frame, options)
 
     if not frame.castBar.Border then
         frame.castBar.Border = frame.castBar:CreateTexture("$parentBorder", "BORDER")
+        frame.castBar.Border:Hide()
         frame.castBar.Border:ClearAllPoints()
         frame.castBar.Border:SetTexture(overlayTexture)
         frame.castBar.Border:SetTexCoord(0,0.921875,0,0.625)
@@ -267,6 +271,7 @@ local function NamePlateFrameSetup(frame, options)
         frame.castBar.Border:SetPoint("TOPRIGHT", frame.castBar, 3.1, 3.1)
         frame.castBar.Border:SetPoint("BOTTOMLEFT", frame.castBar, -3.1, -3.1)
         frame.castBar.Border:SetPoint("BOTTOMRIGHT", frame.castBar, 3.1, -3.1)
+        frame.castBar.Border:Show()
     end
 
         -- Border Shield
@@ -296,17 +301,21 @@ local function NamePlateFrameSetup(frame, options)
         -- Castbar Icon
 
     frame.castBar.Icon:SetSize(24,24)
+    frame.castBar.Icon:Hide()
     frame.castBar.Icon:ClearAllPoints()
     frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4.9, -0.5)
     frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    frame.castBar.Icon:Show()
 
         -- Castbar Icon Background
 
     if ( not frame.castBar.Icon.Background ) then
         frame.castBar.Icon.Background = frame.castBar:CreateTexture("$parentIconBackground", "BACKGROUND")
         frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+        frame.castBar.Icon.Background:Hide()
         frame.castBar.Icon.Background:ClearAllPoints()
         frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
+        frame.castBar.Icon.Background:Show()
     end
 
         -- Castbar Icon Overlay
@@ -314,11 +323,13 @@ local function NamePlateFrameSetup(frame, options)
     if ( not frame.castBar.Icon.Border ) then
         frame.castBar.Icon.Border = frame.castBar:CreateTexture("$parentIconBorder", "BORDER")
         frame.castBar.Icon.Border:SetTexCoord(0, 1, 0, 1)
+        frame.castBar.Icon.Border:Hide()
         frame.castBar.Icon.Border:ClearAllPoints()
         frame.castBar.Icon.Border:SetPoint("TOPRIGHT", frame.castBar.Icon, 2.5, 2.5)
         frame.castBar.Icon.Border:SetPoint("BOTTOMLEFT", frame.castBar.Icon, -2.5, -2.5)
         frame.castBar.Icon.Border:SetTexture(iconOverlay)
         frame.castBar.Icon.Border:SetVertexColor(unpack(borderColor))
+        frame.castBar.Icon.Border:Show()
     end
 
         -- Update Castbar
