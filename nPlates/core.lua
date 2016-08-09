@@ -455,8 +455,10 @@ local function UpdateName(frame)
                 end
             else
                 local target = frame.displayedUnit.."target"
-                if ( nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) ) then
-                    frame.name:SetTextColor(0.60, 0.20, 1.0)
+                if ( UnitPlayerOrPetInRaid(target) or UnitPlayerOrPetInParty(target) ) then
+                    if ( nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) ) then
+                        frame.name:SetTextColor(0.60, 0.20, 1.0)
+                    end
                 end
             end
         end
