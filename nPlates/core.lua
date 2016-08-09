@@ -150,7 +150,12 @@ local function UpdateHealthColor(frame)
                             r, g, b = 1.0, 0.6, 0.2
                         end
                     else
-                        r, g, b = 1.0, 0.0, 0.0
+                        local target = frame.displayedUnit.."target"
+                        if ( nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) ) then
+                            r, g, b = 0.60, 0.20, 1.0
+                        else
+                            r, g, b = 1.0, 0.0, 0.0
+                        end
                     end
                 else
                     r, g, b = UnitSelectionColor(frame.unit, frame.optionTable.colorHealthWithExtendedColors)
@@ -210,19 +215,26 @@ local function UpdateCastbar(frame)
 
         -- Castbar Overlay Coloring
 
-    local notInterruptible = select(9,UnitCastingInfo(frame.displayedUnit))
+    local notInterruptible
+    local red = {.75,0,0,1}
+    local green = {0,.75,0,1}
 
-    if ( UnitCanAttack("player",frame.displayedUnit) ) then
-        if ( notInterruptible ) then
-            if ( frame.castBar.Border ) then frame.castBar.Border:SetVertexColor(.75,0,0,1) end
-            if ( frame.castBar.Icon.Border ) then frame.castBar.Icon.Border:SetVertexColor(.75,0,0,1) end
+    if ( frame.unit ) then
+        if ( frame.castBar.casting ) then
+            notInterruptible = select(9,UnitCastingInfo(frame.displayedUnit))
         else
-            if ( frame.castBar.Border ) then frame.castBar.Border:SetVertexColor(0,.75,0,1) end
-            if ( frame.castBar.Icon.Border ) then frame.castBar.Icon.Border:SetVertexColor(0,.75,0,1) end
+            notInterruptible = select(8,UnitChannelInfo(frame.displayedUnit))
         end
-    else
-        if ( frame.castBar.Border ) then frame.castBar.Border:SetVertexColor(unpack(borderColor)) end
-        if ( frame.castBar.Icon.Border ) then frame.castBar.Icon.Border:SetVertexColor(unpack(borderColor)) end
+
+        if ( UnitCanAttack("player",frame.displayedUnit) ) then
+            if ( notInterruptible ) then
+                nPlates.SetManabarColors(frame,red)
+            else
+                nPlates.SetManabarColors(frame,green)
+            end
+        else
+            nPlates.SetManabarColors(frame,borderColor)
+        end
     end
 
         -- Backup Icon Background
@@ -440,6 +452,11 @@ local function UpdateName(frame)
                     frame.name:SetTextColor(0,1,0)
                 elseif ( threatStatus == 2 ) then
                     frame.name:SetTextColor(1,0.6,0.2)
+                end
+            else
+                local target = frame.displayedUnit.."target"
+                if ( nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) ) then
+                    frame.name:SetTextColor(0.60, 0.20, 1.0)
                 end
             end
         end

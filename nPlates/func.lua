@@ -85,6 +85,21 @@ nPlates.FrameIsNameplate = function(frame)
     end
 end
 
+    -- Checks to see if target has tank role.
+
+nPlates.PlayerIsTank = function(target)
+    local assignedRole = UnitGroupRolesAssigned(target)
+
+    return assignedRole == "TANK"
+end
+
+    -- Set Manabar Border Colors
+
+nPlates.SetManabarColors = function(frame,color)
+    if ( frame.castBar.Border ) then frame.castBar.Border:SetVertexColor(unpack(color)) end
+    if ( frame.castBar.Icon.Border ) then frame.castBar.Icon.Border:SetVertexColor(unpack(color)) end
+end
+
     -- Totem Data and Functions
 
 local function TotemName(SpellID)
