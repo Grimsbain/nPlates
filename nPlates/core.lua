@@ -17,11 +17,14 @@ if ( nPlatesDB == nil ) then
         ["TankMode"] = false,
         ["ColorNameByThreat"] = false,
         ["ShowHP"] = true,
+        ["ShowCurHP"] = true,
+        ["ShowPercHP"] = true,
         ["ShowFullHP"] = true,
         ["ShowLevel"] = true,
         ["ShowServerName"] = false,
         ["AbrrevLongNames"] = true,
         ["UseLargeNameFont"] = false,
+        ["HideFriendly"] = false,
         ["ShowClassColors"] = true,
         ["DontClamp"] = false,
         ["ShowTotemIcon"] = false,
@@ -57,7 +60,7 @@ C_Timer.After(.1, function()
         -- Set min and max scale.
         SetCVar("namePlateMinScale", 1)
         SetCVar("namePlateMaxScale", 1)
-        
+
         -- Set sticky nameplates.
         if ( not nPlatesDB.DontClamp ) then
             SetCVar("nameplateOtherTopInset", -1,true)
@@ -93,9 +96,25 @@ local function UpdateHealthText(frame)
     local perc = (health/maxHealth)*100
 
     if ( perc >= 100 and health > 5 and nPlatesDB.ShowFullHP ) then
-        frame.healthBar.healthString:SetFormattedText("%s", nPlates.FormatValue(health))
+        if ( nPlatesDB.ShowCurHP and nPlatesDB.ShowPercHP ) then
+            frame.healthBar.healthString:SetFormattedText("%s - %.0f%%", nPlates.FormatValue(health), perc-0.5)
+        elseif ( nPlatesDB.ShowCurHP ) then
+            frame.healthBar.healthString:SetFormattedText("%s", nPlates.FormatValue(health))
+        elseif ( nPlatesDB.ShowPercHP ) then
+            frame.healthBar.healthString:SetFormattedText("%.0f%%", perc-0.5)
+        else
+            frame.healthBar.healthString:SetText("")
+        end
     elseif ( perc < 100 and health > 5 ) then
-        frame.healthBar.healthString:SetFormattedText("%s - %.0f%%", nPlates.FormatValue(health), perc-0.5)
+        if ( nPlatesDB.ShowCurHP and nPlatesDB.ShowPercHP ) then
+            frame.healthBar.healthString:SetFormattedText("%s - %.0f%%", nPlates.FormatValue(health), perc-0.5)
+        elseif ( nPlatesDB.ShowCurHP ) then
+            frame.healthBar.healthString:SetFormattedText("%s", nPlates.FormatValue(health))
+        elseif ( nPlatesDB.ShowPercHP ) then
+            frame.healthBar.healthString:SetFormattedText("%.0f%%", perc-0.5)
+        else
+            frame.healthBar.healthString:SetText("")
+        end
     else
         frame.healthBar.healthString:SetText("")
     end
@@ -368,6 +387,14 @@ local function UpdateName(frame)
 
     if ( nPlatesDB.ShowTotemIcon ) then
         nPlates.UpdateTotemIcon(frame)
+    end
+
+        -- Hide Friendly Nameplates
+
+    if ( UnitIsFriend(frame.displayedUnit,"player") and not UnitCanAttack(frame.displayedUnit,"player") and nPlatesDB.HideFriendly ) then
+        frame.healthBar:Hide()
+    else
+        frame.healthBar:Show()
     end
 
     if ( not ShouldShowName(frame) ) then
