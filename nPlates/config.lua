@@ -49,54 +49,64 @@ Options:SetScript("OnShow", function()
         ForceUpdate()
     end)
 
-    local ShowHP = CreateFrame("CheckButton", "$parentShowHP", Options, "InterfaceOptionsCheckButtonTemplate")
-    ShowHP:SetPoint("TOPLEFT", ColorNameByThreat, "BOTTOMLEFT", 0, -6)
-    ShowHP.Text:SetText("Display Health Text")
-    ShowHP:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-        nPlatesDB.ShowHP = checked
-        if nPlatesDB.ShowHP then
-            ShowFullHP:Enable()
-            ForceUpdate()
+    local HealthTextMenuTable = {
+        {
+            text = "Enable Health Text",
+            func = function()
+                nPlatesDB.ShowHP = not nPlatesDB.ShowHP
+                ForceUpdate()
+            end,
+            checked = function() return nPlatesDB.ShowHP end,
+        },
+        {
+            text = "Show When Full",
+            func = function()
+                nPlatesDB.ShowFullHP = not nPlatesDB.ShowFullHP
+                ForceUpdate()
+            end,
+            checked = function() return nPlatesDB.ShowFullHP end,
+        },
+        {
+            text = "Show Current Value",
+            func = function()
+                nPlatesDB.ShowCurHP = not nPlatesDB.ShowCurHP
+                ForceUpdate()
+            end,
+            checked = function() return nPlatesDB.ShowCurHP end,
+        },
+        {
+            text = "Show Percent",
+            func = function()
+                nPlatesDB.ShowPercHP = not nPlatesDB.ShowPercHP
+                ForceUpdate()
+            end,
+            checked = function() return nPlatesDB.ShowPercHP end,
+        },
+        {
+            text = CLOSE,
+            func = function() CloseDropDownMenus() end,
+            notCheckable = 1,
+        },
+    }
+
+    local HealthTextDropDownMenu = CreateFrame("Frame", "HealthTextDropDownMenu", Options, "UIDropDownMenuTemplate")
+    local HealthText = CreateFrame("Button", "HealthTextTitle", Options , "UIPanelButtonTemplate")
+    HealthText:SetPoint("TOPLEFT", ColorNameByThreat, "BOTTOMLEFT", 0, -6)
+    HealthText:SetSize(140,25)
+    HealthText:SetText("Health Options")
+    HealthText:SetScript("OnClick", function(self, button, down)
+        if ( not DropDownList1:IsVisible() ) then
+            if button == "LeftButton" then
+                EasyMenu(HealthTextMenuTable,HealthTextDropDownMenu, self:GetName(), 0, 0, "MENU")
+            end
         else
-            ShowFullHP:Disable()
-            ForceUpdate()
+            CloseDropDownMenus()
         end
     end)
-
-    ShowFullHP = CreateFrame("CheckButton", "$parentShowFullHP", Options, "InterfaceOptionsCheckButtonTemplate")
-    ShowFullHP:SetPoint("TOPLEFT", ShowHP, "BOTTOMLEFT", 10, 0)
-    ShowFullHP.Text:SetText("When Full")
-    ShowFullHP:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-        nPlatesDB.ShowFullHP = checked
-        ForceUpdate()
-    end)
-
-    ShowCurHP = CreateFrame("CheckButton", "$parentShowCurHP", Options, "InterfaceOptionsCheckButtonTemplate")
-    ShowCurHP:SetPoint("TOPLEFT", ShowFullHP, "BOTTOMLEFT", 0, 0)
-    ShowCurHP.Text:SetText("Value")
-    ShowCurHP:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-        nPlatesDB.ShowCurHP = checked
-        ForceUpdate()
-    end)
-
-    ShowPercHP = CreateFrame("CheckButton", "$parentShowPercHP", Options, "InterfaceOptionsCheckButtonTemplate")
-    ShowPercHP:SetPoint("TOPLEFT", ShowCurHP, "BOTTOMLEFT", 0, 0)
-    ShowPercHP.Text:SetText("Percent")
-    ShowPercHP:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-        nPlatesDB.ShowPercHP = checked
-        ForceUpdate()
-    end)
+    HealthText:RegisterForClicks("LeftButtonUp")
 
     local ShowLevel = CreateFrame("CheckButton", "$parentShowLevel", Options, "InterfaceOptionsCheckButtonTemplate")
-    ShowLevel:SetPoint("TOPLEFT", ShowHP, "BOTTOMLEFT", 0, -84)
+    ShowLevel:SetPoint("TOPLEFT", HealthText, "BOTTOMLEFT", 0, -6)
     ShowLevel.Text:SetText("Display Level")
     ShowLevel:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
@@ -269,10 +279,6 @@ Options:SetScript("OnShow", function()
     function Options:Refresh()
         TankMode:SetChecked(nPlatesDB.TankMode)
         ColorNameByThreat:SetChecked(nPlatesDB.ColorNameByThreat)
-        ShowHP:SetChecked(nPlatesDB.ShowHP)
-        ShowFullHP:SetChecked(nPlatesDB.ShowFullHP)
-        ShowCurHP:SetChecked(nPlatesDB.ShowCurHP)
-        ShowPercHP:SetChecked(nPlatesDB.ShowPercHP)
         ShowLevel:SetChecked(nPlatesDB.ShowLevel)
         ShowServerName:SetChecked(nPlatesDB.ShowServerName)
         AbrrevLongNames:SetChecked(nPlatesDB.AbrrevLongNames)
