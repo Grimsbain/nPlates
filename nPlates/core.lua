@@ -269,186 +269,100 @@ end
 
     -- Setup Frames
 
-local listener = CreateFrame("Frame")
-listener:RegisterEvent("NAME_PLATE_CREATED")
-listener:SetScript("OnEvent", function(self, event, ...)
-    if ( event == "NAME_PLATE_CREATED" ) then
-        hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options, ...)
+hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
 
-                -- Name
+        -- Name
 
-            nPlates.NameSize(frame)
+    nPlates.NameSize(frame)
 
-                -- Healthbar
+        -- Healthbar
 
-            frame.healthBar:SetHeight(12)
-            frame.healthBar:Hide()
-            frame.healthBar:ClearAllPoints()
-            frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.5)
-            frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.5)
-            frame.healthBar:SetStatusBarTexture(statusBar)
-            frame.healthBar:Show()
+    frame.healthBar:SetHeight(12)
+    frame.healthBar:Hide()
+    frame.healthBar:ClearAllPoints()
+    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
+    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
+    frame.healthBar:SetStatusBarTexture(statusBar)
+    frame.healthBar:Show()
 
-                -- Healthbar Border Overlay
+        -- Healthbar Border
 
-            if (not frame.healthBar.beautyBorder) then
-                local padding = 2
-                frame.healthBar.beautyBorder = {}
-                for i = 1, 8 do
-                    frame.healthBar.beautyBorder[i] = frame.healthBar:CreateTexture(nil, 'OVERLAY')
-                    frame.healthBar.beautyBorder[i]:SetParent(frame.healthBar)
-                    frame.healthBar.beautyBorder[i]:SetTexture(borderTexture)
-                    frame.healthBar.beautyBorder[i]:SetSize(8, 8)
-                    frame.healthBar.beautyBorder[i]:SetVertexColor(unpack(borderColor))
-                    frame.healthBar.beautyBorder[i]:Hide()
-                end
-
-                frame.healthBar.beautyBorder[1]:SetTexCoord(0, 1/3, 0, 1/3)
-                frame.healthBar.beautyBorder[1]:SetPoint('TOPLEFT', frame.healthBar, -padding, padding)
-
-                frame.healthBar.beautyBorder[2]:SetTexCoord(2/3, 1, 0, 1/3)
-                frame.healthBar.beautyBorder[2]:SetPoint('TOPRIGHT', frame.healthBar, padding, padding)
-
-                frame.healthBar.beautyBorder[3]:SetTexCoord(0, 1/3, 2/3, 1)
-                frame.healthBar.beautyBorder[3]:SetPoint('BOTTOMLEFT', frame.healthBar, -padding, -padding)
-
-                frame.healthBar.beautyBorder[4]:SetTexCoord(2/3, 1, 2/3, 1)
-                frame.healthBar.beautyBorder[4]:SetPoint('BOTTOMRIGHT', frame.healthBar, padding, -padding)
-
-                frame.healthBar.beautyBorder[5]:SetTexCoord(1/3, 2/3, 0, 1/3)
-                frame.healthBar.beautyBorder[5]:SetPoint('TOPLEFT', frame.healthBar.beautyBorder[1], 'TOPRIGHT')
-                frame.healthBar.beautyBorder[5]:SetPoint('TOPRIGHT', frame.healthBar.beautyBorder[2], 'TOPLEFT')
-
-                frame.healthBar.beautyBorder[6]:SetTexCoord(1/3, 2/3, 2/3, 1)
-                frame.healthBar.beautyBorder[6]:SetPoint('BOTTOMLEFT', frame.healthBar.beautyBorder[3], 'BOTTOMRIGHT')
-                frame.healthBar.beautyBorder[6]:SetPoint('BOTTOMRIGHT', frame.healthBar.beautyBorder[4], 'BOTTOMLEFT')
-
-                frame.healthBar.beautyBorder[7]:SetTexCoord(0, 1/3, 1/3, 2/3)
-                frame.healthBar.beautyBorder[7]:SetPoint('TOPLEFT', frame.healthBar.beautyBorder[1], 'BOTTOMLEFT')
-                frame.healthBar.beautyBorder[7]:SetPoint('BOTTOMLEFT', frame.healthBar.beautyBorder[3], 'TOPLEFT')
-
-                frame.healthBar.beautyBorder[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
-                frame.healthBar.beautyBorder[8]:SetPoint('TOPRIGHT', frame.healthBar.beautyBorder[2], 'BOTTOMRIGHT')
-                frame.healthBar.beautyBorder[8]:SetPoint('BOTTOMRIGHT', frame.healthBar.beautyBorder[4], 'TOPRIGHT')
-
-                for i = 1, 8 do
-                    frame.healthBar.beautyBorder[i]:Show()
-                end
-            end
-
-                -- Castbar
-
-            local castbarFont = select(1,frame.castBar.Text:GetFont())
-
-            frame.castBar:SetHeight(12)
-            frame.castBar:SetStatusBarTexture(statusBar)
-
-            if (not frame.castBar.beautyBorder) then
-                local padding = 2
-                frame.castBar.beautyBorder = {}
-                for i = 1, 8 do
-                    frame.castBar.beautyBorder[i] = frame.castBar:CreateTexture(nil, 'OVERLAY')
-                    frame.castBar.beautyBorder[i]:SetParent(frame.castBar)
-                    frame.castBar.beautyBorder[i]:SetTexture(borderTexture)
-                    frame.castBar.beautyBorder[i]:SetSize(8, 8)
-                    frame.castBar.beautyBorder[i]:SetVertexColor(unpack(borderColor))
-                    frame.castBar.beautyBorder[i]:Hide()
-                end
-
-                frame.castBar.beautyBorder[1]:SetTexCoord(0, 1/3, 0, 1/3)
-                frame.castBar.beautyBorder[1]:SetPoint('TOPLEFT', frame.castBar, -padding, padding)
-
-                frame.castBar.beautyBorder[2]:SetTexCoord(2/3, 1, 0, 1/3)
-                frame.castBar.beautyBorder[2]:SetPoint('TOPRIGHT', frame.castBar, padding, padding)
-
-                frame.castBar.beautyBorder[3]:SetTexCoord(0, 1/3, 2/3, 1)
-                frame.castBar.beautyBorder[3]:SetPoint('BOTTOMLEFT', frame.castBar, -padding, -padding)
-
-                frame.castBar.beautyBorder[4]:SetTexCoord(2/3, 1, 2/3, 1)
-                frame.castBar.beautyBorder[4]:SetPoint('BOTTOMRIGHT', frame.castBar, padding, -padding)
-
-                frame.castBar.beautyBorder[5]:SetTexCoord(1/3, 2/3, 0, 1/3)
-                frame.castBar.beautyBorder[5]:SetPoint('TOPLEFT', frame.castBar.beautyBorder[1], 'TOPRIGHT')
-                frame.castBar.beautyBorder[5]:SetPoint('TOPRIGHT', frame.castBar.beautyBorder[2], 'TOPLEFT')
-
-                frame.castBar.beautyBorder[6]:SetTexCoord(1/3, 2/3, 2/3, 1)
-                frame.castBar.beautyBorder[6]:SetPoint('BOTTOMLEFT', frame.castBar.beautyBorder[3], 'BOTTOMRIGHT')
-                frame.castBar.beautyBorder[6]:SetPoint('BOTTOMRIGHT', frame.castBar.beautyBorder[4], 'BOTTOMLEFT')
-
-                frame.castBar.beautyBorder[7]:SetTexCoord(0, 1/3, 1/3, 2/3)
-                frame.castBar.beautyBorder[7]:SetPoint('TOPLEFT', frame.castBar.beautyBorder[1], 'BOTTOMLEFT')
-                frame.castBar.beautyBorder[7]:SetPoint('BOTTOMLEFT', frame.castBar.beautyBorder[3], 'TOPLEFT')
-
-                frame.castBar.beautyBorder[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
-                frame.castBar.beautyBorder[8]:SetPoint('TOPRIGHT', frame.castBar.beautyBorder[2], 'BOTTOMRIGHT')
-                frame.castBar.beautyBorder[8]:SetPoint('BOTTOMRIGHT', frame.castBar.beautyBorder[4], 'TOPRIGHT')
-
-                for i = 1, 8 do
-                    frame.castBar.beautyBorder[i]:Show()
-                end
-            end
-
-                -- Border Shield
-
-            frame.castBar.BorderShield:Hide()
-            frame.castBar.BorderShield:ClearAllPoints()
-
-                -- Spell Name
-
-            frame.castBar.Text:Hide()
-            frame.castBar.Text:ClearAllPoints()
-            frame.castBar.Text:SetFont(castbarFont, 8)
-            frame.castBar.Text:SetShadowOffset(.5, -.5)
-            frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
-            frame.castBar.Text:Show()
-
-                -- Set Castbar Timer
-
-            if ( not frame.castBar.CastTime ) then
-                frame.castBar.CastTime = frame.castBar:CreateFontString(nil, "OVERLAY")
-                frame.castBar.CastTime:Hide()
-                frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon, "BOTTOMRIGHT", 0, 0)
-                frame.castBar.CastTime:SetFont(castbarFont, 12, "OUTLINE")
-                frame.castBar.CastTime:Show()
-            end
-
-                -- Castbar Icon
-
-            frame.castBar.Icon:SetSize(24,24)
-            frame.castBar.Icon:Hide()
-            frame.castBar.Icon:ClearAllPoints()
-            frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4.9, -0.5)
-            frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-            frame.castBar.Icon:Show()
-
-                -- Castbar Icon Background
-
-            if ( not frame.castBar.Icon.Background ) then
-                frame.castBar.Icon.Background = frame.castBar:CreateTexture("$parentIconBackground", "BACKGROUND")
-                frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-                frame.castBar.Icon.Background:Hide()
-                frame.castBar.Icon.Background:ClearAllPoints()
-                frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
-                frame.castBar.Icon.Background:Show()
-            end
-
-                -- Castbar Icon Overlay
-
-            if ( not frame.castBar.Icon.beautyBorder ) then
-                nPlates.SetBorder(frame.castBar.Icon)
-            end
-
-                -- Update Castbar
-
-            frame.castBar:SetScript("OnValueChanged", function(self, value)
-                UpdateCastbarTimer(frame)
-            end)
-
-            frame.castBar:SetScript("OnShow", function(self)
-                UpdateCastbar(frame)
-            end)
-        end)
+    if (not frame.healthBar.beautyBorder) then
+        nPlates.SetBorder(frame.healthBar)
     end
+
+        -- Castbar
+
+    local castbarFont = select(1,frame.castBar.Text:GetFont())
+
+    frame.castBar:SetHeight(12)
+    frame.castBar:SetStatusBarTexture(statusBar)
+
+        -- Castbar Border
+
+    if (not frame.castBar.beautyBorder) then
+        nPlates.SetBorder(frame.castBar)
+    end
+
+        -- Hide Border Shield
+
+    frame.castBar.BorderShield:Hide()
+    frame.castBar.BorderShield:ClearAllPoints()
+
+        -- Spell Name
+
+    frame.castBar.Text:Hide()
+    frame.castBar.Text:ClearAllPoints()
+    frame.castBar.Text:SetFont(castbarFont, 8)
+    frame.castBar.Text:SetShadowOffset(.5, -.5)
+    frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
+    frame.castBar.Text:Show()
+
+        -- Set Castbar Timer
+
+    if ( not frame.castBar.CastTime ) then
+        frame.castBar.CastTime = frame.castBar:CreateFontString(nil, "OVERLAY")
+        frame.castBar.CastTime:Hide()
+        frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon, "BOTTOMRIGHT", 0, 0)
+        frame.castBar.CastTime:SetFont(castbarFont, 12, "OUTLINE")
+        frame.castBar.CastTime:Show()
+    end
+
+        -- Castbar Icon
+
+    frame.castBar.Icon:SetSize(24,24)
+    frame.castBar.Icon:Hide()
+    frame.castBar.Icon:ClearAllPoints()
+    frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4.9, 0)
+    frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    frame.castBar.Icon:Show()
+
+        -- Castbar Icon Background
+
+    if ( not frame.castBar.Icon.Background ) then
+        frame.castBar.Icon.Background = frame.castBar:CreateTexture("$parentIconBackground", "BACKGROUND")
+        frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+        frame.castBar.Icon.Background:Hide()
+        frame.castBar.Icon.Background:ClearAllPoints()
+        frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
+        frame.castBar.Icon.Background:Show()
+    end
+
+        -- Castbar Icon Border
+
+    if ( not frame.castBar.Icon.beautyBorder ) then
+        nPlates.SetBorder(frame.castBar.Icon)
+    end
+
+        -- Update Castbar
+
+    frame.castBar:SetScript("OnValueChanged", function(self, value)
+        UpdateCastbarTimer(frame)
+    end)
+
+    frame.castBar:SetScript("OnShow", function(self)
+        UpdateCastbar(frame)
+    end)
 end)
 
     -- Player Frame

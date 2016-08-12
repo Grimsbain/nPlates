@@ -112,15 +112,16 @@ end
 
 nPlates.SetBorder = function(frame)
     if (not frame.beautyBorder) then
+        local objectType = frame:GetObjectType()
         local padding = 2
         frame.beautyBorder = {}
         for i = 1, 8 do
-            if ( frame:GetObjectType() == "Frame" ) then
-                frame.beautyBorder[i] = frame:CreateTexture(nil, 'BORDER')
+            if ( objectType == "StatusBar" ) then
+                frame.beautyBorder[i] = frame:CreateTexture("$parentBeautyBorder"..i, 'OVERLAY')
                 frame.beautyBorder[i]:SetParent(frame)
-            else
+            elseif ( objectType == "Texture") then
                 local frameParent = frame:GetParent()
-                frame.beautyBorder[i] = frameParent:CreateTexture(nil, 'BORDER')
+                frame.beautyBorder[i] = frameParent:CreateTexture("$parentBorder"..i, 'BORDER')
                 frame.beautyBorder[i]:SetParent(frameParent)
             end
             frame.beautyBorder[i]:SetTexture(borderTexture)
