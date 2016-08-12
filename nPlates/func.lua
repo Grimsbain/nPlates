@@ -5,7 +5,7 @@ local len = string.len
 local gsub = string.gsub
 
 local texturePath = "Interface\\AddOns\\nPlates\\media\\"
-local iconOverlay = texturePath.."textureIconOverlay"
+local borderTexture = texturePath.."borderTexture"
 local borderColor = {0.47, 0.47, 0.47, 1}
 
     -- RBG to Hex Colors
@@ -96,10 +96,72 @@ end
     -- Set Manabar Border Colors
 
 nPlates.SetManabarColors = function(frame,color)
-    if ( frame.castBar.Border ) then frame.castBar.Border:SetVertexColor(unpack(color)) end
-    if ( frame.castBar.Icon.Border ) then frame.castBar.Icon.Border:SetVertexColor(unpack(color)) end
+    if ( frame.castBar.beautyBorder ) then
+        for i = 1, 8 do
+            frame.castBar.beautyBorder[i]:SetVertexColor(unpack(color))
+        end
+     end
+    if ( frame.castBar.Icon.beautyBorder ) then
+        for i = 1, 8 do
+            frame.castBar.Icon.beautyBorder[i]:SetVertexColor(unpack(color))
+        end
+     end
 end
 
+    -- Set Border
+
+nPlates.SetBorder = function(frame)
+    if (not frame.beautyBorder) then
+        local padding = 2
+        frame.beautyBorder = {}
+        for i = 1, 8 do
+            if ( frame:GetObjectType() == "Frame" ) then
+                frame.beautyBorder[i] = frame:CreateTexture(nil, 'BORDER')
+                frame.beautyBorder[i]:SetParent(frame)
+            else
+                local frameParent = frame:GetParent()
+                frame.beautyBorder[i] = frameParent:CreateTexture(nil, 'BORDER')
+                frame.beautyBorder[i]:SetParent(frameParent)
+            end
+            frame.beautyBorder[i]:SetTexture(borderTexture)
+            frame.beautyBorder[i]:SetSize(8, 8)
+            frame.beautyBorder[i]:SetVertexColor(unpack(borderColor))
+            frame.beautyBorder[i]:Hide()
+        end
+
+        frame.beautyBorder[1]:SetTexCoord(0, 1/3, 0, 1/3)
+        frame.beautyBorder[1]:SetPoint('TOPLEFT', frame, -padding, padding)
+
+        frame.beautyBorder[2]:SetTexCoord(2/3, 1, 0, 1/3)
+        frame.beautyBorder[2]:SetPoint('TOPRIGHT', frame, padding, padding)
+
+        frame.beautyBorder[3]:SetTexCoord(0, 1/3, 2/3, 1)
+        frame.beautyBorder[3]:SetPoint('BOTTOMLEFT', frame, -padding, -padding)
+
+        frame.beautyBorder[4]:SetTexCoord(2/3, 1, 2/3, 1)
+        frame.beautyBorder[4]:SetPoint('BOTTOMRIGHT', frame, padding, -padding)
+
+        frame.beautyBorder[5]:SetTexCoord(1/3, 2/3, 0, 1/3)
+        frame.beautyBorder[5]:SetPoint('TOPLEFT', frame.beautyBorder[1], 'TOPRIGHT')
+        frame.beautyBorder[5]:SetPoint('TOPRIGHT', frame.beautyBorder[2], 'TOPLEFT')
+
+        frame.beautyBorder[6]:SetTexCoord(1/3, 2/3, 2/3, 1)
+        frame.beautyBorder[6]:SetPoint('BOTTOMLEFT', frame.beautyBorder[3], 'BOTTOMRIGHT')
+        frame.beautyBorder[6]:SetPoint('BOTTOMRIGHT', frame.beautyBorder[4], 'BOTTOMLEFT')
+
+        frame.beautyBorder[7]:SetTexCoord(0, 1/3, 1/3, 2/3)
+        frame.beautyBorder[7]:SetPoint('TOPLEFT', frame.beautyBorder[1], 'BOTTOMLEFT')
+        frame.beautyBorder[7]:SetPoint('BOTTOMLEFT', frame.beautyBorder[3], 'TOPLEFT')
+
+        frame.beautyBorder[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
+        frame.beautyBorder[8]:SetPoint('TOPRIGHT', frame.beautyBorder[2], 'BOTTOMRIGHT')
+        frame.beautyBorder[8]:SetPoint('BOTTOMRIGHT', frame.beautyBorder[4], 'TOPRIGHT')
+    end
+
+    for i = 1, 8 do
+        frame.beautyBorder[i]:Show()
+    end
+end
     -- Totem Data and Functions
 
 local function TotemName(SpellID)
