@@ -1,4 +1,5 @@
 local ADDON, nPlates = ...
+local L = nPlates.L
 
 local Options = CreateFrame("Frame", "nPlatesOptions", InterfaceOptionsFramePanelContainer)
 local ShowFullHP
@@ -31,7 +32,7 @@ Options:SetScript("OnShow", function()
 
     local TankMode = CreateFrame("CheckButton", "$parentTankMode", Options, "InterfaceOptionsCheckButtonTemplate")
     TankMode:SetPoint("TOPLEFT", SubText, "BOTTOMLEFT", 0, -12)
-    TankMode.Text:SetText("Tank Mode")
+    TankMode.Text:SetText(L.TankMode)
     TankMode:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
@@ -41,7 +42,7 @@ Options:SetScript("OnShow", function()
 
     local ColorNameByThreat = CreateFrame("CheckButton", "$parentColorNameByThreat", Options, "InterfaceOptionsCheckButtonTemplate")
     ColorNameByThreat:SetPoint("TOPLEFT", TankMode, "BOTTOMLEFT", 0, -6)
-    ColorNameByThreat.Text:SetText("Color Name By Threat")
+    ColorNameByThreat.Text:SetText(L.NameThreat)
     ColorNameByThreat:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
@@ -51,7 +52,7 @@ Options:SetScript("OnShow", function()
 
     local HealthTextMenuTable = {
         {
-            text = "Enable Health Text",
+            text = L.EnableHealth,
             func = function()
                 nPlatesDB.ShowHP = not nPlatesDB.ShowHP
                 ForceUpdate()
@@ -59,7 +60,7 @@ Options:SetScript("OnShow", function()
             checked = function() return nPlatesDB.ShowHP end,
         },
         {
-            text = "Show When Full",
+            text = L.ShowWhenFull,
             func = function()
                 nPlatesDB.ShowFullHP = not nPlatesDB.ShowFullHP
                 ForceUpdate()
@@ -67,7 +68,7 @@ Options:SetScript("OnShow", function()
             checked = function() return nPlatesDB.ShowFullHP end,
         },
         {
-            text = "Show Current Value",
+            text = L.ShowCurHP,
             func = function()
                 nPlatesDB.ShowCurHP = not nPlatesDB.ShowCurHP
                 ForceUpdate()
@@ -75,7 +76,7 @@ Options:SetScript("OnShow", function()
             checked = function() return nPlatesDB.ShowCurHP end,
         },
         {
-            text = "Show Percent",
+            text = L.ShowPercHP,
             func = function()
                 nPlatesDB.ShowPercHP = not nPlatesDB.ShowPercHP
                 ForceUpdate()
@@ -93,7 +94,7 @@ Options:SetScript("OnShow", function()
     local HealthText = CreateFrame("Button", "HealthTextTitle", Options , "UIPanelButtonTemplate")
     HealthText:SetPoint("TOPLEFT", ColorNameByThreat, "BOTTOMLEFT", 0, -6)
     HealthText:SetSize(140,25)
-    HealthText:SetText("Health Options")
+    HealthText:SetText(L.HealthOptions)
     HealthText:SetScript("OnClick", function(self, button, down)
         if ( not DropDownList1:IsVisible() ) then
             if button == "LeftButton" then
@@ -107,7 +108,7 @@ Options:SetScript("OnShow", function()
 
     local ShowLevel = CreateFrame("CheckButton", "$parentShowLevel", Options, "InterfaceOptionsCheckButtonTemplate")
     ShowLevel:SetPoint("TOPLEFT", HealthText, "BOTTOMLEFT", 0, -6)
-    ShowLevel.Text:SetText("Display Level")
+    ShowLevel.Text:SetText(L.DisplayLevel)
     ShowLevel:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
@@ -127,7 +128,7 @@ Options:SetScript("OnShow", function()
 
     local AbrrevLongNames = CreateFrame("CheckButton", "$parentAbrrevLongNames", Options, "InterfaceOptionsCheckButtonTemplate")
     AbrrevLongNames:SetPoint("TOPLEFT", ShowServerName, "BOTTOMLEFT", 0, -6)
-    AbrrevLongNames.Text:SetText("Abbreviate Long Names")
+    AbrrevLongNames.Text:SetText(L.AbbrevName)
     AbrrevLongNames:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
@@ -137,7 +138,7 @@ Options:SetScript("OnShow", function()
 
     local UseLargeNameFont = CreateFrame("CheckButton", "$parentUseBigNames", Options, "InterfaceOptionsCheckButtonTemplate")
     UseLargeNameFont:SetPoint("TOPLEFT", AbrrevLongNames, "BOTTOMLEFT", 0, -6)
-    UseLargeNameFont.Text:SetText("Use Large Names")
+    UseLargeNameFont.Text:SetText(L.LargeNames)
     UseLargeNameFont:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
@@ -147,7 +148,7 @@ Options:SetScript("OnShow", function()
 
     local HideFriendly = CreateFrame("CheckButton", "$parentHideFriendly", Options, "InterfaceOptionsCheckButtonTemplate")
     HideFriendly:SetPoint("TOPLEFT", UseLargeNameFont, "BOTTOMLEFT", 0, -6)
-    HideFriendly.Text:SetText("Hide Friendly Nameplates")
+    HideFriendly.Text:SetText(L.HideFriendly)
     HideFriendly:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
@@ -157,7 +158,7 @@ Options:SetScript("OnShow", function()
 
     local ShowClassColors = CreateFrame("CheckButton", "$parentShowClassColors", Options, "InterfaceOptionsCheckButtonTemplate")
     ShowClassColors:SetPoint("TOPLEFT", HideFriendly, "BOTTOMLEFT", 0, -6)
-    ShowClassColors.Text:SetText("Display Class Colors")
+    ShowClassColors.Text:SetText(L.ClassColors)
     ShowClassColors:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
@@ -174,7 +175,7 @@ Options:SetScript("OnShow", function()
 
     local DontClamp = CreateFrame("CheckButton", "$parentDontClamp", Options, "InterfaceOptionsCheckButtonTemplate")
     DontClamp:SetPoint("TOPLEFT", ShowClassColors, "BOTTOMLEFT", 0, -6)
-    DontClamp.Text:SetText("Sticky Nameplates")
+    DontClamp.Text:SetText(L.StickyNameplates)
     DontClamp:SetScript("OnUpdate", function()
         if ( not InCombatLockdown() ) then
             DontClamp:Enable()
@@ -198,7 +199,7 @@ Options:SetScript("OnShow", function()
 
     local ShowTotemIcon = CreateFrame("CheckButton", "$parentShowTotemIcon", Options, "InterfaceOptionsCheckButtonTemplate")
     ShowTotemIcon:SetPoint("TOPLEFT", DontClamp, "BOTTOMLEFT", 0, -6)
-    ShowTotemIcon.Text:SetText("Display Totem Icon")
+    ShowTotemIcon.Text:SetText(L.TotemIcons)
     ShowTotemIcon:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
@@ -219,7 +220,7 @@ Options:SetScript("OnShow", function()
 
     local NameplateScaleLabel = Options:CreateFontString("NameplateScaleLabel", "ARTWORK", "GameFontHighlightSmall")
     NameplateScaleLabel:SetPoint("RIGHT", NameplateScale, "LEFT", -10, 0)
-    NameplateScaleLabel:SetText("Nameplate Scale:")
+    NameplateScaleLabel:SetText(L.NameplateScale..":")
 
     local NameplateScaleButton = CreateFrame("Button", "$parentButton", NameplateScale, "UIPanelButtonTemplate")
     NameplateScaleButton:SetPoint("LEFT", NameplateScale, "RIGHT", 10, 0)
@@ -254,7 +255,7 @@ Options:SetScript("OnShow", function()
 
     local NameplateAlphaLabel = Options:CreateFontString("NameplateAlphaLabel", "ARTWORK", "GameFontHighlightSmall")
     NameplateAlphaLabel:SetPoint("RIGHT", NameplateAlpha, "LEFT", -10, 0)
-    NameplateAlphaLabel:SetText("Nameplate Min Alpha:")
+    NameplateAlphaLabel:SetText(L.NameplateAlpha..":")
 
     local NameplateAlphaButton = CreateFrame("Button", "$parentButton", NameplateAlpha, "UIPanelButtonTemplate")
     NameplateAlphaButton:SetPoint("LEFT", NameplateAlpha, "RIGHT", 10, 0)
