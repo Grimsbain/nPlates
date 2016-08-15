@@ -129,6 +129,7 @@ if CURRENT_LOCALE == "zhTW" then
 L.AbbrevName = "縮短長名稱"
 L.ClassColors = "顯示職業顏色"
 L.DisplayLevel = "顯示等級"
+L.DisplayServerName = "顯示伺服器名稱"
 L.EnableHealth = "啟用血量文字"
 L.HealthOptions = "血量選項"
 L.HideFriendly = "隱藏友方血條"
