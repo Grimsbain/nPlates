@@ -54,6 +54,7 @@ L.NameThreat = "Name nach Bedrohung färben"
 L.ShowCurHP = "Momentanen Wert anzeigen"
 L.ShowPercHP = "Prozent anzeigen"
 L.ShowWhenFull = "Anzeigen, wenn voll"
+L.StickyNameplates = "Beharrliche Namensplaketten"
 L.TankMode = "Tankmodus"
 L.TotemIcons = "Totemsymbol anzeigen"
 
