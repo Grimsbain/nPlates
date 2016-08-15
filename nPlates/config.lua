@@ -118,7 +118,7 @@ Options:SetScript("OnShow", function()
 
     local ShowServerName = CreateFrame("CheckButton", "$parentShowServerName", Options, "InterfaceOptionsCheckButtonTemplate")
     ShowServerName:SetPoint("TOPLEFT", ShowLevel, "BOTTOMLEFT", 0, -6)
-    ShowServerName.Text:SetText("Display Server Name")
+    ShowServerName.Text:SetText(L.DisplayServerName)
     ShowServerName:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
