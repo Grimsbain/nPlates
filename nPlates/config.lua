@@ -2,7 +2,6 @@ local ADDON, nPlates = ...
 local L = nPlates.L
 
 local Options = CreateFrame("Frame", "nPlatesOptions", InterfaceOptionsFramePanelContainer)
-local ShowFullHP
 
 local function ForceUpdate()
     for i, frame in ipairs(C_NamePlate.GetNamePlates()) do
@@ -12,26 +11,94 @@ local function ForceUpdate()
     end
 end
 
+local function showColorPicker(r,g,b,callback)
+    ColorPickerFrame.previousValues = {r,g,b}
+    ColorPickerFrame.func = callback
+    ColorPickerFrame.opacityFunc = callback
+    ColorPickerFrame.cancelFunc = callback
+    ColorPickerFrame:SetColorRGB(r,g,b)
+    ShowUIPanel(ColorPickerFrame)
+end
+
 Options.name = GetAddOnMetadata(ADDON, "Title")
+Options.version = GetAddOnMetadata(ADDON, "Version")
+
 InterfaceOptions_AddCategory(Options)
 
 Options:Hide()
 Options:SetScript("OnShow", function()
 
-    local Title = Options:CreateFontString("$parentTitle", "ARTWORK", "GameFontNormalLarge")
-    Title:SetPoint("TOPLEFT", 16, -16)
-    Title:SetText(Options.name)
+    local LeftSide = CreateFrame("Frame","LeftSide",Options)
+    LeftSide:SetHeight(Options:GetHeight())
+    LeftSide:SetWidth(Options:GetWidth()/2)
+    LeftSide:SetPoint("TOPLEFT",Options,"TOPLEFT")
 
-    local SubText = Options:CreateFontString("$parentSubText", "ARTWORK", "GameFontHighlightSmall")
-    SubText:SetPoint("TOPLEFT", Title, "BOTTOMLEFT", 0, -8)
-    SubText:SetPoint("RIGHT", -32, 0)
-    SubText:SetHeight(32)
-    SubText:SetJustifyH("LEFT")
-    SubText:SetJustifyV("TOP")
-    SubText:SetText(GetAddOnMetadata(ADDON, "Notes"))
+    local RightSide = CreateFrame("Frame","RightSide",Options)
+    RightSide:SetHeight(Options:GetHeight())
+    RightSide:SetWidth(Options:GetWidth()/2)
+    RightSide:SetPoint("TOPRIGHT",Options,"TOPRIGHT")
 
-    local TankMode = CreateFrame("CheckButton", "$parentTankMode", Options, "InterfaceOptionsCheckButtonTemplate")
-    TankMode:SetPoint("TOPLEFT", SubText, "BOTTOMLEFT", 0, -12)
+    -- Left Side --
+
+    local NameOptions = Options:CreateFontString("NameOptions", "ARTWORK", "GameFontNormalLarge")
+    NameOptions:SetPoint("TOPLEFT", LeftSide, 16, -16)
+    NameOptions:SetText(L.NameOptionsLabel)
+
+    local name = "NameSize"
+    local NameSize = CreateFrame("Slider", name, LeftSide, "OptionsSliderTemplate")
+    NameSize:SetPoint("TOPLEFT", NameOptions, "BOTTOMLEFT", 0, -30)
+    NameSize.textLow = _G[name.."Low"]
+    NameSize.textHigh = _G[name.."High"]
+    NameSize.text = _G[name.."Text"]
+    NameSize:SetMinMaxValues(8, 35)
+    NameSize.minValue, NameSize.maxValue = NameSize:GetMinMaxValues()
+    NameSize.textLow:SetText(NameSize.minValue)
+    NameSize.textHigh:SetText(NameSize.maxValue)
+    NameSize:SetValue(nPlatesDB.NameSize or 11)
+    NameSize:SetValueStep(1)
+    NameSize.text:SetText(L.NameSizeLabel..": "..string.format("%.0f",NameSize:GetValue()))
+    NameSize:SetScript("OnValueChanged", function(self,event,arg1)
+        NameSize.text:SetText(L.NameSizeLabel..": "..string.format("%.0f",NameSize:GetValue()))
+        nPlatesDB.NameSize = tonumber(string.format("%.0f",NameSize:GetValue()))
+        ForceUpdate()
+    end)
+
+    local ShowLevel = CreateFrame("CheckButton", "ShowLevel", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    ShowLevel:SetPoint("TOPLEFT", NameSize, "BOTTOMLEFT", 0, -18)
+    ShowLevel.Text:SetText(L.DisplayLevel)
+    ShowLevel:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        nPlatesDB.ShowLevel = checked
+        ForceUpdate()
+    end)
+
+    local ShowServerName = CreateFrame("CheckButton", "ShowServerName", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    ShowServerName:SetPoint("TOPLEFT", ShowLevel, "BOTTOMLEFT", 0, -6)
+    ShowServerName.Text:SetText(L.DisplayServerName)
+    ShowServerName:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        nPlatesDB.ShowServerName = checked
+        ForceUpdate()
+    end)
+
+    local AbrrevLongNames = CreateFrame("CheckButton", "AbrrevLongNames", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    AbrrevLongNames:SetPoint("TOPLEFT", ShowServerName, "BOTTOMLEFT", 0, -6)
+    AbrrevLongNames.Text:SetText(L.AbbrevName)
+    AbrrevLongNames:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        nPlatesDB.AbrrevLongNames = checked
+        ForceUpdate()
+    end)
+
+    local TankOptions = Options:CreateFontString("TankOptions", "ARTWORK", "GameFontNormalLarge")
+    TankOptions:SetPoint("TOPLEFT", AbrrevLongNames, "BOTTOMLEFT", 0, -24)
+    TankOptions:SetText(L.TankOptionsLabel)
+
+    local TankMode = CreateFrame("CheckButton", "TankMode", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    TankMode:SetPoint("TOPLEFT", TankOptions, "BOTTOMLEFT", 0, -12)
     TankMode.Text:SetText(L.TankMode)
     TankMode:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
@@ -40,7 +107,7 @@ Options:SetScript("OnShow", function()
         ForceUpdate()
     end)
 
-    local ColorNameByThreat = CreateFrame("CheckButton", "$parentColorNameByThreat", Options, "InterfaceOptionsCheckButtonTemplate")
+    local ColorNameByThreat = CreateFrame("CheckButton", "ColorNameByThreat", LeftSide, "InterfaceOptionsCheckButtonTemplate")
     ColorNameByThreat:SetPoint("TOPLEFT", TankMode, "BOTTOMLEFT", 0, -6)
     ColorNameByThreat.Text:SetText(L.NameThreat)
     ColorNameByThreat:SetScript("OnClick", function(this)
@@ -49,6 +116,49 @@ Options:SetScript("OnShow", function()
         nPlatesDB.ColorNameByThreat = checked
         ForceUpdate()
     end)
+
+    local UseOffTankColor = CreateFrame("CheckButton", "UseOffTankColor", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    UseOffTankColor:SetPoint("TOPLEFT", ColorNameByThreat, "BOTTOMLEFT", 0, -6)
+    UseOffTankColor.Text:SetText(L.OffTankColor)
+    UseOffTankColor:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        nPlatesDB.UseOffTankColor = checked
+        ForceUpdate()
+    end)
+
+    local OffTankColorPicker = CreateFrame("Frame", "OffTankColor", RightSide)
+    OffTankColorPicker:SetSize(15,15)
+    OffTankColorPicker:SetPoint("LEFT", UseOffTankColorText, "RIGHT", 10, 0)
+    OffTankColorPicker.bg = OffTankColorPicker:CreateTexture(nil,"BACKGROUND",nil,-7)
+    OffTankColorPicker.bg:SetAllPoints(OffTankColorPicker)
+    OffTankColorPicker.bg:SetColorTexture(1,1,1,1)
+    OffTankColorPicker.bg:SetVertexColor(nPlatesDB.OffTankColor.r,nPlatesDB.OffTankColor.g,nPlatesDB.OffTankColor.b)
+    OffTankColorPicker.recolor = function(color)
+        local r,g,b
+        if (color) then
+            r,g,b = unpack(color)
+        else
+            r,g,b = ColorPickerFrame:GetColorRGB()
+        end
+        nPlatesDB.OffTankColor.r = r
+        nPlatesDB.OffTankColor.g = g
+        nPlatesDB.OffTankColor.b = b
+        OffTankColorPicker.bg:SetVertexColor(r,g,b)
+    end
+    OffTankColorPicker:EnableMouse(true)
+    OffTankColorPicker:SetScript("OnMouseDown", function(self,button,...)
+        if button == "LeftButton" then
+            local r,g,b = OffTankColorPicker.bg:GetVertexColor()
+            showColorPicker(r,g,b,OffTankColorPicker.recolor)
+        end
+    end)
+
+    -- Right Side --
+
+    local FrameOptions = Options:CreateFontString("NameOptions", "ARTWORK", "GameFontNormalLarge")
+    FrameOptions:SetPoint("TOPLEFT", RightSide, 16, -16)
+    FrameOptions:SetText(L.FrameOptionsLabel)
 
     local HealthTextMenuTable = {
         {
@@ -90,9 +200,9 @@ Options:SetScript("OnShow", function()
         },
     }
 
-    local HealthTextDropDownMenu = CreateFrame("Frame", "HealthTextDropDownMenu", Options, "UIDropDownMenuTemplate")
-    local HealthText = CreateFrame("Button", "HealthTextTitle", Options , "UIPanelButtonTemplate")
-    HealthText:SetPoint("TOPLEFT", ColorNameByThreat, "BOTTOMLEFT", 0, -6)
+    local HealthTextDropDownMenu = CreateFrame("Frame", "HealthTextDropDownMenu", RightSide, "UIDropDownMenuTemplate")
+    local HealthText = CreateFrame("Button", "HealthTextTitle", RightSide , "UIPanelButtonTemplate")
+    HealthText:SetPoint("TOPLEFT", FrameOptions, "BOTTOMLEFT", 0, -18)
     HealthText:SetSize(140,25)
     HealthText:SetText(L.HealthOptions)
     HealthText:SetScript("OnClick", function(self, button, down)
@@ -106,48 +216,8 @@ Options:SetScript("OnShow", function()
     end)
     HealthText:RegisterForClicks("LeftButtonUp")
 
-    local ShowLevel = CreateFrame("CheckButton", "$parentShowLevel", Options, "InterfaceOptionsCheckButtonTemplate")
-    ShowLevel:SetPoint("TOPLEFT", HealthText, "BOTTOMLEFT", 0, -6)
-    ShowLevel.Text:SetText(L.DisplayLevel)
-    ShowLevel:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-        nPlatesDB.ShowLevel = checked
-        ForceUpdate()
-    end)
-
-    local ShowServerName = CreateFrame("CheckButton", "$parentShowServerName", Options, "InterfaceOptionsCheckButtonTemplate")
-    ShowServerName:SetPoint("TOPLEFT", ShowLevel, "BOTTOMLEFT", 0, -6)
-    ShowServerName.Text:SetText(L.DisplayServerName)
-    ShowServerName:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-        nPlatesDB.ShowServerName = checked
-        ForceUpdate()
-    end)
-
-    local AbrrevLongNames = CreateFrame("CheckButton", "$parentAbrrevLongNames", Options, "InterfaceOptionsCheckButtonTemplate")
-    AbrrevLongNames:SetPoint("TOPLEFT", ShowServerName, "BOTTOMLEFT", 0, -6)
-    AbrrevLongNames.Text:SetText(L.AbbrevName)
-    AbrrevLongNames:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-        nPlatesDB.AbrrevLongNames = checked
-        ForceUpdate()
-    end)
-
-    local UseLargeNameFont = CreateFrame("CheckButton", "$parentUseBigNames", Options, "InterfaceOptionsCheckButtonTemplate")
-    UseLargeNameFont:SetPoint("TOPLEFT", AbrrevLongNames, "BOTTOMLEFT", 0, -6)
-    UseLargeNameFont.Text:SetText(L.LargeNames)
-    UseLargeNameFont:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-        nPlatesDB.UseLargeNameFont = checked
-        ForceUpdate()
-    end)
-
-    local HideFriendly = CreateFrame("CheckButton", "$parentHideFriendly", Options, "InterfaceOptionsCheckButtonTemplate")
-    HideFriendly:SetPoint("TOPLEFT", UseLargeNameFont, "BOTTOMLEFT", 0, -6)
+    local HideFriendly = CreateFrame("CheckButton", "HideFriendly", RightSide, "InterfaceOptionsCheckButtonTemplate")
+    HideFriendly:SetPoint("TOPLEFT", HealthText, "BOTTOMLEFT", 0, -6)
     HideFriendly.Text:SetText(L.HideFriendly)
     HideFriendly:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
@@ -156,7 +226,7 @@ Options:SetScript("OnShow", function()
         ForceUpdate()
     end)
 
-    local ShowClassColors = CreateFrame("CheckButton", "$parentShowClassColors", Options, "InterfaceOptionsCheckButtonTemplate")
+    local ShowClassColors = CreateFrame("CheckButton", "ShowClassColors", RightSide, "InterfaceOptionsCheckButtonTemplate")
     ShowClassColors:SetPoint("TOPLEFT", HideFriendly, "BOTTOMLEFT", 0, -6)
     ShowClassColors.Text:SetText(L.ClassColors)
     ShowClassColors:SetScript("OnClick", function(this)
@@ -173,7 +243,7 @@ Options:SetScript("OnShow", function()
         ForceUpdate()
     end)
 
-    local DontClamp = CreateFrame("CheckButton", "$parentDontClamp", Options, "InterfaceOptionsCheckButtonTemplate")
+    local DontClamp = CreateFrame("CheckButton", "DontClamp", RightSide, "InterfaceOptionsCheckButtonTemplate")
     DontClamp:SetPoint("TOPLEFT", ShowClassColors, "BOTTOMLEFT", 0, -6)
     DontClamp.Text:SetText(L.StickyNameplates)
     DontClamp:SetScript("OnUpdate", function()
@@ -197,7 +267,7 @@ Options:SetScript("OnShow", function()
         end
     end)
 
-    local ShowTotemIcon = CreateFrame("CheckButton", "$parentShowTotemIcon", Options, "InterfaceOptionsCheckButtonTemplate")
+    local ShowTotemIcon = CreateFrame("CheckButton", "ShowTotemIcon", RightSide, "InterfaceOptionsCheckButtonTemplate")
     ShowTotemIcon:SetPoint("TOPLEFT", DontClamp, "BOTTOMLEFT", 0, -6)
     ShowTotemIcon.Text:SetText(L.TotemIcons)
     ShowTotemIcon:SetScript("OnClick", function(this)
@@ -207,75 +277,125 @@ Options:SetScript("OnShow", function()
         ForceUpdate()
     end)
 
-    local NameplateScale = CreateFrame("EditBox", "$parentNameplateScale", Options, "InputBoxTemplate")
-    NameplateScale:SetPoint("LEFT", TankMode, "RIGHT", 375, 0)
-    NameplateScale:SetSize(60,15)
-    NameplateScale:EnableMouse(true)
-    local scale = string.format("%.2f",GetCVar("nameplateGlobalScale"))
-    NameplateScale:SetText(scale)
-    NameplateScale:SetAutoFocus(false)
-    NameplateScale:SetCursorPosition(0)
-    NameplateScale:SetMaxLetters(4)
-    NameplateScale:SetJustifyH("CENTER")
-
-    local NameplateScaleLabel = Options:CreateFontString("NameplateScaleLabel", "ARTWORK", "GameFontHighlightSmall")
-    NameplateScaleLabel:SetPoint("RIGHT", NameplateScale, "LEFT", -10, 0)
-    NameplateScaleLabel:SetText(L.NameplateScale..":")
-
-    local NameplateScaleButton = CreateFrame("Button", "$parentButton", NameplateScale, "UIPanelButtonTemplate")
-    NameplateScaleButton:SetPoint("LEFT", NameplateScale, "RIGHT", 10, 0)
-    NameplateScaleButton:SetText(APPLY)
-    NameplateScaleButton:SetWidth(100)
-    NameplateScaleButton:SetScript("OnUpdate", function()
-        if ( not InCombatLockdown() ) then
-            NameplateScaleButton:Enable()
-        else
-            NameplateScaleButton:Disable()
-        end
-    end)
-    NameplateScaleButton:SetScript("OnClick", function(this)
-        local value = NameplateScale:GetNumber()
-        if ( value >= 0 and value <= 2 and value ~= nil and tonumber(NameplateScale:GetText()) ~= nil ) then
-            SetCVar("nameplateGlobalScale",value,true)
-        else
-            message("Please enter a number between 0 and 2.\n1 is default.")
-        end
+    local ShowExecuteRange = CreateFrame("CheckButton", "ShowExecuteRange", RightSide, "InterfaceOptionsCheckButtonTemplate")
+    ShowExecuteRange:SetPoint("TOPLEFT", ShowTotemIcon, "BOTTOMLEFT", 0, -6)
+    ShowExecuteRange.Text:SetText(L.ExecuteRange)
+    ShowExecuteRange:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        nPlatesDB.ShowExecuteRange = checked
+        ForceUpdate()
     end)
 
-    local NameplateAlpha = CreateFrame("EditBox", "$parentNameplateAlpha", Options, "InputBoxTemplate")
-    NameplateAlpha:SetPoint("LEFT", ColorNameByThreat, "RIGHT", 375, 0)
-    NameplateAlpha:SetSize(60,15)
-    NameplateAlpha:EnableMouse(true)
-    local alpha = string.format("%.2f",GetCVar("nameplateMinAlpha"))
-    NameplateAlpha:SetText(alpha)
-    NameplateAlpha:SetAutoFocus(false)
-    NameplateAlpha:SetCursorPosition(0)
-    NameplateAlpha:SetMaxLetters(4)
-    NameplateAlpha:SetJustifyH("CENTER")
-
-    local NameplateAlphaLabel = Options:CreateFontString("NameplateAlphaLabel", "ARTWORK", "GameFontHighlightSmall")
-    NameplateAlphaLabel:SetPoint("RIGHT", NameplateAlpha, "LEFT", -10, 0)
-    NameplateAlphaLabel:SetText(L.NameplateAlpha..":")
-
-    local NameplateAlphaButton = CreateFrame("Button", "$parentButton", NameplateAlpha, "UIPanelButtonTemplate")
-    NameplateAlphaButton:SetPoint("LEFT", NameplateAlpha, "RIGHT", 10, 0)
-    NameplateAlphaButton:SetText(APPLY)
-    NameplateAlphaButton:SetWidth(100)
-    NameplateAlphaButton:SetScript("OnUpdate", function()
-        if ( not InCombatLockdown() ) then
-            NameplateAlphaButton:Enable()
+    local ExecuteColorPicker = CreateFrame("Frame", "ExecuteColor", RightSide)
+    ExecuteColorPicker:SetSize(15,15)
+    ExecuteColorPicker:SetPoint("LEFT", ShowExecuteRangeText, "RIGHT", 10, 0)
+    ExecuteColorPicker.bg = ExecuteColorPicker:CreateTexture(nil,"BACKGROUND",nil,-7)
+    ExecuteColorPicker.bg:SetAllPoints(ExecuteColorPicker)
+    ExecuteColorPicker.bg:SetColorTexture(1,1,1,1)
+    ExecuteColorPicker.bg:SetVertexColor(nPlatesDB.ExecuteColor.r,nPlatesDB.ExecuteColor.g,nPlatesDB.ExecuteColor.b)
+    ExecuteColorPicker.recolor = function(color)
+        local r,g,b
+        if (color) then
+            r,g,b = unpack(color)
         else
-            NameplateAlphaButton:Disable()
+            r,g,b = ColorPickerFrame:GetColorRGB()
+        end
+        nPlatesDB.ExecuteColor.r = r
+        nPlatesDB.ExecuteColor.g = g
+        nPlatesDB.ExecuteColor.b = b
+        ExecuteColorPicker.bg:SetVertexColor(r,g,b)
+    end
+    ExecuteColorPicker:EnableMouse(true)
+    ExecuteColorPicker:SetScript("OnMouseDown", function(self,button,...)
+        if button == "LeftButton" then
+            local r,g,b = ExecuteColorPicker.bg:GetVertexColor()
+            showColorPicker(r,g,b,ExecuteColorPicker.recolor)
         end
     end)
-    NameplateAlphaButton:SetScript("OnClick", function(this)
-        local value = NameplateAlpha:GetNumber()
-        if ( value >= 0.50 and value <= 1 and value ~= nil and tonumber(NameplateAlpha:GetText()) ~= nil ) then
-            SetCVar("nameplateMinAlpha",value,true)
+
+    local name = "ExecuteSlider"
+    local ExecuteSlider = CreateFrame("Slider", name, RightSide, "OptionsSliderTemplate")
+    ExecuteSlider:SetPoint("TOPLEFT", ShowExecuteRange, "BOTTOMLEFT", 10, -18)
+    ExecuteSlider.textLow = _G[name.."Low"]
+    ExecuteSlider.textHigh = _G[name.."High"]
+    ExecuteSlider.text = _G[name.."Text"]
+    ExecuteSlider:SetMinMaxValues(0, 35)
+    ExecuteSlider.minValue, ExecuteSlider.maxValue = ExecuteSlider:GetMinMaxValues()
+    ExecuteSlider.textLow:SetText(ExecuteSlider.minValue)
+    ExecuteSlider.textHigh:SetText(ExecuteSlider.maxValue)
+    ExecuteSlider:SetValue(nPlatesDB.ExecuteValue or 35)
+    ExecuteSlider:SetValueStep(1)
+    ExecuteSlider.text:SetText(string.format("%.0f",ExecuteSlider:GetValue()))
+    ExecuteSlider:SetScript("OnValueChanged", function(self,event,arg1)
+        ExecuteSlider.text:SetText(string.format("%.0f",ExecuteSlider:GetValue()))
+        nPlatesDB.ExecuteValue = tonumber(string.format("%.0f",ExecuteSlider:GetValue()))
+    end)
+    ExecuteSlider:SetScript("OnUpdate", function(self)
+        if ( nPlatesDB.ShowExecuteRange ) then
+            ExecuteSlider:Enable()
         else
-            message("Please enter a number between 0.50 and 1.\n0.80 is default.")
+            ExecuteSlider:Disable()
         end
     end)
+
+    local name = "NameplateScale"
+    local NameplateScale = CreateFrame("Slider", name, RightSide, "OptionsSliderTemplate")
+    NameplateScale:SetPoint("TOPLEFT", ExecuteSlider, "BOTTOMLEFT", 0, -42)
+    NameplateScale.textLow = _G[name.."Low"]
+    NameplateScale.textHigh = _G[name.."High"]
+    NameplateScale.text = _G[name.."Text"]
+    NameplateScale:SetMinMaxValues(.75, 2)
+    NameplateScale.minValue, NameplateScale.maxValue = NameplateScale:GetMinMaxValues()
+    NameplateScale.textLow:SetText(NameplateScale.minValue)
+    NameplateScale.textHigh:SetText(NameplateScale.maxValue)
+    local scale = tonumber(string.format("%.2f",GetCVar("nameplateGlobalScale")))
+    NameplateScale:SetValue(scale)
+    NameplateScale:SetValueStep(.01)
+    NameplateScale.text:SetText(L.NameplateScale..": "..string.format("%.2f",NameplateScale:GetValue()))
+    NameplateScale:SetScript("OnValueChanged", function(self,event,arg1)
+        NameplateScale.text:SetText(L.NameplateScale..": "..string.format("%.2f",NameplateScale:GetValue()))
+        local value = tonumber(string.format("%.2f",NameplateScale:GetValue()))
+        SetCVar("nameplateGlobalScale",value,true)
+    end)
+    NameplateScale:SetScript("OnUpdate", function(self)
+        if ( InCombatLockdown() ) then
+            NameplateScale:Disable()
+        else
+            NameplateScale:Enable()
+        end
+    end)
+
+    local name = "NameplateAlpha"
+    local NameplateAlpha = CreateFrame("Slider", name, RightSide, "OptionsSliderTemplate")
+    NameplateAlpha:SetPoint("TOPLEFT", NameplateScale, "BOTTOMLEFT", 0, -42)
+    NameplateAlpha.textLow = _G[name.."Low"]
+    NameplateAlpha.textHigh = _G[name.."High"]
+    NameplateAlpha.text = _G[name.."Text"]
+    NameplateAlpha:SetMinMaxValues(.50, 1)
+    NameplateAlpha.minValue, NameplateAlpha.maxValue = NameplateAlpha:GetMinMaxValues()
+    NameplateAlpha.textLow:SetText(NameplateAlpha.minValue)
+    NameplateAlpha.textHigh:SetText(NameplateAlpha.maxValue)
+    local alpha = tonumber(string.format("%.2f",GetCVar("nameplateMinAlpha")))
+    NameplateAlpha:SetValue(alpha)
+    NameplateAlpha:SetValueStep(.01)
+    NameplateAlpha.text:SetText(L.NameplateAlpha..": "..string.format("%.2f",NameplateAlpha:GetValue()))
+    NameplateAlpha:SetScript("OnValueChanged", function(self,event,arg1)
+        NameplateAlpha.text:SetText(L.NameplateAlpha..": "..string.format("%.2f",NameplateAlpha:GetValue()))
+        local value = tonumber(string.format("%.2f",NameplateAlpha:GetValue()))
+        SetCVar("nameplateMinAlpha",value,true)
+    end)
+    NameplateAlpha:SetScript("OnUpdate", function(self)
+        if ( InCombatLockdown() ) then
+            NameplateAlpha:Disable()
+        else
+            NameplateAlpha:Enable()
+        end
+    end)
+
+    local AddonTitle = Options:CreateFontString("$parentTitle", "ARTWORK", "GameFontNormalLarge")
+    AddonTitle:SetPoint("BOTTOMRIGHT", -16, 16)
+    AddonTitle:SetText(Options.name.." "..Options.version)
 
     function Options:Refresh()
         TankMode:SetChecked(nPlatesDB.TankMode)
@@ -283,11 +403,12 @@ Options:SetScript("OnShow", function()
         ShowLevel:SetChecked(nPlatesDB.ShowLevel)
         ShowServerName:SetChecked(nPlatesDB.ShowServerName)
         AbrrevLongNames:SetChecked(nPlatesDB.AbrrevLongNames)
-        UseLargeNameFont:SetChecked(nPlatesDB.UseLargeNameFont)
         HideFriendly:SetChecked(nPlatesDB.HideFriendly)
         ShowClassColors:SetChecked(nPlatesDB.ShowClassColors)
         DontClamp:SetChecked(nPlatesDB.DontClamp)
         ShowTotemIcon:SetChecked(nPlatesDB.ShowTotemIcon)
+        ShowExecuteRange:SetChecked(nPlatesDB.ShowExecuteRange)
+        UseOffTankColor:SetChecked(nPlatesDB.UseOffTankColor)
     end
 
     Options:Refresh()

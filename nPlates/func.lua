@@ -58,14 +58,24 @@ nPlates.FormatTime = function(s)
     return floor(s), s - floor(s)
 end
 
+    -- Set Defaults
+
+nPlates.RegisterDefaultSetting = function(key,value)
+    if ( nPlatesDB == nil ) then
+        nPlatesDB = {}
+    end
+    if ( nPlatesDB[key] == nil ) then
+        nPlatesDB[key] = value
+    end
+end
+
     -- Set Name Size
 
 nPlates.NameSize = function(frame)
-    if ( nPlatesDB.UseLargeNameFont or InterfaceOptionsNamesPanelUnitNameplatesMakeLarger:GetValue() == "1" ) then
-        frame.name:SetFontObject(SystemFont_LargeNamePlate)
-    else
-        frame.name:SetFontObject(SystemFont_NamePlate)
-    end
+    local font = select(1,frame.name:GetFont())
+    local size = nPlatesDB.NameSize or 10
+    frame.name:SetFont(font,size)
+    frame.name:SetShadowOffset(0.5, -0.5)
 end
 
     -- Check for "Larger Nameplates"
@@ -106,6 +116,21 @@ nPlates.SetManabarColors = function(frame,color)
             frame.castBar.Icon.beautyBorder[i]:SetVertexColor(unpack(color))
         end
      end
+end
+
+    -- Execute Range Check
+
+nPlates.IsInExecuteRange = function(frame)
+    local executeValue = nPlatesDB.ExecuteValue or 35
+    local health = UnitHealth(frame.displayedUnit)
+    local maxHealth = UnitHealthMax(frame.displayedUnit)
+    local perc = (health/maxHealth)*100
+
+    if ( perc < executeValue and UnitCanAttack("player",frame.displayedUnit) ) then
+        return true
+    end
+
+    return false
 end
 
     -- Set Border

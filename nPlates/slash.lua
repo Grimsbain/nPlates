@@ -6,6 +6,7 @@ local function ShowConfig()
         InterfaceOptionsFrame:Hide()
     else
         InterfaceOptionsFrame_OpenToCategory(nPlatesOptions);
+        InterfaceOptionsFrame_OpenToCategory(nPlatesOptions);
     end
 end
 

@@ -9,52 +9,56 @@ local statusBar = texturePath.."UI-StatusBar"
 local borderTexture = texturePath.."borderTexture"
 local borderColor = {0.47, 0.47, 0.47, 1}
 
-    -- First Run Settings
-
-if ( nPlatesDB == nil ) then
-    nPlatesDB = {
-        ["TankMode"] = false,
-        ["ColorNameByThreat"] = false,
-        ["ShowHP"] = true,
-        ["ShowCurHP"] = true,
-        ["ShowPercHP"] = true,
-        ["ShowFullHP"] = true,
-        ["ShowLevel"] = true,
-        ["ShowServerName"] = false,
-        ["AbrrevLongNames"] = true,
-        ["UseLargeNameFont"] = false,
-        ["HideFriendly"] = false,
-        ["ShowClassColors"] = true,
-        ["DontClamp"] = false,
-        ["ShowTotemIcon"] = false,
-    }
-end
-
-    -- Set DefaultCompactNamePlate Options
-
-local groups = {
-    "Friendly",
-    "Enemy",
-}
-
-local options = {
-    displaySelectionHighlight = true,
-    useClassColors = nPlatesDB.ShowClassColors,
-
-    tankBorderColor = CreateColor(.45,.45,.45,.55),
-    selectedBorderColor = CreateColor(.45,.45,.45,.55),
-    defaultBorderColor = CreateColor(.45,.45,.45,.55),
-}
-
-for i, group  in next, groups do
-    for key, value in next, options do
-        _G["DefaultCompactNamePlate"..group.."FrameOptions"][key] = value
-    end
-end
-
-    -- Set CVar Options
+    -- Set Options
 
 C_Timer.After(.1, function()
+
+        -- Set Default Options
+
+    nPlates.RegisterDefaultSetting("TankMode", false)
+    nPlates.RegisterDefaultSetting("ColorNameByThreat", false)
+    nPlates.RegisterDefaultSetting("ShowHP", true)
+    nPlates.RegisterDefaultSetting("ShowCurHP", true)
+    nPlates.RegisterDefaultSetting("ShowPercHP", true)
+    nPlates.RegisterDefaultSetting("ShowFullHP", true)
+    nPlates.RegisterDefaultSetting("ShowLevel", true)
+    nPlates.RegisterDefaultSetting("ShowServerName", false)
+    nPlates.RegisterDefaultSetting("AbrrevLongNames", true)
+    nPlates.RegisterDefaultSetting("UseLargeNameFont", false)
+    nPlates.RegisterDefaultSetting("HideFriendly", false)
+    nPlates.RegisterDefaultSetting("ShowClassColors", true)
+    nPlates.RegisterDefaultSetting("DontClamp", false)
+    nPlates.RegisterDefaultSetting("ShowTotemIcon", false)
+    nPlates.RegisterDefaultSetting("ShowExecuteRange", false)
+    nPlates.RegisterDefaultSetting("ExecuteValue", 35)
+    nPlates.RegisterDefaultSetting("ExecuteColor", { r = 0, g = 71/255, b = 126/255})
+    nPlates.RegisterDefaultSetting("UseOffTankColor", false)
+    nPlates.RegisterDefaultSetting("OffTankColor", { r = 0.60, g = 0.20, b = 1.0})
+
+        -- Set DefaultCompactNamePlate Options
+
+    local groups = {
+        "Friendly",
+        "Enemy",
+    }
+
+    local options = {
+        displaySelectionHighlight = true,
+        useClassColors = nPlatesDB.ShowClassColors,
+
+        tankBorderColor = CreateColor(.45,.45,.45,.55),
+        selectedBorderColor = CreateColor(.45,.45,.45,.55),
+        defaultBorderColor = CreateColor(.45,.45,.45,.55),
+    }
+
+    for i, group  in next, groups do
+        for key, value in next, options do
+            _G["DefaultCompactNamePlate"..group.."FrameOptions"][key] = value
+        end
+    end
+
+        -- Set CVars
+
     if not InCombatLockdown() then
         -- Set min and max scale.
         SetCVar("namePlateMinScale", 1)
@@ -95,7 +99,9 @@ hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
     local perc = (health/maxHealth)*100
 
     if ( perc >= 100 and health > 5 and nPlatesDB.ShowFullHP ) then
-        if ( nPlatesDB.ShowCurHP and nPlatesDB.ShowPercHP ) then
+        if ( nPlatesDB.ShowCurHP and perc >= 100 ) then
+            frame.healthBar.healthString:SetFormattedText("%s", nPlates.FormatValue(health))
+        elseif ( nPlatesDB.ShowCurHP and nPlatesDB.ShowPercHP ) then
             frame.healthBar.healthString:SetFormattedText("%s - %.0f%%", nPlates.FormatValue(health), perc-0.5)
         elseif ( nPlatesDB.ShowCurHP ) then
             frame.healthBar.healthString:SetFormattedText("%s", nPlates.FormatValue(health))
@@ -139,21 +145,23 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
             elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
                 r, g, b = 0.1, 0.1, 0.1
             elseif ( frame.optionTable.colorHealthBySelection ) then
-                if ( frame.optionTable.considerSelectionInCombatAsHostile and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) and nPlatesDB.TankMode ) then
-                    local isTanking, threatStatus = UnitDetailedThreatSituation("player", frame.displayedUnit)
-                    if ( isTanking and threatStatus ) then
-                        if ( threatStatus >= 3 ) then
-                            r, g, b = 0.0, 1.0, 0.0
-                        elseif ( threatStatus == 2 ) then
-                            r, g, b = 1.0, 0.6, 0.2
+                if ( frame.optionTable.considerSelectionInCombatAsHostile and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) ) then
+                    if ( nPlatesDB.TankMode ) then
+                        local target = frame.displayedUnit.."target"
+                        local isTanking, threatStatus = UnitDetailedThreatSituation("player", frame.displayedUnit)
+                        if ( isTanking and threatStatus ) then
+                            if ( threatStatus >= 3 ) then
+                                r, g, b = 0.0, 1.0, 0.0
+                            elseif ( threatStatus == 2 ) then
+                                r, g, b = 1.0, 0.6, 0.2
+                            end
+                        elseif ( nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) and nPlatesDB.UseOffTankColor  ) then
+                            r, g, b = nPlatesDB.OffTankColor.r, nPlatesDB.OffTankColor.g, nPlatesDB.OffTankColor.b
+                        else
+                            r, g, b = 1.0, 0.0, 0.0;
                         end
                     else
-                        local target = frame.displayedUnit.."target"
-                        if ( nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) ) then
-                            r, g, b = 0.60, 0.20, 1.0
-                        else
-                            r, g, b = 1.0, 0.0, 0.0
-                        end
+                        r, g, b = 1.0, 0.0, 0.0;
                     end
                 else
                     r, g, b = UnitSelectionColor(frame.unit, frame.optionTable.colorHealthWithExtendedColors)
@@ -165,6 +173,13 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
             end
         end
     end
+
+        -- Execute Range Coloring
+
+    if ( nPlatesDB.ShowExecuteRange and nPlates.IsInExecuteRange(frame) ) then
+        r, g, b = nPlatesDB.ExecuteColor.r, nPlatesDB.ExecuteColor.g, nPlatesDB.ExecuteColor.b
+    end
+
     if ( r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b ) then
         frame.healthBar:SetStatusBarColor(r, g, b)
 
@@ -177,14 +192,14 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
         frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b
     end
 
-        -- Healthbar Overlay Coloring
+        -- Healthbar Border Coloring
 
     if ( frame.healthBar.beautyBorder ) then
         for i = 1, 8 do
             frame.healthBar.beautyBorder[i]:SetVertexColor(r/2,g/2,b/2,1)
         end
     end
-        -- Hide Overlay for Personal Frame
+        -- Hide Border for Personal Frame
 
     if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
         if ( frame.healthBar.beautyBorder ) then
