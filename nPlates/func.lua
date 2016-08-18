@@ -103,6 +103,15 @@ nPlates.PlayerIsTank = function(target)
     return assignedRole == "TANK"
 end
 
+    -- Off Tank Color Checks
+
+nPlates.UseOffTankColor = function(target)
+    if ( nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) ) then
+        return false
+    end
+    return true
+end
+
     -- Set Manabar Border Colors
 
 nPlates.SetManabarColors = function(frame,color)

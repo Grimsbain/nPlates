@@ -155,7 +155,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
                             elseif ( threatStatus == 2 ) then
                                 r, g, b = 1.0, 0.6, 0.2
                             end
-                        elseif ( nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) and nPlatesDB.UseOffTankColor  ) then
+                        elseif ( nPlates.UseOffTankColor(target) and nPlatesDB.UseOffTankColor  ) then
                             r, g, b = nPlatesDB.OffTankColor.r, nPlatesDB.OffTankColor.g, nPlatesDB.OffTankColor.b
                         else
                             r, g, b = 1.0, 0.0, 0.0;
