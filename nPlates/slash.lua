@@ -20,6 +20,7 @@ SlashCmdList["nplates"] = function(msg)
             "nameplateMinAlpha",
             "namePlateMinScale",
             "namePlateMaxScale",
+            "nameplateMaxDistance",
             "nameplateOtherTopInset",
             "nameplateOtherBottomInset"
         })

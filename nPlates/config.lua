@@ -393,6 +393,33 @@ Options:SetScript("OnShow", function()
         end
     end)
 
+    local name = "NameplateRange"
+    local NameplateRange = CreateFrame("Slider", name, RightSide, "OptionsSliderTemplate")
+    NameplateRange:SetPoint("TOPLEFT", NameplateAlpha, "BOTTOMLEFT", 0, -42)
+    NameplateRange.textLow = _G[name.."Low"]
+    NameplateRange.textHigh = _G[name.."High"]
+    NameplateRange.text = _G[name.."Text"]
+    NameplateRange:SetMinMaxValues(40, 60)
+    NameplateRange.minValue, NameplateRange.maxValue = NameplateRange:GetMinMaxValues()
+    NameplateRange.textLow:SetText(NameplateRange.minValue)
+    NameplateRange.textHigh:SetText(NameplateRange.maxValue)
+    local range = GetCVar("nameplateMaxDistance")
+    NameplateRange:SetValue(range)
+    NameplateRange:SetValueStep(1)
+    NameplateRange.text:SetText(L.NameplateRange..": "..string.format("%.0f",NameplateRange:GetValue()))
+    NameplateRange:SetScript("OnValueChanged", function(self,event,arg1)
+        NameplateRange.text:SetText(L.NameplateRange..": "..string.format("%.0f",NameplateRange:GetValue()))
+        local value = tonumber(string.format("%.0f",NameplateRange:GetValue()))
+        SetCVar("nameplateMaxDistance",value,true)
+    end)
+    NameplateRange:SetScript("OnUpdate", function(self)
+        if ( InCombatLockdown() ) then
+            NameplateRange:Disable()
+        else
+            NameplateRange:Enable()
+        end
+    end)
+
     local AddonTitle = Options:CreateFontString("$parentTitle", "ARTWORK", "GameFontNormalLarge")
     AddonTitle:SetPoint("BOTTOMRIGHT", -16, 16)
     AddonTitle:SetText(Options.name.." "..Options.version)
