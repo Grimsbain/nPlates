@@ -6,6 +6,7 @@ local gsub = string.gsub
 
 local texturePath = "Interface\\AddOns\\nPlates\\media\\"
 local borderTexture = texturePath.."borderTexture"
+local textureShadow = texturePath.."textureShadow"
 local borderColor = {0.47, 0.47, 0.47, 1}
 
     -- RBG to Hex Colors
@@ -107,9 +108,9 @@ end
 
 nPlates.UseOffTankColor = function(target)
     if ( nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) ) then
-        return false
+        return true
     end
-    return true
+    return false
 end
 
     -- Set Manabar Border Colors
@@ -148,6 +149,24 @@ nPlates.SetBorder = function(frame)
     if (not frame.beautyBorder) then
         local objectType = frame:GetObjectType()
         local padding = 2
+        local space = 8/3.5
+
+        frame.beautyShadow = {}
+        for i = 1, 8 do
+            if ( objectType == "StatusBar" ) then
+                frame.beautyShadow[i] = frame:CreateTexture("$parentBeautyShadow"..i, 'BORDER')
+                frame.beautyShadow[i]:SetParent(frame)
+            elseif ( objectType == "Texture") then
+                local frameParent = frame:GetParent()
+                frame.beautyShadow[i] = frameParent:CreateTexture("$parentBeautyShadow"..i, 'BORDER')
+                frame.beautyShadow[i]:SetParent(frameParent)
+            end
+            frame.beautyShadow[i]:SetTexture(textureShadow)
+            frame.beautyShadow[i]:SetSize(8, 8)
+            frame.beautyShadow[i]:SetVertexColor(0, 0, 0, 1)
+            frame.beautyShadow[i]:Hide()
+        end
+
         frame.beautyBorder = {}
         for i = 1, 8 do
             if ( objectType == "StatusBar" ) then
@@ -155,7 +174,7 @@ nPlates.SetBorder = function(frame)
                 frame.beautyBorder[i]:SetParent(frame)
             elseif ( objectType == "Texture") then
                 local frameParent = frame:GetParent()
-                frame.beautyBorder[i] = frameParent:CreateTexture("$parentBorder"..i, 'BORDER')
+                frame.beautyBorder[i] = frameParent:CreateTexture("$parentBeautyBorder"..i, 'OVERLAY')
                 frame.beautyBorder[i]:SetParent(frameParent)
             end
             frame.beautyBorder[i]:SetTexture(borderTexture)
@@ -191,10 +210,39 @@ nPlates.SetBorder = function(frame)
         frame.beautyBorder[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
         frame.beautyBorder[8]:SetPoint('TOPRIGHT', frame.beautyBorder[2], 'BOTTOMRIGHT')
         frame.beautyBorder[8]:SetPoint('BOTTOMRIGHT', frame.beautyBorder[4], 'TOPRIGHT')
+
+        frame.beautyShadow[1]:SetTexCoord(0, 1/3, 0, 1/3)
+        frame.beautyShadow[1]:SetPoint('TOPLEFT', frame, -padding-space, padding+space)
+
+        frame.beautyShadow[2]:SetTexCoord(2/3, 1, 0, 1/3)
+        frame.beautyShadow[2]:SetPoint('TOPRIGHT', frame, padding+space, padding+space)
+
+        frame.beautyShadow[3]:SetTexCoord(0, 1/3, 2/3, 1)
+        frame.beautyShadow[3]:SetPoint('BOTTOMLEFT', frame, -padding-space, -padding-space)
+
+        frame.beautyShadow[4]:SetTexCoord(2/3, 1, 2/3, 1)
+        frame.beautyShadow[4]:SetPoint('BOTTOMRIGHT', frame, padding+space, -padding-space)
+
+        frame.beautyShadow[5]:SetTexCoord(1/3, 2/3, 0, 1/3)
+        frame.beautyShadow[5]:SetPoint('TOPLEFT', frame.beautyShadow[1], 'TOPRIGHT')
+        frame.beautyShadow[5]:SetPoint('TOPRIGHT', frame.beautyShadow[2], 'TOPLEFT')
+
+        frame.beautyShadow[6]:SetTexCoord(1/3, 2/3, 2/3, 1)
+        frame.beautyShadow[6]:SetPoint('BOTTOMLEFT', frame.beautyShadow[3], 'BOTTOMRIGHT')
+        frame.beautyShadow[6]:SetPoint('BOTTOMRIGHT', frame.beautyShadow[4], 'BOTTOMLEFT')
+
+        frame.beautyShadow[7]:SetTexCoord(0, 1/3, 1/3, 2/3)
+        frame.beautyShadow[7]:SetPoint('TOPLEFT', frame.beautyShadow[1], 'BOTTOMLEFT')
+        frame.beautyShadow[7]:SetPoint('BOTTOMLEFT', frame.beautyShadow[3], 'TOPLEFT')
+
+        frame.beautyShadow[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
+        frame.beautyShadow[8]:SetPoint('TOPRIGHT', frame.beautyShadow[2], 'BOTTOMRIGHT')
+        frame.beautyShadow[8]:SetPoint('BOTTOMRIGHT', frame.beautyShadow[4], 'TOPRIGHT')
     end
 
     for i = 1, 8 do
         frame.beautyBorder[i]:Show()
+        frame.beautyShadow[i]:Show()
     end
 end
     -- Totem Data and Functions
