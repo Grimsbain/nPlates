@@ -107,8 +107,10 @@ end
     -- Off Tank Color Checks
 
 nPlates.UseOffTankColor = function(target)
-    if ( nPlatesDB.UseOffTankColor and nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) ) then
-        return true
+    if ( nPlatesDB.UseOffTankColor and (UnitPlayerOrPetInRaid(target) or UnitPlayerOrPetInParty(target)) ) then
+        if ( not UnitIsUnit("player",target) and nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") ) then
+            return true
+        end
     end
     return false
 end

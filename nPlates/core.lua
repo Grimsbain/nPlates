@@ -459,10 +459,8 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
                 end
             else
                 local target = frame.displayedUnit.."target"
-                if ( UnitPlayerOrPetInRaid(target) or UnitPlayerOrPetInParty(target) ) then
-                    if ( nPlates.PlayerIsTank(target) and nPlates.PlayerIsTank("player") and not UnitIsUnit("player",target) ) then
-                        frame.name:SetTextColor(0.60, 0.20, 1.0)
-                    end
+                if ( nPlates.UseOffTankColor(target) ) then
+                    frame.name:SetTextColor(nPlatesDB.OffTankColor.r, nPlatesDB.OffTankColor.g, nPlatesDB.OffTankColor.b)
                 end
             end
         end
