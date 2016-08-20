@@ -206,7 +206,7 @@ end)
 hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
 
     if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
-        frame.healthBar.border:Show()
+        if ( frame.healthBar.border ) then frame.healthBar.border:Show() end
         if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
             for i = 1, 8 do
                 frame.healthBar.beautyBorder[i]:Hide()
@@ -214,7 +214,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
             end
         end
     else
-        frame.healthBar.border:Hide()
+        if ( frame.healthBar.border ) then frame.healthBar.border:Hide() end
         if ( frame.healthBar.beautyShadow and frame.healthBar.beautyBorder ) then
             for i = 1, 8 do
                 frame.healthBar.beautyBorder[i]:Show()
