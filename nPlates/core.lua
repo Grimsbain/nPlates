@@ -155,7 +155,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
                             elseif ( threatStatus == 2 ) then
                                 r, g, b = 1.0, 0.6, 0.2
                             end
-                        elseif ( nPlates.UseOffTankColor(target) and nPlatesDB.UseOffTankColor  ) then
+                        elseif ( nPlates.UseOffTankColor(target) ) then
                             r, g, b = nPlatesDB.OffTankColor.r, nPlatesDB.OffTankColor.g, nPlatesDB.OffTankColor.b
                         else
                             r, g, b = 1.0, 0.0, 0.0;
@@ -196,10 +196,14 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
 
     if ( frame.healthBar.beautyBorder ) then
         for i = 1, 8 do
-            frame.healthBar.beautyBorder[i]:SetVertexColor(r/2,g/2,b/2,1)
+            frame.healthBar.beautyBorder[i]:SetVertexColor(r,g,b,1)
         end
     end
-        -- Hide Border for Personal Frame
+end)
+
+    -- Hide Beauty Border for Personal Frame
+
+hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
 
     if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
         frame.healthBar.border:Show()
