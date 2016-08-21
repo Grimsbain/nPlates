@@ -115,6 +115,29 @@ return end
 
 if CURRENT_LOCALE == "ruRU" then
 
+L.AbbrevName = "Сокращать длинные имена"
+L.ClassColors = "Цвета Класса"
+L.DisplayLevel = "Дисплей Уровень"
+L.DisplayServerName = "Имя сервера"
+L.EnableHealth = "Включить текст здоровья."
+L.ExecuteRange = "Цвет дистанции"
+L.FrameOptionsLabel = "Варианты структуры этикетки"
+L.HealthOptions = "Опции для здоровья"
+L.HideFriendly = "Скрыть дружественных"
+L.NameOptionsLabel = "Параметры имени"
+L.NameplateAlpha = "Минимальная прозрачнось"
+L.NameplateRange = "Серия Боя"
+L.NameplateScale = "Масштаб"
+L.NameSizeLabel = "Масштаб имени"
+L.NameThreat = "Цвет имени для здоровья"
+L.OffTankColor = "Отключить цвет танка"
+L.ShowCurHP = "Показать текущее значение"
+L.ShowPercHP = "Показать процент"
+L.ShowWhenFull = "Показать когда здоровье полноя"
+L.TankMode = "Режим танка"
+L.TankOptionsLabel = "Варианты танка этикетки"
+L.TotemIcons = "Тотемы"
+
 return end
 
 ------------------------------------------------------------------------

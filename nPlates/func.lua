@@ -7,7 +7,7 @@ local gsub = string.gsub
 local texturePath = "Interface\\AddOns\\nPlates\\media\\"
 local borderTexture = texturePath.."borderTexture"
 local textureShadow = texturePath.."textureShadow"
-local borderColor = {0.47, 0.47, 0.47, 1}
+local borderColor = {0.40, 0.40, 0.40, 1}
 
     -- RBG to Hex Colors
 

@@ -7,7 +7,7 @@ local gsub = string.gsub
 local texturePath = "Interface\\AddOns\\nPlates\\media\\"
 local statusBar = texturePath.."UI-StatusBar"
 local borderTexture = texturePath.."borderTexture"
-local borderColor = {0.47, 0.47, 0.47, 1}
+local borderColor = {0.40, 0.40, 0.40, 1}
 
     -- Set Options
 
@@ -196,7 +196,11 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
 
     if ( frame.healthBar.beautyBorder ) then
         for i = 1, 8 do
-            frame.healthBar.beautyBorder[i]:SetVertexColor(r,g,b,1)
+            if ( UnitIsUnit(frame.displayedUnit, "target") ) then
+                frame.healthBar.beautyBorder[i]:SetVertexColor(r,g,b,1)
+            else
+                frame.healthBar.beautyBorder[i]:SetVertexColor(unpack(borderColor))
+            end
         end
     end
 end)
@@ -219,6 +223,22 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
             for i = 1, 8 do
                 frame.healthBar.beautyBorder[i]:Show()
                 frame.healthBar.beautyShadow[i]:Show()
+            end
+        end
+    end
+end)
+
+    -- Change Border Color on Target
+
+hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", function(frame)
+    local r,g,b = frame.healthBar.r, frame.healthBar.g, frame.healthBar.b
+
+    if ( frame.healthBar.beautyBorder ) then
+        for i = 1, 8 do
+            if ( UnitIsUnit(frame.displayedUnit, "target") ) then
+                frame.healthBar.beautyBorder[i]:SetVertexColor(r,g,b,1)
+            else
+                frame.healthBar.beautyBorder[i]:SetVertexColor(unpack(borderColor))
             end
         end
     end
