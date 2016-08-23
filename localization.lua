@@ -14,12 +14,13 @@ end })
 ------------------------------------------------------------------------
 
 L.AbbrevName = "Abbreviate Long Names"
-L.ClassColors = "Display Class Colors"
 L.DisplayLevel = "Display Level"
 L.DisplayServerName = "Display Server Name"
 L.EnableHealth = "Enable Health Text"
+L.EnemyClassColors = "Display Enemy Class Colors"
 L.ExecuteRange = "Show Execute Color"
 L.FrameOptionsLabel = "Frame Options"
+L.FriendlyClassColors = "Display Friendly Class Colors"
 L.HealthOptions = "Health Options"
 L.HideFriendly = "Hide Friendly Nameplates"
 L.NameOptionsLabel = "Name Options"
@@ -47,7 +48,6 @@ if CURRENT_LOCALE == "enUS" then return end
 if CURRENT_LOCALE == "deDE" then
 
 L.AbbrevName = "Lange Namen abkürzen"
-L.ClassColors = "Klassenfarben anzeigen"
 L.DisplayLevel = "Stufe anzeigen"
 L.DisplayServerName = "Realmname anzeigen"
 L.EnableHealth = "Gesundheitstext aktivieren"
@@ -116,7 +116,6 @@ return end
 if CURRENT_LOCALE == "ruRU" then
 
 L.AbbrevName = "Сокращать длинные имена"
-L.ClassColors = "Цвета Класса"
 L.DisplayLevel = "Дисплей Уровень"
 L.DisplayServerName = "Имя сервера"
 L.EnableHealth = "Включить текст здоровья."
@@ -163,7 +162,6 @@ return end
 if CURRENT_LOCALE == "zhTW" then
 
 L.AbbrevName = "縮短長名稱"
-L.ClassColors = "顯示職業顏色"
 L.DisplayLevel = "顯示等級"
 L.DisplayServerName = "顯示伺服器名稱"
 L.EnableHealth = "啟用血量文字"

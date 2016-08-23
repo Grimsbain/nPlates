@@ -26,7 +26,8 @@ C_Timer.After(.1, function()
     nPlates.RegisterDefaultSetting("AbrrevLongNames", true)
     nPlates.RegisterDefaultSetting("UseLargeNameFont", false)
     nPlates.RegisterDefaultSetting("HideFriendly", false)
-    nPlates.RegisterDefaultSetting("ShowClassColors", true)
+    nPlates.RegisterDefaultSetting("ShowFriendlyClassColors", true)
+    nPlates.RegisterDefaultSetting("ShowEnemyClassColors", true)
     nPlates.RegisterDefaultSetting("DontClamp", false)
     nPlates.RegisterDefaultSetting("ShowTotemIcon", false)
     nPlates.RegisterDefaultSetting("ShowExecuteRange", false)
@@ -44,7 +45,6 @@ C_Timer.After(.1, function()
 
     local options = {
         displaySelectionHighlight = true,
-        useClassColors = nPlatesDB.ShowClassColors,
 
         tankBorderColor = CreateColor(.45,.45,.45,.55),
         selectedBorderColor = CreateColor(.45,.45,.45,.55),
@@ -56,6 +56,9 @@ C_Timer.After(.1, function()
             _G["DefaultCompactNamePlate"..group.."FrameOptions"][key] = value
         end
     end
+
+    DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = nPlatesDB.ShowFriendlyClassColors
+    DefaultCompactNamePlateEnemyFrameOptions.useClassColors = nPlatesDB.ShowEnemyClassColors
 
         -- Set CVars
 
@@ -140,8 +143,8 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
         else
             local localizedClass, englishClass = UnitClass(frame.unit)
             local classColor = RAID_CLASS_COLORS[englishClass]
-            if ( UnitIsPlayer(frame.unit) and classColor and nPlatesDB.ShowClassColors ) then
-                r, g, b = classColor.r, classColor.g, classColor.b
+            if ( UnitIsPlayer(frame.unit) and classColor and frame.optionTable.useClassColors ) then
+                    r, g, b = classColor.r, classColor.g, classColor.b
             elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
                 r, g, b = 0.1, 0.1, 0.1
             elseif ( frame.optionTable.colorHealthBySelection ) then
@@ -469,7 +472,7 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
 
             -- Color Name To Threat Status
 
-        if ( nPlatesDB.ColorNameByThreat ) then
+        if ( nPlatesDB.ColorNameByThreat and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) ) then
             local isTanking, threatStatus = UnitDetailedThreatSituation("player", frame.displayedUnit)
             if ( isTanking and threatStatus ) then
                 if ( threatStatus >= 3 ) then

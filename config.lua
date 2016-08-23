@@ -226,25 +226,38 @@ Options:SetScript("OnShow", function()
         ForceUpdate()
     end)
 
-    local ShowClassColors = CreateFrame("CheckButton", "ShowClassColors", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    ShowClassColors:SetPoint("TOPLEFT", HideFriendly, "BOTTOMLEFT", 0, -6)
-    ShowClassColors.Text:SetText(L.ClassColors)
-    ShowClassColors:SetScript("OnClick", function(this)
+    local ShowFriendlyClassColors = CreateFrame("CheckButton", "ShowFriendlyClassColors", RightSide, "InterfaceOptionsCheckButtonTemplate")
+    ShowFriendlyClassColors:SetPoint("TOPLEFT", HideFriendly, "BOTTOMLEFT", 0, -6)
+    ShowFriendlyClassColors.Text:SetText(L.FriendlyClassColors)
+    ShowFriendlyClassColors:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-        nPlatesDB.ShowClassColors = checked
+        nPlatesDB.ShowFriendlyClassColors = checked
         if ( not checked ) then
             DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = false
-            DefaultCompactNamePlateEnemyFrameOptions.useClassColors = false
         else
             DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = true
+        end
+        ForceUpdate()
+    end)
+
+    local ShowEnemyClassColors = CreateFrame("CheckButton", "ShowEnemyClassColors", RightSide, "InterfaceOptionsCheckButtonTemplate")
+    ShowEnemyClassColors:SetPoint("TOPLEFT", ShowFriendlyClassColors, "BOTTOMLEFT", 0, -6)
+    ShowEnemyClassColors.Text:SetText(L.EnemyClassColors)
+    ShowEnemyClassColors:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        nPlatesDB.ShowEnemyClassColors = checked
+        if ( not checked ) then
+            DefaultCompactNamePlateEnemyFrameOptions.useClassColors = false
+        else
             DefaultCompactNamePlateEnemyFrameOptions.useClassColors = true
         end
         ForceUpdate()
     end)
 
     local DontClamp = CreateFrame("CheckButton", "DontClamp", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    DontClamp:SetPoint("TOPLEFT", ShowClassColors, "BOTTOMLEFT", 0, -6)
+    DontClamp:SetPoint("TOPLEFT", ShowEnemyClassColors, "BOTTOMLEFT", 0, -6)
     DontClamp.Text:SetText(L.StickyNameplates)
     DontClamp:SetScript("OnUpdate", function()
         if ( not InCombatLockdown() ) then
@@ -431,7 +444,8 @@ Options:SetScript("OnShow", function()
         ShowServerName:SetChecked(nPlatesDB.ShowServerName)
         AbrrevLongNames:SetChecked(nPlatesDB.AbrrevLongNames)
         HideFriendly:SetChecked(nPlatesDB.HideFriendly)
-        ShowClassColors:SetChecked(nPlatesDB.ShowClassColors)
+        ShowFriendlyClassColors:SetChecked(nPlatesDB.ShowFriendlyClassColors)
+        ShowEnemyClassColors:SetChecked(nPlatesDB.ShowEnemyClassColors)
         DontClamp:SetChecked(nPlatesDB.DontClamp)
         ShowTotemIcon:SetChecked(nPlatesDB.ShowTotemIcon)
         ShowExecuteRange:SetChecked(nPlatesDB.ShowExecuteRange)
