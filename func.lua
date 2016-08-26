@@ -247,6 +247,7 @@ nPlates.SetBorder = function(frame)
         frame.beautyShadow[i]:Show()
     end
 end
+
     -- Totem Data and Functions
 
 local function TotemName(SpellID)
