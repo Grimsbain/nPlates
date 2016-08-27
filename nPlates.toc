@@ -2,7 +2,7 @@
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates for NeavUI.
 ## Author: Grimsbain
-## Version: 2.15
+## Version: 2.17
 ## SavedVariablesPerCharacter: nPlatesDB
 
 localization.lua

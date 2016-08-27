@@ -440,10 +440,10 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
         frame.name:Hide()
     else
 
-            -- Friendly Nameplate Class Color
+            -- Class Color Names
 
-        if ( nPlatesDB.ShowClassColors and UnitIsPlayer(frame.displayedUnit) ) then
-            frame.name:SetTextColor(frame.healthBar:GetStatusBarColor())
+        if ( UnitIsPlayer(frame.displayedUnit) ) then
+            frame.name:SetTextColor(frame.healthBar.r,frame.healthBar.g,frame.healthBar.b)
         end
 
             -- Shorten Long Names
@@ -472,7 +472,7 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
 
             -- Color Name To Threat Status
 
-        if ( nPlatesDB.ColorNameByThreat and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) ) then
+        if ( nPlatesDB.ColorNameByThreat ) then
             local isTanking, threatStatus = UnitDetailedThreatSituation("player", frame.displayedUnit)
             if ( isTanking and threatStatus ) then
                 if ( threatStatus >= 3 ) then
