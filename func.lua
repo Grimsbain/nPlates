@@ -79,6 +79,16 @@ nPlates.NameSize = function(frame)
     frame.name:SetShadowOffset(0.5, -0.5)
 end
 
+    -- Abbreviate Function
+
+nPlates.Abbrev = function(str,length)
+    if ( str ~= nil and length ~= nil ) then
+        str = (len(str) > length) and gsub(str, "%s?(.[\128-\191]*)%S+%s", "%1. ") or str
+        return str
+    end
+    return ""
+end
+
     -- Check for "Larger Nameplates"
 
 nPlates.IsUsingLargerNamePlateStyle = function()
@@ -151,7 +161,8 @@ nPlates.SetBorder = function(frame)
     if (not frame.beautyBorder) then
         local objectType = frame:GetObjectType()
         local padding = 2
-        local space = 8/3.5
+        local size = 8
+        local space = size/3.5
 
         frame.beautyShadow = {}
         for i = 1, 8 do
@@ -164,7 +175,7 @@ nPlates.SetBorder = function(frame)
                 frame.beautyShadow[i]:SetParent(frameParent)
             end
             frame.beautyShadow[i]:SetTexture(textureShadow)
-            frame.beautyShadow[i]:SetSize(8, 8)
+            frame.beautyShadow[i]:SetSize(size, size)
             frame.beautyShadow[i]:SetVertexColor(0, 0, 0, 1)
             frame.beautyShadow[i]:Hide()
         end
@@ -180,7 +191,7 @@ nPlates.SetBorder = function(frame)
                 frame.beautyBorder[i]:SetParent(frameParent)
             end
             frame.beautyBorder[i]:SetTexture(borderTexture)
-            frame.beautyBorder[i]:SetSize(8, 8)
+            frame.beautyBorder[i]:SetSize(size, size)
             frame.beautyBorder[i]:SetVertexColor(unpack(borderColor))
             frame.beautyBorder[i]:Hide()
         end

@@ -6,7 +6,6 @@ local gsub = string.gsub
 
 local texturePath = "Interface\\AddOns\\nPlates\\media\\"
 local statusBar = texturePath.."UI-StatusBar"
-local borderTexture = texturePath.."borderTexture"
 local borderColor = {0.40, 0.40, 0.40, 1}
 
     -- Set Options
@@ -105,21 +104,21 @@ hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
         if ( nPlatesDB.ShowCurHP and perc >= 100 ) then
             frame.healthBar.healthString:SetFormattedText("%s", nPlates.FormatValue(health))
         elseif ( nPlatesDB.ShowCurHP and nPlatesDB.ShowPercHP ) then
-            frame.healthBar.healthString:SetFormattedText("%s - %.0f%%", nPlates.FormatValue(health), perc-0.5)
+            frame.healthBar.healthString:SetFormattedText("%s - %s%%", nPlates.FormatValue(health), nPlates.FormatValue(perc))
         elseif ( nPlatesDB.ShowCurHP ) then
             frame.healthBar.healthString:SetFormattedText("%s", nPlates.FormatValue(health))
         elseif ( nPlatesDB.ShowPercHP ) then
-            frame.healthBar.healthString:SetFormattedText("%.0f%%", perc-0.5)
+            frame.healthBar.healthString:SetFormattedText("%s%%", nPlates.FormatValue(perc))
         else
             frame.healthBar.healthString:SetText("")
         end
     elseif ( perc < 100 and health > 5 ) then
         if ( nPlatesDB.ShowCurHP and nPlatesDB.ShowPercHP ) then
-            frame.healthBar.healthString:SetFormattedText("%s - %.0f%%", nPlates.FormatValue(health), perc-0.5)
+            frame.healthBar.healthString:SetFormattedText("%s - %s%%", nPlates.FormatValue(health), nPlates.FormatValue(perc))
         elseif ( nPlatesDB.ShowCurHP ) then
             frame.healthBar.healthString:SetFormattedText("%s", nPlates.FormatValue(health))
         elseif ( nPlatesDB.ShowPercHP ) then
-            frame.healthBar.healthString:SetFormattedText("%.0f%%", perc-0.5)
+            frame.healthBar.healthString:SetFormattedText("%s%%", nPlates.FormatValue(perc))
         else
             frame.healthBar.healthString:SetText("")
         end
@@ -222,7 +221,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
         end
     else
         if ( frame.healthBar.border ) then frame.healthBar.border:Hide() end
-        if ( frame.healthBar.beautyShadow and frame.healthBar.beautyBorder ) then
+        if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
             for i = 1, 8 do
                 frame.healthBar.beautyBorder[i]:Show()
                 frame.healthBar.beautyShadow[i]:Show()
@@ -307,7 +306,7 @@ local function UpdateCastbar(frame)
     if ( not nPlates.IsUsingLargerNamePlateStyle() ) then
         local spellName = frame.castBar.Text:GetText()
         if ( spellName ~= nil ) then
-            spellName = (len(spellName) > 20) and gsub(spellName, "%s?(.[\128-\191]*)%S+%s", "%1. ") or spellName
+            spellName = nPlates.Abbrev(spellName,20)
             frame.castBar.Text:SetText(spellName)
         end
     end
@@ -450,7 +449,7 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
 
         local newName = GetUnitName(frame.displayedUnit, nPlatesDB.ShowServerName) or UNKNOWN
         if ( nPlatesDB.AbrrevLongNames ) then
-            newName = (len(newName) > 20) and gsub(newName, "%s?(.[\128-\191]*)%S+%s", "%1. ") or newName
+            newName = nPlates.Abbrev(newName,20)
         end
 
             -- Level
