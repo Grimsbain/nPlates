@@ -8,6 +8,10 @@ local texturePath = "Interface\\AddOns\\nPlates\\media\\"
 local borderTexture = texturePath.."borderTexture"
 local textureShadow = texturePath.."textureShadow"
 local borderColor = {0.40, 0.40, 0.40, 1}
+local pvpIcons = {
+    Alliance = "\124TInterface/PVPFrame/PVP-Currency-Alliance:16\124t",
+    Horde = "\124TInterface/PVPFrame/PVP-Currency-Horde:16\124t",
+}
 
     -- RBG to Hex Colors
 
@@ -85,6 +89,19 @@ nPlates.Abbrev = function(str,length)
     if ( str ~= nil and length ~= nil ) then
         str = (len(str) > length) and gsub(str, "%s?(.[\128-\191]*)%S+%s", "%1. ") or str
         return str
+    end
+    return ""
+end
+
+    -- PvP Icon
+
+nPlates.PvPIcon = function(unit)
+    if ( nPlatesDB.ShowPvP and UnitIsPlayer(unit) ) then
+        local isPVP = UnitIsPVP(unit)
+        local faction = UnitFactionGroup(unit)
+        local icon = (isPVP and faction) and pvpIcons[faction] or ""
+
+        return icon
     end
     return ""
 end

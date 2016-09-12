@@ -34,6 +34,7 @@ C_Timer.After(.1, function()
     nPlates.RegisterDefaultSetting("ExecuteColor", { r = 0, g = 71/255, b = 126/255})
     nPlates.RegisterDefaultSetting("UseOffTankColor", false)
     nPlates.RegisterDefaultSetting("OffTankColor", { r = 0.60, g = 0.20, b = 1.0})
+    nPlates.RegisterDefaultSetting("ShowPvP", false)
 
         -- Set DefaultCompactNamePlate Options
 
@@ -330,6 +331,8 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
     frame.healthBar:SetStatusBarTexture(statusBar)
     frame.healthBar:Show()
 
+    frame.healthBar.barTexture:SetTexture(statusBar)
+
         -- Healthbar Border
 
     if (not frame.healthBar.beautyBorder) then
@@ -439,6 +442,10 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
         frame.name:Hide()
     else
 
+            -- PvP Icon
+
+        local pvpIcon = nPlates.PvPIcon(frame.displayedUnit)
+
             -- Class Color Names
 
         if ( UnitIsPlayer(frame.displayedUnit) ) then
@@ -461,12 +468,12 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
             local levelColor = nPlates.RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
 
             if ( targetLevel == -1 ) then
-                frame.name:SetText(newName)
+                frame.name:SetText(pvpIcon..newName)
             else
-                frame.name:SetText("|cffffff00|r"..levelColor..targetLevel.."|r "..newName)
+                frame.name:SetText(pvpIcon.."|cffffff00|r"..levelColor..targetLevel.."|r "..newName)
             end
         else
-            frame.name:SetText(newName)
+            frame.name:SetText(pvpIcon..newName or newName)
         end
 
             -- Color Name To Threat Status

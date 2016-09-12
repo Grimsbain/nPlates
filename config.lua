@@ -93,8 +93,18 @@ Options:SetScript("OnShow", function()
         ForceUpdate()
     end)
 
+    local ShowPvP = CreateFrame("CheckButton", "ShowPvP", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    ShowPvP:SetPoint("TOPLEFT", AbrrevLongNames, "BOTTOMLEFT", 0, -6)
+    ShowPvP.Text:SetText(L.ShowPvP)
+    ShowPvP:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        nPlatesDB.ShowPvP = checked
+        ForceUpdate()
+    end)
+
     local TankOptions = Options:CreateFontString("TankOptions", "ARTWORK", "GameFontNormalLarge")
-    TankOptions:SetPoint("TOPLEFT", AbrrevLongNames, "BOTTOMLEFT", 0, -24)
+    TankOptions:SetPoint("TOPLEFT", ShowPvP, "BOTTOMLEFT", 0, -24)
     TankOptions:SetText(L.TankOptionsLabel)
 
     local TankMode = CreateFrame("CheckButton", "TankMode", LeftSide, "InterfaceOptionsCheckButtonTemplate")
@@ -450,6 +460,7 @@ Options:SetScript("OnShow", function()
         ShowTotemIcon:SetChecked(nPlatesDB.ShowTotemIcon)
         ShowExecuteRange:SetChecked(nPlatesDB.ShowExecuteRange)
         UseOffTankColor:SetChecked(nPlatesDB.UseOffTankColor)
+        ShowPvP:SetChecked(nPlatesDB.ShowPvP)
     end
 
     Options:Refresh()
