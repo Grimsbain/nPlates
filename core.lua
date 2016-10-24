@@ -390,7 +390,7 @@ end)
 
     -- Player Frame
 
-hooksecurefunc("DefaultCompactNamePlatePlayerFrameSetup", function(frame, setupOptions, frameOptions)
+hooksecurefunc("DefaultCompactNamePlateFrameSetupInternal", function(frame, setupOptions, frameOptions)
     frame.healthBar:SetHeight(12)
 end)
 
