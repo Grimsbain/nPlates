@@ -36,30 +36,6 @@ C_Timer.After(.1, function()
     nPlates.RegisterDefaultSetting("OffTankColor", { r = 0.60, g = 0.20, b = 1.0})
     nPlates.RegisterDefaultSetting("ShowPvP", false)
 
-        -- Set DefaultCompactNamePlate Options
-
-    local groups = {
-        "Friendly",
-        "Enemy",
-    }
-
-    local options = {
-        displaySelectionHighlight = true,
-
-        tankBorderColor = CreateColor(.45,.45,.45,.55),
-        selectedBorderColor = CreateColor(.45,.45,.45,.55),
-        defaultBorderColor = CreateColor(.45,.45,.45,.55),
-    }
-
-    for i, group  in next, groups do
-        for key, value in next, options do
-            _G["DefaultCompactNamePlate"..group.."FrameOptions"][key] = value
-        end
-    end
-
-    DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = nPlatesDB.ShowFriendlyClassColors
-    DefaultCompactNamePlateEnemyFrameOptions.useClassColors = nPlatesDB.ShowEnemyClassColors
-
         -- Set CVars
 
     if not InCombatLockdown() then
@@ -143,7 +119,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
         else
             local localizedClass, englishClass = UnitClass(frame.unit)
             local classColor = RAID_CLASS_COLORS[englishClass]
-            if ( UnitIsPlayer(frame.unit) and classColor and frame.optionTable.useClassColors ) then
+            if ( UnitIsPlayer(frame.unit) and classColor and nPlates.UseClassColors(frame.displayedUnit) )then
                     r, g, b = classColor.r, classColor.g, classColor.b
             elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
                 r, g, b = 0.1, 0.1, 0.1
@@ -184,7 +160,6 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
     end
 
     if ( r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b ) then
-        frame.healthBar:SetStatusBarColor(r, g, b)
 
         if ( frame.optionTable.colorHealthWithExtendedColors ) then
             frame.selectionHighlight:SetVertexColor(r, g, b)
@@ -192,7 +167,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
             frame.selectionHighlight:SetVertexColor(1, 1, 1)
         end
 
-        frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b
+        frame.healthBar:SetStatusBarColor(r,g,b)
     end
 
         -- Healthbar Border Coloring
@@ -234,7 +209,7 @@ end)
     -- Change Border Color on Target
 
 hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", function(frame)
-    local r,g,b = frame.healthBar.r, frame.healthBar.g, frame.healthBar.b
+    local r,g,b = frame.healthBar:GetStatusBarColor()
 
     if ( frame.healthBar.beautyBorder ) then
         for i = 1, 8 do
@@ -449,7 +424,8 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
             -- Class Color Names
 
         if ( UnitIsPlayer(frame.displayedUnit) ) then
-            frame.name:SetTextColor(frame.healthBar.r,frame.healthBar.g,frame.healthBar.b)
+            local r,g,b = frame.healthBar:GetStatusBarColor()
+            frame.name:SetTextColor(r,g,b)
         end
 
             -- Shorten Long Names

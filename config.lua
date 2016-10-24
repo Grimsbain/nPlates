@@ -243,11 +243,6 @@ Options:SetScript("OnShow", function()
         local checked = not not this:GetChecked()
         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
         nPlatesDB.ShowFriendlyClassColors = checked
-        if ( not checked ) then
-            DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = false
-        else
-            DefaultCompactNamePlateFriendlyFrameOptions.useClassColors = true
-        end
         ForceUpdate()
     end)
 

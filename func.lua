@@ -27,6 +27,18 @@ nPlates.RGBHex = function(r, g, b)
     return ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
 end
 
+    -- Check if class colors should be used.
+
+nPlates.UseClassColors = function(unit)
+    if ( not UnitCanAttack("player",unit) and nPlatesDB.ShowFriendlyClassColors ) then
+        return true
+    elseif ( UnitCanAttack("player",unit) and nPlatesDB.ShowEnemyClassColors ) then
+        return true
+    else
+        return false
+    end
+end
+
     -- Format Health
 
 nPlates.FormatValue = function(number)

@@ -1,8 +1,8 @@
-## Interface: 70000
+## Interface: 70100
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates for NeavUI.
 ## Author: Grimsbain
-## Version: 2.18
+## Version: 2.19
 ## SavedVariablesPerCharacter: nPlatesDB
 
 localization.lua
