@@ -124,7 +124,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
             elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
                 r, g, b = 0.1, 0.1, 0.1
             elseif ( frame.optionTable.colorHealthBySelection ) then
-                if ( frame.optionTable.considerSelectionInCombatAsHostile and CompactUnitFrame_IsOnThreatListWithPlayer(frame.displayedUnit) ) then
+                if ( frame.optionTable.considerSelectionInCombatAsHostile and nPlates.IsOnThreatListWithPlayer(frame.displayedUnit) ) then
                     if ( nPlatesDB.TankMode ) then
                         local target = frame.displayedUnit.."target"
                         local isTanking, threatStatus = UnitDetailedThreatSituation("player", frame.displayedUnit)
@@ -159,7 +159,8 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
         r, g, b = nPlatesDB.ExecuteColor.r, nPlatesDB.ExecuteColor.g, nPlatesDB.ExecuteColor.b
     end
 
-    if ( r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b ) then
+    local cR,cG,cB = frame.healthBar:GetStatusBarColor()
+    if ( r ~= cR or g ~= cG or b ~= cB ) then
 
         if ( frame.optionTable.colorHealthWithExtendedColors ) then
             frame.selectionHighlight:SetVertexColor(r, g, b)

@@ -154,6 +154,13 @@ nPlates.UseOffTankColor = function(target)
     return false
 end
 
+    -- Check for threat.
+
+nPlates.IsOnThreatListWithPlayer = function(unit)
+	local _, threatStatus = UnitDetailedThreatSituation("player", unit);
+	return threatStatus ~= nil
+end
+
     -- Set Manabar Border Colors
 
 nPlates.SetManabarColors = function(frame,color)
