@@ -52,6 +52,10 @@ L.AbbrevName = "Lange Namen abkürzen"
 L.DisplayLevel = "Stufe anzeigen"
 L.DisplayServerName = "Realmname anzeigen"
 L.EnableHealth = "Gesundheitstext aktivieren"
+L.EnemyClassColors = "Gegner nach Klasse färben"
+L.ExecuteRange = "Einfärben wenn Hinrichten nutzbar"
+L.FrameOptionsLabel = "Plakettenoptionen"
+L.FriendlyClassColors = "Verbündete nach Klasse färben"
 L.HealthOptions = "Gesundheitsoptionen"
 L.HideFriendly = "Freundliche Namensplaketten ausblenden"
 L.NameOptionsLabel = "Namensoptionen"
@@ -60,8 +64,10 @@ L.NameplateRange = "Namensplakettenreichweite"
 L.NameplateScale = "Namensplakettenskalierung"
 L.NameSizeLabel = "Namensgröße"
 L.NameThreat = "Name nach Bedrohung färben"
+L.OffTankColor = "Off-Tank Farbe"
 L.ShowCurHP = "Momentanen Wert anzeigen"
 L.ShowPercHP = "Prozent anzeigen"
+L.ShowPvP = "PvP-Symbol anzeigen"
 L.ShowWhenFull = "Anzeigen, wenn voll"
 L.StickyNameplates = "Beharrliche Namensplaketten"
 L.TankMode = "Tankmodus"
@@ -153,6 +159,15 @@ return end
 ------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "zhCN" then
+
+L.AbbrevName = "简化名称"
+L.DisplayLevel = "显示等级"
+L.DisplayServerName = "显示服务器名称"
+L.EnableHealth = "显示生命值"
+L.EnemyClassColors = "敌方职业颜色"
+L.ExecuteRange = "根据距离改变颜色"
+L.FriendlyClassColors = "友方职业颜色"
+L.HideFriendly = "隐藏友方姓名板"
 
 return end
 
