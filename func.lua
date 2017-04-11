@@ -75,6 +75,17 @@ nPlates.FormatTime = function(s)
     return floor(s), s - floor(s)
 end
 
+    -- In Instance Check
+
+nPlates.instanceCheck = function(unit)
+    local inInstance, instanceType = IsInInstance()
+    if ( instanceType == "raid" or instanceType == "party" and UnitIsFriend("player",unit)) then
+        return true
+    else
+        return false
+    end
+end
+
     -- Set Defaults
 
 nPlates.RegisterDefaultSetting = function(key,value)
@@ -128,7 +139,7 @@ end
     -- Check if the frame is a nameplate.
 
 nPlates.FrameIsNameplate = function(frame)
-    if ( string.match(frame.displayedUnit,"nameplate") ~= "nameplate") then
+    if ( string.match(frame.displayedUnit,"nameplate") ~= "nameplate" ) then
         return false
     else
         return true

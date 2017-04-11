@@ -53,10 +53,77 @@ C_Timer.After(.1, function()
     end
 end)
 
+    -- Update Castbar Time
+
+local function UpdateCastbarTimer(frame)
+
+    if ( frame.unit ) then
+        if ( frame.castBar.casting ) then
+            local current = frame.castBar.maxValue - frame.castBar.value
+            if ( current > 0.0 ) then
+                frame.castBar.CastTime:SetText(nPlates.FormatTime(current))
+            end
+        else
+            if ( frame.castBar.value > 0 ) then
+                frame.castBar.CastTime:SetText(nPlates.FormatTime(frame.castBar.value))
+            end
+        end
+    end
+end
+
+local function UpdateCastbar(frame)
+
+        -- Castbar Overlay Coloring
+
+    local notInterruptible
+    local red = {.75,0,0,1}
+    local green = {0,.75,0,1}
+
+    if ( frame.unit ) then
+        if ( frame.castBar.casting ) then
+            notInterruptible = select(9,UnitCastingInfo(frame.displayedUnit))
+        else
+            notInterruptible = select(8,UnitChannelInfo(frame.displayedUnit))
+        end
+
+        if ( UnitCanAttack("player",frame.displayedUnit) ) then
+            if ( notInterruptible ) then
+                nPlates.SetManabarColors(frame,red)
+            else
+                nPlates.SetManabarColors(frame,green)
+            end
+        else
+            nPlates.SetManabarColors(frame,borderColor)
+        end
+    end
+
+        -- Backup Icon Background
+
+    if ( frame.castBar.Icon.Background ) then
+        local _,class = UnitClass(frame.displayedUnit)
+        if ( not class ) then
+            frame.castBar.Icon.Background:SetTexture("Interface\\Icons\\Ability_DualWield")
+        else
+            frame.castBar.Icon.Background:SetTexture("Interface\\Icons\\ClassIcon_"..class)
+        end
+    end
+
+        -- Abbreviate Long Spell Names
+
+    if ( not nPlates.IsUsingLargerNamePlateStyle() ) then
+        local spellName = frame.castBar.Text:GetText()
+        if ( spellName ~= nil ) then
+            spellName = nPlates.Abbrev(spellName,20)
+            frame.castBar.Text:SetText(spellName)
+        end
+    end
+end
+
     -- Updated Health Text
 
 hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
     if ( not nPlates.FrameIsNameplate(frame) ) then return end
+    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
 
     local font = select(1,frame.name:GetFont())
 
@@ -109,6 +176,100 @@ end)
 
 hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
     if ( not nPlates.FrameIsNameplate(frame) ) then return end
+    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
+
+    nPlates.NameSize(frame)
+
+        -- Healthbar
+
+    frame.healthBar:SetHeight(12)
+    frame.healthBar:Hide()
+    frame.healthBar:ClearAllPoints()
+    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
+    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
+    frame.healthBar:SetStatusBarTexture(statusBar)
+    frame.healthBar:Show()
+
+    frame.healthBar.barTexture:SetTexture(statusBar)
+
+        -- Healthbar Border
+
+    if (not frame.healthBar.beautyBorder) then
+        nPlates.SetBorder(frame.healthBar)
+    end
+
+        -- Castbar
+
+    local castbarFont = select(1,frame.castBar.Text:GetFont())
+
+    frame.castBar:SetHeight(12)
+    frame.castBar:SetStatusBarTexture(statusBar)
+
+        -- Castbar Border
+
+    if (not frame.castBar.beautyBorder) then
+        nPlates.SetBorder(frame.castBar)
+    end
+
+        -- Hide Border Shield
+
+    frame.castBar.BorderShield:Hide()
+    frame.castBar.BorderShield:ClearAllPoints()
+
+        -- Spell Name
+
+    frame.castBar.Text:Hide()
+    frame.castBar.Text:ClearAllPoints()
+    frame.castBar.Text:SetFont(castbarFont, 8)
+    frame.castBar.Text:SetShadowOffset(.5, -.5)
+    frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
+    frame.castBar.Text:Show()
+
+        -- Set Castbar Timer
+
+    if ( not frame.castBar.CastTime ) then
+        frame.castBar.CastTime = frame.castBar:CreateFontString(nil, "OVERLAY")
+        frame.castBar.CastTime:Hide()
+        frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon, "BOTTOMRIGHT", 0, 0)
+        frame.castBar.CastTime:SetFont(castbarFont, 12, "OUTLINE")
+        frame.castBar.CastTime:Show()
+    end
+
+        -- Castbar Icon
+
+    frame.castBar.Icon:SetSize(24,24)
+    frame.castBar.Icon:Hide()
+    frame.castBar.Icon:ClearAllPoints()
+    frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4.9, 0)
+    frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    frame.castBar.Icon:Show()
+
+        -- Castbar Icon Background
+
+    if ( not frame.castBar.Icon.Background ) then
+        frame.castBar.Icon.Background = frame.castBar:CreateTexture("$parentIconBackground", "BACKGROUND")
+        frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+        frame.castBar.Icon.Background:Hide()
+        frame.castBar.Icon.Background:ClearAllPoints()
+        frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
+        frame.castBar.Icon.Background:Show()
+    end
+
+        -- Castbar Icon Border
+
+    if ( not frame.castBar.Icon.beautyBorder ) then
+        nPlates.SetBorder(frame.castBar.Icon)
+    end
+
+        -- Update Castbar
+
+    frame.castBar:SetScript("OnValueChanged", function(self, value)
+        UpdateCastbarTimer(frame)
+    end)
+
+    frame.castBar:SetScript("OnShow", function(self)
+        UpdateCastbar(frame)
+    end)
 
     if ( not UnitIsConnected(frame.unit) ) then
         local r, g, b = 0.5, 0.5, 0.5
@@ -186,8 +347,8 @@ end)
 
     -- Hide Beauty Border for Personal Frame
 
-hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
-
+--[[hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
+    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
     if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
         if ( frame.healthBar.border ) then frame.healthBar.border:Show() end
         if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
@@ -205,11 +366,12 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
             end
         end
     end
-end)
+end)]]
 
     -- Change Border Color on Target
 
 hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", function(frame)
+    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
     local r,g,b = frame.healthBar:GetStatusBarColor()
 
     if ( frame.healthBar.beautyBorder ) then
@@ -223,75 +385,14 @@ hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", function(frame)
     end
 end)
 
-    -- Update Castbar Time
 
-local function UpdateCastbarTimer(frame)
-
-    if ( frame.unit ) then
-        if ( frame.castBar.casting ) then
-            local current = frame.castBar.maxValue - frame.castBar.value
-            if ( current > 0.0 ) then
-                frame.castBar.CastTime:SetText(nPlates.FormatTime(current))
-            end
-        else
-            if ( frame.castBar.value > 0 ) then
-                frame.castBar.CastTime:SetText(nPlates.FormatTime(frame.castBar.value))
-            end
-        end
-    end
-end
-
-local function UpdateCastbar(frame)
-
-        -- Castbar Overlay Coloring
-
-    local notInterruptible
-    local red = {.75,0,0,1}
-    local green = {0,.75,0,1}
-
-    if ( frame.unit ) then
-        if ( frame.castBar.casting ) then
-            notInterruptible = select(9,UnitCastingInfo(frame.displayedUnit))
-        else
-            notInterruptible = select(8,UnitChannelInfo(frame.displayedUnit))
-        end
-
-        if ( UnitCanAttack("player",frame.displayedUnit) ) then
-            if ( notInterruptible ) then
-                nPlates.SetManabarColors(frame,red)
-            else
-                nPlates.SetManabarColors(frame,green)
-            end
-        else
-            nPlates.SetManabarColors(frame,borderColor)
-        end
-    end
-
-        -- Backup Icon Background
-
-    if ( frame.castBar.Icon.Background ) then
-        local _,class = UnitClass(frame.displayedUnit)
-        if ( not class ) then
-            frame.castBar.Icon.Background:SetTexture("Interface\\Icons\\Ability_DualWield")
-        else
-            frame.castBar.Icon.Background:SetTexture("Interface\\Icons\\ClassIcon_"..class)
-        end
-    end
-
-        -- Abbreviate Long Spell Names
-
-    if ( not nPlates.IsUsingLargerNamePlateStyle() ) then
-        local spellName = frame.castBar.Text:GetText()
-        if ( spellName ~= nil ) then
-            spellName = nPlates.Abbrev(spellName,20)
-            frame.castBar.Text:SetText(spellName)
-        end
-    end
-end
 
     -- Setup Frames
 
+--[[
 hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
+
+    if ( nPlates.instanceCheck("player") ) then return end
 
         -- Name
 
@@ -399,6 +500,7 @@ end)
 
 hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
     if ( not nPlates.FrameIsNameplate(frame) ) then return end
+    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
 
         -- Totem Icon
 
@@ -475,7 +577,9 @@ end)
 
     -- Buff Frame Offsets
 
+--[[
 hooksecurefunc(NamePlateBaseMixin,"ApplyOffsets", function(self)
+    if ( nPlates.instanceCheck(self.UnitFrame.displayedUnit) ) then return end
     local targetMode = GetCVarBool("nameplateShowSelf") and GetCVarBool("nameplateResourceOnTarget")
 
     self.UnitFrame.BuffFrame:SetBaseYOffset(0)
@@ -490,6 +594,7 @@ end)
     -- Update Buff Frame Anchor
 
 hooksecurefunc(NameplateBuffContainerMixin,"UpdateAnchor", function(self)
+    if ( nPlates.instanceCheck(self:GetParent().unit) ) then return end
     local targetMode = GetCVarBool("nameplateShowSelf") and GetCVarBool("nameplateResourceOnTarget")
     local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, "target")
     local targetYOffset = isTarget and self:GetTargetYOffset() or 0.0
@@ -513,3 +618,4 @@ hooksecurefunc(NameplateBuffContainerMixin,"UpdateAnchor", function(self)
         self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, 5 )
     end
 end)
+]]
