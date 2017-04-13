@@ -345,29 +345,6 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
     end
 end)
 
-    -- Hide Beauty Border for Personal Frame
-
-hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
-    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
-    if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
-        if ( frame.healthBar.border ) then frame.healthBar.border:Show() end
-        if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
-            for i = 1, 8 do
-                frame.healthBar.beautyBorder[i]:Hide()
-                frame.healthBar.beautyShadow[i]:Hide()
-            end
-        end
-    else
-        if ( frame.healthBar.border ) then frame.healthBar.border:Hide() end
-        if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
-            for i = 1, 8 do
-                frame.healthBar.beautyBorder[i]:Show()
-                frame.healthBar.beautyShadow[i]:Show()
-            end
-        end
-    end
-end)
-
     -- Change Border Color on Target
 
 hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", function(frame)
