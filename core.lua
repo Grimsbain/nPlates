@@ -194,7 +194,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
 
         -- Healthbar Border
 
-    if (not frame.healthBar.beautyBorder) then
+    if ( not frame.healthBar.beautyBorder ) then
         nPlates.SetBorder(frame.healthBar)
     end
 
@@ -207,7 +207,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
 
         -- Castbar Border
 
-    if (not frame.castBar.beautyBorder) then
+    if ( not frame.castBar.beautyBorder ) then
         nPlates.SetBorder(frame.castBar)
     end
 
@@ -347,26 +347,26 @@ end)
 
     -- Hide Beauty Border for Personal Frame
 
--- hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
-    -- if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
-    -- if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
-        -- if ( frame.healthBar.border ) then frame.healthBar.border:Show() end
-        -- if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
-            -- for i = 1, 8 do
-                -- frame.healthBar.beautyBorder[i]:Hide()
-                -- frame.healthBar.beautyShadow[i]:Hide()
-            -- end
-        -- end
-    -- else
-        -- if ( frame.healthBar.border ) then frame.healthBar.border:Hide() end
-        -- if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
-            -- for i = 1, 8 do
-                -- frame.healthBar.beautyBorder[i]:Show()
-                -- frame.healthBar.beautyShadow[i]:Show()
-            -- end
-        -- end
-    -- end
--- end)
+hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
+    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
+    if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
+        if ( frame.healthBar.border ) then frame.healthBar.border:Show() end
+        if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
+            for i = 1, 8 do
+                frame.healthBar.beautyBorder[i]:Hide()
+                frame.healthBar.beautyShadow[i]:Hide()
+            end
+        end
+    else
+        if ( frame.healthBar.border ) then frame.healthBar.border:Hide() end
+        if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
+            for i = 1, 8 do
+                frame.healthBar.beautyBorder[i]:Show()
+                frame.healthBar.beautyShadow[i]:Show()
+            end
+        end
+    end
+end)
 
     -- Change Border Color on Target
 
@@ -473,43 +473,17 @@ end)
 
     -- Buff Frame Offsets
 
--- hooksecurefunc(NamePlateBaseMixin,"ApplyOffsets", function(self)
-    -- if ( nPlates.instanceCheck(self.UnitFrame.displayedUnit) ) then return end
-    -- local targetMode = GetCVarBool("nameplateShowSelf") and GetCVarBool("nameplateResourceOnTarget")
+local function UpdateBuffFrame(...)
+	for _,v in pairs(C_NamePlate.GetNamePlates()) do
+		local bf = v.UnitFrame.BuffFrame;
 
-    -- self.UnitFrame.BuffFrame:SetBaseYOffset(0)
+        if ( v.UnitFrame.displayedUnit and UnitShouldDisplayName(v.UnitFrame.displayedUnit) ) then
+            bf.baseYOffset = v.UnitFrame.name:GetHeight()+1;
+        elseif ( v.UnitFrame.displayedUnit ) then
+            bf.baseYOffset = 0;
+        end
 
-    -- if ( targetMode ) then
-        -- self.UnitFrame.BuffFrame:SetTargetYOffset(25)
-    -- else
-        -- self.UnitFrame.BuffFrame:SetTargetYOffset(0)
-    -- end
--- end)
-
-    -- -- Update Buff Frame Anchor
-
--- hooksecurefunc(NameplateBuffContainerMixin,"UpdateAnchor", function(self)
-    -- if ( nPlates.instanceCheck(self:GetParent().unit) ) then return end
-    -- local targetMode = GetCVarBool("nameplateShowSelf") and GetCVarBool("nameplateResourceOnTarget")
-    -- local isTarget = self:GetParent().unit and UnitIsUnit(self:GetParent().unit, "target")
-    -- local targetYOffset = isTarget and self:GetTargetYOffset() or 0.0
-    -- local nameHeight = self:GetParent().name:GetHeight()
-
-    -- if (self:GetParent().unit and ShouldShowName(self:GetParent())) then
-        -- if ( targetMode ) then
-            -- if ( nPlates.IsUsingLargerNamePlateStyle() ) then
-                -- self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, targetYOffset+5 )
-            -- else
-                -- self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, nameHeight+targetYOffset+5 )
-            -- end
-        -- else
-            -- if ( nPlates.IsUsingLargerNamePlateStyle() ) then
-                -- self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, 0 )
-            -- else
-                -- self:SetPoint("BOTTOM", self:GetParent(), "TOP", 0, nameHeight+5 )
-            -- end
-        -- end
-    -- else
-        -- self:SetPoint("BOTTOM", self:GetParent().healthBar, "TOP", 0, 5 )
-    -- end
--- end)
+        bf:UpdateAnchor();
+    end
+end
+NamePlateDriverFrame:HookScript("OnEvent", UpdateBuffFrame);
