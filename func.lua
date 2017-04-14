@@ -79,10 +79,13 @@ end
 
 nPlates.instanceCheck = function(unit)
     local inInstance, instanceType = IsInInstance()
-    if ( instanceType == "raid" or instanceType == "party" and UnitIsFriend("player",unit)) then
-        return true
-    else
-        return false
+
+    if ( instanceType == "raid" or instanceType == "party" ) then
+        if ( not UnitCanAttack("player", unit) ) then
+            return true
+        else
+            return false
+        end
     end
 end
 
