@@ -77,15 +77,31 @@ end
 
     -- In Instance Check
 
-nPlates.instanceCheck = function(unit)
+nPlates.InstanceCheck = function()
     local inInstance, instanceType = IsInInstance()
 
     if ( instanceType == "raid" or instanceType == "party" ) then
-        if ( not UnitCanAttack("player", unit) ) then
-            return true
-        else
-            return false
-        end
+        return true
+    else
+        return false
+    end
+end
+
+nPlates.NameplateType = function(unit)
+    if UnitIsUnit("player", unit) then
+        return "player";
+    elseif UnitIsFriend("player", unit) then
+        return "friendly";
+    else
+        return "enemy";
+    end
+end
+
+nPlates.IsPlayer = function(unit)
+    if ( UnitGUID(unit) == UnitGUID("player") ) then
+        return true
+    else
+        return false
     end
 end
 
@@ -141,8 +157,9 @@ end
 
     -- Check if the frame is a nameplate.
 
-nPlates.FrameIsNameplate = function(frame)
-    if ( string.match(frame.displayedUnit,"nameplate") ~= "nameplate" ) then
+nPlates.FrameIsNameplate = function(unit)
+    if ( type(unit) ~= "string" ) then return false end
+    if ( string.match(unit,"nameplate") ~= "nameplate" ) then
         return false
     else
         return true

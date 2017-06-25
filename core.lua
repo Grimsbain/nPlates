@@ -122,8 +122,11 @@ end
     -- Updated Health Text
 
 hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
-    if ( not nPlates.FrameIsNameplate(frame) ) then return end
-    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
+    if ( not nPlates.FrameIsNameplate(frame.displayedUnit) ) then return end
+    if ( nPlates.InstanceCheck() and nPlates.NameplateType(frame.displayedUnit) ~= "enemy" ) then
+        if ( frame.healthBar.healthString ) then frame.healthBar.healthString:Hide() end
+        return
+    end
 
     local font = select(1,frame.name:GetFont())
 
@@ -175,8 +178,8 @@ end)
     -- Update Health Color
 
 hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
-    if ( not nPlates.FrameIsNameplate(frame) ) then return end
-    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
+    if ( not nPlates.FrameIsNameplate(frame.displayedUnit) ) then return end
+    if ( nPlates.InstanceCheck() and nPlates.NameplateType(frame.displayedUnit) ~= "enemy" ) then return end
 
     nPlates.NameSize(frame)
 
@@ -348,9 +351,9 @@ end)
     -- Hide Beauty Border for Personal Frame
 
 hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
-    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
+    if ( nPlates.InstanceCheck() and nPlates.NameplateType(frame.displayedUnit) ~= "enemy" ) then return end
     if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
-    if ( frame.healthBar.border ) then frame.healthBar.border:Show() end
+        if ( frame.healthBar.border ) then frame.healthBar.border:Show() end
         if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
             for i = 1, 8 do
                 frame.healthBar.beautyBorder[i]:Hide()
@@ -371,7 +374,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
     -- Change Border Color on Target
 
 hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", function(frame)
-    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
+    if ( nPlates.InstanceCheck() and nPlates.NameplateType(frame.displayedUnit) ~= "enemy" ) then return end
     local r,g,b = frame.healthBar:GetStatusBarColor()
 
     if ( frame.healthBar.beautyBorder ) then
@@ -385,18 +388,11 @@ hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", function(frame)
     end
 end)
 
-    -- Player Frame
-
-hooksecurefunc("DefaultCompactNamePlateFrameSetupInternal", function(frame, setupOptions, frameOptions)
-    if ( nPlates.instanceCheck("player") ) then return end
-    frame.healthBar:SetHeight(12)
-end)
-
     -- Update Name
 
 hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
-    if ( not nPlates.FrameIsNameplate(frame) ) then return end
-    if ( nPlates.instanceCheck(frame.displayedUnit) ) then return end
+    if ( not nPlates.FrameIsNameplate(frame.displayedUnit) ) then return end
+    if ( nPlates.InstanceCheck() and nPlates.NameplateType(frame.displayedUnit) ~= "enemy" ) then return end
 
         -- Totem Icon
 
