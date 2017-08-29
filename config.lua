@@ -1,6 +1,9 @@
 local ADDON, nPlates = ...
 local L = nPlates.L
 
+local checkboxOn = PlaySoundKitID and "igMainMenuOptionCheckBoxOn" or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
+local checkboxOff = PlaySoundKitID and "igMainMenuOptionCheckBoxOff" or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
+
 local Options = CreateFrame("Frame", "nPlatesOptions", InterfaceOptionsFramePanelContainer)
 
 local function ForceUpdate()
@@ -68,7 +71,7 @@ Options:SetScript("OnShow", function()
     ShowLevel.Text:SetText(L.DisplayLevel)
     ShowLevel:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.ShowLevel = checked
         ForceUpdate()
     end)
@@ -78,7 +81,7 @@ Options:SetScript("OnShow", function()
     ShowServerName.Text:SetText(L.DisplayServerName)
     ShowServerName:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.ShowServerName = checked
         ForceUpdate()
     end)
@@ -88,7 +91,7 @@ Options:SetScript("OnShow", function()
     AbrrevLongNames.Text:SetText(L.AbbrevName)
     AbrrevLongNames:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.AbrrevLongNames = checked
         ForceUpdate()
     end)
@@ -98,7 +101,7 @@ Options:SetScript("OnShow", function()
     ShowPvP.Text:SetText(L.ShowPvP)
     ShowPvP:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.ShowPvP = checked
         ForceUpdate()
     end)
@@ -112,7 +115,7 @@ Options:SetScript("OnShow", function()
     TankMode.Text:SetText(L.TankMode)
     TankMode:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.TankMode = checked
         ForceUpdate()
     end)
@@ -122,7 +125,7 @@ Options:SetScript("OnShow", function()
     ColorNameByThreat.Text:SetText(L.NameThreat)
     ColorNameByThreat:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.ColorNameByThreat = checked
         ForceUpdate()
     end)
@@ -132,7 +135,7 @@ Options:SetScript("OnShow", function()
     UseOffTankColor.Text:SetText(L.OffTankColor)
     UseOffTankColor:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.UseOffTankColor = checked
         ForceUpdate()
     end)
@@ -231,7 +234,7 @@ Options:SetScript("OnShow", function()
     HideFriendly.Text:SetText(L.HideFriendly)
     HideFriendly:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.HideFriendly = checked
         ForceUpdate()
     end)
@@ -241,7 +244,7 @@ Options:SetScript("OnShow", function()
     ShowFriendlyClassColors.Text:SetText(L.FriendlyClassColors)
     ShowFriendlyClassColors:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.ShowFriendlyClassColors = checked
         ForceUpdate()
     end)
@@ -251,7 +254,7 @@ Options:SetScript("OnShow", function()
     ShowEnemyClassColors.Text:SetText(L.EnemyClassColors)
     ShowEnemyClassColors:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.ShowEnemyClassColors = checked
         if ( not checked ) then
             DefaultCompactNamePlateEnemyFrameOptions.useClassColors = false
@@ -274,7 +277,7 @@ Options:SetScript("OnShow", function()
     DontClamp:SetScript("OnClick", function(this)
         if ( not InCombatLockdown() ) then
             local checked = not not this:GetChecked()
-            PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+            PlaySound(checked and checkboxOn or checkboxOff)
             nPlatesDB.DontClamp = checked
             if ( not checked ) then
                 SetCVar("nameplateOtherTopInset", -1,true)
@@ -290,7 +293,7 @@ Options:SetScript("OnShow", function()
     ShowTotemIcon.Text:SetText(L.TotemIcons)
     ShowTotemIcon:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.ShowTotemIcon = checked
         ForceUpdate()
     end)
@@ -300,7 +303,7 @@ Options:SetScript("OnShow", function()
     ShowExecuteRange.Text:SetText(L.ExecuteRange)
     ShowExecuteRange:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+        PlaySound(checked and checkboxOn or checkboxOff)
         nPlatesDB.ShowExecuteRange = checked
         ForceUpdate()
     end)

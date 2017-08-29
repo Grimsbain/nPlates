@@ -1,4 +1,4 @@
-## Interface: 70250
+## Interface: 70300
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates for NeavUI.
 ## Author: Grimsbain
