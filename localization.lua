@@ -37,7 +37,6 @@ L.ShowWhenFull = "Show When Full"
 L.StickyNameplates = "Sticky Nameplates"
 L.TankMode = "Tank Mode"
 L.TankOptionsLabel = "Tank Options"
-L.TotemIcons = "Display Totem Icon"
 
 local CURRENT_LOCALE = GetLocale()
 if CURRENT_LOCALE == "enUS" then return end
@@ -72,7 +71,6 @@ L.ShowWhenFull = "Anzeigen, wenn voll"
 L.StickyNameplates = "Beharrliche Namensplaketten"
 L.TankMode = "Tankmodus"
 L.TankOptionsLabel = "Tankoptionen"
-L.TotemIcons = "Totemsymbol anzeigen"
 
 return end
 
@@ -142,7 +140,6 @@ L.ShowPercHP = "Показать процент"
 L.ShowWhenFull = "Показать когда здоровье полноя"
 L.TankMode = "Режим танка"
 L.TankOptionsLabel = "Варианты танка этикетки"
-L.TotemIcons = "Тотемы"
 
 return end
 
@@ -159,7 +156,7 @@ return end
 ------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "zhCN" then
-    
+
 L.AbbrevName = "简化过长名字"
 L.DisplayLevel = "显示等级"
 L.DisplayServerName = "显示服务器"
@@ -184,7 +181,6 @@ L.ShowWhenFull = "满血时显示"
 L.StickyNameplates = "保持在屏幕內"
 L.TankMode = "坦克模式"
 L.TankOptionsLabel = "坦克选项"
-L.TotemIcons = "显示图腾图标"
 
 return end
 
@@ -218,6 +214,5 @@ L.ShowWhenFull = "滿血時顯示"
 L.StickyNameplates = "使名條保持在畫面內"
 L.TankMode = "坦克模式"
 L.TankOptionsLabel = "坦克選項"
-L.TotemIcons = "顯示圖騰圖示"
 
 return end

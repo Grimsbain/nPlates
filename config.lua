@@ -1,8 +1,8 @@
 local ADDON, nPlates = ...
 local L = nPlates.L
 
-local checkboxOn = PlaySoundKitID and "igMainMenuOptionCheckBoxOn" or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
-local checkboxOff = PlaySoundKitID and "igMainMenuOptionCheckBoxOff" or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
+local checkboxOn = PlaySoundKitID and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
+local checkboxOff = PlaySoundKitID and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
 
 local Options = CreateFrame("Frame", "nPlatesOptions", InterfaceOptionsFramePanelContainer)
 
@@ -10,7 +10,6 @@ local function ForceUpdate()
     for i, frame in ipairs(C_NamePlate.GetNamePlates()) do
         CompactUnitFrame_UpdateAll(frame.UnitFrame)
         nPlates.NameSize(frame.UnitFrame)
-        nPlates.UpdateTotemIcon(frame.UnitFrame)
     end
 end
 
@@ -288,18 +287,8 @@ Options:SetScript("OnShow", function()
         end
     end)
 
-    local ShowTotemIcon = CreateFrame("CheckButton", "ShowTotemIcon", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    ShowTotemIcon:SetPoint("TOPLEFT", DontClamp, "BOTTOMLEFT", 0, -6)
-    ShowTotemIcon.Text:SetText(L.TotemIcons)
-    ShowTotemIcon:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
-        nPlatesDB.ShowTotemIcon = checked
-        ForceUpdate()
-    end)
-
     local ShowExecuteRange = CreateFrame("CheckButton", "ShowExecuteRange", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    ShowExecuteRange:SetPoint("TOPLEFT", ShowTotemIcon, "BOTTOMLEFT", 0, -6)
+    ShowExecuteRange:SetPoint("TOPLEFT", DontClamp, "BOTTOMLEFT", 0, -6)
     ShowExecuteRange.Text:SetText(L.ExecuteRange)
     ShowExecuteRange:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
@@ -455,7 +444,6 @@ Options:SetScript("OnShow", function()
         ShowFriendlyClassColors:SetChecked(nPlatesDB.ShowFriendlyClassColors)
         ShowEnemyClassColors:SetChecked(nPlatesDB.ShowEnemyClassColors)
         DontClamp:SetChecked(nPlatesDB.DontClamp)
-        ShowTotemIcon:SetChecked(nPlatesDB.ShowTotemIcon)
         ShowExecuteRange:SetChecked(nPlatesDB.ShowExecuteRange)
         UseOffTankColor:SetChecked(nPlatesDB.UseOffTankColor)
         ShowPvP:SetChecked(nPlatesDB.ShowPvP)

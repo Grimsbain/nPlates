@@ -4,14 +4,22 @@ local ADDON, nPlates = ...
 local len = string.len
 local gsub = string.gsub
 
+local borderColor = {0.40, 0.40, 0.40, 1}
+local nameFont = SystemFont_NamePlate:GetFont()
 local texturePath = "Interface\\AddOns\\nPlates\\media\\"
 local borderTexture = texturePath.."borderTexture"
 local textureShadow = texturePath.."textureShadow"
-local borderColor = {0.40, 0.40, 0.40, 1}
+
 local pvpIcons = {
     Alliance = "\124TInterface/PVPFrame/PVP-Currency-Alliance:16\124t",
     Horde = "\124TInterface/PVPFrame/PVP-Currency-Horde:16\124t",
 }
+
+    -- Check for Combat
+
+nPlates.IsTaintable = function()
+	return (_G.InCombatLockdown() or (_G.UnitAffectingCombat("player") or _G.UnitAffectingCombat("pet")))
+end
 
     -- RBG to Hex Colors
 
@@ -75,36 +83,6 @@ nPlates.FormatTime = function(s)
     return floor(s), s - floor(s)
 end
 
-    -- In Instance Check
-
-nPlates.InstanceCheck = function()
-    local inInstance, instanceType = IsInInstance()
-
-    if ( instanceType == "raid" or instanceType == "party" ) then
-        return true
-    else
-        return false
-    end
-end
-
-nPlates.NameplateType = function(unit)
-    if UnitIsUnit("player", unit) then
-        return "player";
-    elseif UnitIsFriend("player", unit) then
-        return "friendly";
-    else
-        return "enemy";
-    end
-end
-
-nPlates.IsPlayer = function(unit)
-    if ( UnitGUID(unit) == UnitGUID("player") ) then
-        return true
-    else
-        return false
-    end
-end
-
     -- Set Defaults
 
 nPlates.RegisterDefaultSetting = function(key,value)
@@ -119,9 +97,8 @@ end
     -- Set Name Size
 
 nPlates.NameSize = function(frame)
-    local font = select(1,frame.name:GetFont())
     local size = nPlatesDB.NameSize or 10
-    frame.name:SetFont(font,size)
+    frame.name:SetFont(nameFont,size)
     frame.name:SetShadowOffset(0.5, -0.5)
 end
 
@@ -159,7 +136,7 @@ end
 
 nPlates.FrameIsNameplate = function(unit)
     if ( type(unit) ~= "string" ) then return false end
-    if ( string.match(unit,"nameplate") ~= "nameplate" ) then
+    if ( string.match(unit,"nameplate") ~= "nameplate" and string.match(unit,"NamePlate") ~= "NamePlate" ) then
         return false
     else
         return true
@@ -323,81 +300,5 @@ nPlates.SetBorder = function(frame)
     for i = 1, 8 do
         frame.beautyBorder[i]:Show()
         frame.beautyShadow[i]:Show()
-    end
-end
-
-    -- Totem Data and Functions
-
-local function TotemName(SpellID)
-    local name = GetSpellInfo(SpellID)
-    return name
-end
-
-local totemData = {
-    [TotemName(192058)] = "Interface\\Icons\\spell_nature_brilliance",          -- Lightning Surge Totem
-    [TotemName(98008)]  = "Interface\\Icons\\spell_shaman_spiritlink",          -- Spirit Link Totem
-    [TotemName(192077)] = "Interface\\Icons\\ability_shaman_windwalktotem",     -- Wind Rush Totem
-    [TotemName(204331)] = "Interface\\Icons\\spell_nature_wrathofair_totem",    -- Counterstrike Totem
-    [TotemName(204332)] = "Interface\\Icons\\spell_nature_windfury",            -- Windfury Totem
-    [TotemName(204336)] = "Interface\\Icons\\spell_nature_groundingtotem",      -- Grounding Totem
-    -- Water
-    [TotemName(157153)] = "Interface\\Icons\\ability_shaman_condensationtotem", -- Cloudburst Totem
-    [TotemName(5394)]   = "Interface\\Icons\\INV_Spear_04",                     -- Healing Stream Totem
-    [TotemName(108280)] = "Interface\\Icons\\ability_shaman_healingtide",       -- Healing Tide Totem
-    -- Earth
-    [TotemName(207399)] = "Interface\\Icons\\spell_nature_reincarnation",       -- Ancestral Protection Totem
-    [TotemName(198838)] = "Interface\\Icons\\spell_nature_stoneskintotem",      -- Earthen Shield Totem
-    [TotemName(51485)]  = "Interface\\Icons\\spell_nature_stranglevines",       -- Earthgrab Totem
-    [TotemName(61882)]  = "Interface\\Icons\\spell_shaman_earthquake",          -- Earthquake Totem
-    [TotemName(196932)] = "Interface\\Icons\\spell_totem_wardofdraining",       -- Voodoo Totem
-    -- Fire
-    [TotemName(192222)] = "Interface\\Icons\\spell_shaman_spewlava",            -- Liquid Magma Totem
-    [TotemName(204330)] = "Interface\\Icons\\spell_fire_totemofwrath",          -- Skyfury Totem
-    -- Totem Mastery
-    [TotemName(202188)] = "Interface\\Icons\\spell_nature_stoneskintotem",      -- Resonance Totem
-    [TotemName(210651)] = "Interface\\Icons\\spell_shaman_stormtotem",          -- Storm Totem
-    [TotemName(210657)] = "Interface\\Icons\\spell_fire_searingtotem",          -- Ember Totem
-    [TotemName(210660)] = "Interface\\Icons\\spell_nature_invisibilitytotem",   -- Tailwind Totem
-}
-
-nPlates.UpdateTotemIcon = function(frame)
-    if ( not nPlates.FrameIsNameplate(frame) ) then return end
-
-    local name = UnitName(frame.displayedUnit)
-
-    if name == nil then return end
-    if (totemData[name] and nPlatesDB.ShowTotemIcon ) then
-        if (not frame.TotemIcon) then
-            frame.TotemIcon = CreateFrame("Frame", "$parentTotem", frame)
-            frame.TotemIcon:EnableMouse(false)
-            frame.TotemIcon:SetSize(24, 24)
-            frame.TotemIcon:SetPoint("BOTTOM", frame.BuffFrame, "TOP", 0, 10)
-        end
-
-        if (not frame.TotemIcon.Icon) then
-            frame.TotemIcon.Icon = frame.TotemIcon:CreateTexture("$parentIcon","BACKGROUND")
-            frame.TotemIcon.Icon:SetSize(24,24)
-            frame.TotemIcon.Icon:SetAllPoints(frame.TotemIcon)
-            frame.TotemIcon.Icon:SetTexture(totemData[name])
-            frame.TotemIcon.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-        end
-
-        if (not frame.TotemIcon.Icon.Border) then
-            frame.TotemIcon.Icon.Border = frame.TotemIcon:CreateTexture("$parentOverlay", "BORDER")
-            frame.TotemIcon.Icon.Border:SetTexCoord(0, 1, 0, 1)
-            frame.TotemIcon.Icon.Border:ClearAllPoints()
-            frame.TotemIcon.Icon.Border:SetPoint("TOPRIGHT", frame.TotemIcon.Icon, 2.5, 2.5)
-            frame.TotemIcon.Icon.Border:SetPoint("BOTTOMLEFT", frame.TotemIcon.Icon, -2.5, -2.5)
-            frame.TotemIcon.Icon.Border:SetTexture(iconOverlay)
-            frame.TotemIcon.Icon.Border:SetVertexColor(unpack(borderColor))
-        end
-
-        if ( frame.TotemIcon ) then
-            frame.TotemIcon:Show()
-        end
-    else
-        if (frame.TotemIcon) then
-            frame.TotemIcon:Hide()
-        end
     end
 end

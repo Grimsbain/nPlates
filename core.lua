@@ -1,12 +1,11 @@
 
 local ADDON, nPlates = ...
 
-local len = string.len
-local gsub = string.gsub
-
+local borderColor = {0.40, 0.40, 0.40, 1}
+local castbarFont = SystemFont_Shadow_Small:GetFont()
+local nameFont = SystemFont_NamePlate:GetFont()
 local texturePath = "Interface\\AddOns\\nPlates\\media\\"
 local statusBar = texturePath.."UI-StatusBar"
-local borderColor = {0.40, 0.40, 0.40, 1}
 
     -- Set Options
 
@@ -28,7 +27,6 @@ C_Timer.After(.1, function()
     nPlates.RegisterDefaultSetting("ShowFriendlyClassColors", true)
     nPlates.RegisterDefaultSetting("ShowEnemyClassColors", true)
     nPlates.RegisterDefaultSetting("DontClamp", false)
-    nPlates.RegisterDefaultSetting("ShowTotemIcon", false)
     nPlates.RegisterDefaultSetting("ShowExecuteRange", false)
     nPlates.RegisterDefaultSetting("ExecuteValue", 35)
     nPlates.RegisterDefaultSetting("ExecuteColor", { r = 0, g = 71/255, b = 126/255})
@@ -38,7 +36,7 @@ C_Timer.After(.1, function()
 
         -- Set CVars
 
-    if not InCombatLockdown() then
+    if not nPlates.IsTaintable() then
         -- Set min and max scale.
         SetCVar("namePlateMinScale", 1)
         SetCVar("namePlateMaxScale", 1)
@@ -70,6 +68,8 @@ local function UpdateCastbarTimer(frame)
         end
     end
 end
+
+    --- Skin Castbar
 
 local function UpdateCastbar(frame)
 
@@ -122,20 +122,20 @@ end
     -- Updated Health Text
 
 hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
-    if ( not nPlates.FrameIsNameplate(frame.displayedUnit) ) then return end
-    if ( nPlates.InstanceCheck() and nPlates.NameplateType(frame.displayedUnit) ~= "enemy" ) then
-        if ( frame.healthBar.healthString ) then frame.healthBar.healthString:Hide() end
-        return
+    if ( frame:IsForbidden() ) then return end
+    if ( not nPlates.FrameIsNameplate(frame.displayedUnit) ) then
+        if ( frame.healthBar.healthString ) then
+            frame.healthBar.healthString:Hide()
+            return
+        end
     end
-
-    local font = select(1,frame.name:GetFont())
 
     if ( nPlatesDB.ShowHP ) then
         if ( not frame.healthBar.healthString ) then
             frame.healthBar.healthString = frame.healthBar:CreateFontString("$parentHeathValue", "OVERLAY")
             frame.healthBar.healthString:Hide()
             frame.healthBar.healthString:SetPoint("CENTER", frame.healthBar, 0, 0)
-            frame.healthBar.healthString:SetFont(font, 10)
+            frame.healthBar.healthString:SetFont(nameFont, 10)
             frame.healthBar.healthString:SetShadowOffset(.5, -.5)
         end
     else
@@ -178,101 +178,8 @@ end)
     -- Update Health Color
 
 hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
+    if ( frame:IsForbidden() ) then return end
     if ( not nPlates.FrameIsNameplate(frame.displayedUnit) ) then return end
-    if ( nPlates.InstanceCheck() and nPlates.NameplateType(frame.displayedUnit) ~= "enemy" ) then return end
-
-    nPlates.NameSize(frame)
-
-        -- Healthbar
-
-    frame.healthBar:SetHeight(12)
-    frame.healthBar:Hide()
-    frame.healthBar:ClearAllPoints()
-    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
-    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
-    frame.healthBar:SetStatusBarTexture(statusBar)
-    frame.healthBar:Show()
-
-    frame.healthBar.barTexture:SetTexture(statusBar)
-
-        -- Healthbar Border
-
-    if ( not frame.healthBar.beautyBorder ) then
-        nPlates.SetBorder(frame.healthBar)
-    end
-
-        -- Castbar
-
-    local castbarFont = select(1,frame.castBar.Text:GetFont())
-
-    frame.castBar:SetHeight(12)
-    frame.castBar:SetStatusBarTexture(statusBar)
-
-        -- Castbar Border
-
-    if ( not frame.castBar.beautyBorder ) then
-        nPlates.SetBorder(frame.castBar)
-    end
-
-        -- Hide Border Shield
-
-    frame.castBar.BorderShield:Hide()
-    frame.castBar.BorderShield:ClearAllPoints()
-
-        -- Spell Name
-
-    frame.castBar.Text:Hide()
-    frame.castBar.Text:ClearAllPoints()
-    frame.castBar.Text:SetFont(castbarFont, 8)
-    frame.castBar.Text:SetShadowOffset(.5, -.5)
-    frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
-    frame.castBar.Text:Show()
-
-        -- Set Castbar Timer
-
-    if ( not frame.castBar.CastTime ) then
-        frame.castBar.CastTime = frame.castBar:CreateFontString(nil, "OVERLAY")
-        frame.castBar.CastTime:Hide()
-        frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon, "BOTTOMRIGHT", 0, 0)
-        frame.castBar.CastTime:SetFont(castbarFont, 12, "OUTLINE")
-        frame.castBar.CastTime:Show()
-    end
-
-        -- Castbar Icon
-
-    frame.castBar.Icon:SetSize(24,24)
-    frame.castBar.Icon:Hide()
-    frame.castBar.Icon:ClearAllPoints()
-    frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4.9, 0)
-    frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-    frame.castBar.Icon:Show()
-
-        -- Castbar Icon Background
-
-    if ( not frame.castBar.Icon.Background ) then
-        frame.castBar.Icon.Background = frame.castBar:CreateTexture("$parentIconBackground", "BACKGROUND")
-        frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-        frame.castBar.Icon.Background:Hide()
-        frame.castBar.Icon.Background:ClearAllPoints()
-        frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
-        frame.castBar.Icon.Background:Show()
-    end
-
-        -- Castbar Icon Border
-
-    if ( not frame.castBar.Icon.beautyBorder ) then
-        nPlates.SetBorder(frame.castBar.Icon)
-    end
-
-        -- Update Castbar
-
-    frame.castBar:SetScript("OnValueChanged", function(self, value)
-        UpdateCastbarTimer(frame)
-    end)
-
-    frame.castBar:SetScript("OnShow", function(self)
-        UpdateCastbar(frame)
-    end)
 
     if ( not UnitIsConnected(frame.unit) ) then
         local r, g, b = 0.5, 0.5, 0.5
@@ -348,10 +255,123 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
     end
 end)
 
+    -- Skin Nameplate
+
+hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
+    if ( frame:IsForbidden() ) then return end
+    if ( not nPlates.FrameIsNameplate(frame:GetName()) ) then return end
+
+        --  Update Name
+
+    nPlates.NameSize(frame)
+
+        -- Healthbar
+
+    frame.healthBar:SetHeight(12)
+    frame.healthBar:Hide()
+    frame.healthBar:ClearAllPoints()
+    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
+    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
+    frame.healthBar:SetStatusBarTexture(statusBar)
+    frame.healthBar:Show()
+
+    frame.healthBar.barTexture:SetTexture(statusBar)
+
+        -- Healthbar Border
+
+    if ( not frame.healthBar.beautyBorder ) then
+        nPlates.SetBorder(frame.healthBar)
+    end
+
+        -- Castbar
+
+    frame.castBar:SetHeight(12)
+    frame.castBar:SetStatusBarTexture(statusBar)
+
+        -- Castbar Border
+
+    if ( not frame.castBar.beautyBorder ) then
+        nPlates.SetBorder(frame.castBar)
+    end
+
+        -- Hide Border Shield
+
+    frame.castBar.BorderShield:Hide()
+    frame.castBar.BorderShield:ClearAllPoints()
+
+        -- Spell Name
+
+    frame.castBar.Text:Hide()
+    frame.castBar.Text:ClearAllPoints()
+    frame.castBar.Text:SetFont(castbarFont, 8)
+    frame.castBar.Text:SetShadowOffset(.5, -.5)
+    frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
+    frame.castBar.Text:Show()
+
+        -- Set Castbar Timer
+
+    if ( not frame.castBar.CastTime ) then
+        frame.castBar.CastTime = frame.castBar:CreateFontString(nil, "OVERLAY")
+        frame.castBar.CastTime:Hide()
+        frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon, "BOTTOMRIGHT", 0, 0)
+        frame.castBar.CastTime:SetFont(castbarFont, 12, "OUTLINE")
+        frame.castBar.CastTime:Show()
+    end
+
+        -- Castbar Icon
+
+    frame.castBar.Icon:SetSize(24,24)
+    frame.castBar.Icon:Hide()
+    frame.castBar.Icon:ClearAllPoints()
+    frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4.9, 0)
+    frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    frame.castBar.Icon:Show()
+
+        -- Castbar Icon Background
+
+    if ( not frame.castBar.Icon.Background ) then
+        frame.castBar.Icon.Background = frame.castBar:CreateTexture("$parentIconBackground", "BACKGROUND")
+        frame.castBar.Icon.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+        frame.castBar.Icon.Background:Hide()
+        frame.castBar.Icon.Background:ClearAllPoints()
+        frame.castBar.Icon.Background:SetAllPoints(frame.castBar.Icon)
+        frame.castBar.Icon.Background:Show()
+    end
+
+        -- Castbar Icon Border
+
+    if ( not frame.castBar.Icon.beautyBorder ) then
+        nPlates.SetBorder(frame.castBar.Icon)
+    end
+
+        -- Update Castbar
+
+    frame.castBar:SetScript("OnValueChanged", function(self, value)
+        UpdateCastbarTimer(frame)
+    end)
+
+    frame.castBar:SetScript("OnShow", function(self)
+        UpdateCastbar(frame)
+    end)
+end)
+
+    -- Personal Resource Display
+
+hooksecurefunc("DefaultCompactNamePlateFrameSetupInternal", function(frame, setupOptions, frameOptions)
+    if ( frame:IsForbidden() ) then return end
+    if ( not nPlates.FrameIsNameplate(frame:GetName()) ) then return end
+
+        -- Healthbar
+
+    frame.healthBar:SetHeight(12)
+end)
+
     -- Hide Beauty Border for Personal Frame
 
 hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
-    if ( nPlates.InstanceCheck() and nPlates.NameplateType(frame.displayedUnit) ~= "enemy" ) then return end
+    if ( frame:IsForbidden() ) then return end
+    if ( not nPlates.FrameIsNameplate(frame.displayedUnit) ) then return end
+
     if ( UnitGUID(frame.displayedUnit) == UnitGUID("player") ) then
         if ( frame.healthBar.border ) then frame.healthBar.border:Show() end
         if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
@@ -374,7 +394,9 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
     -- Change Border Color on Target
 
 hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", function(frame)
-    if ( nPlates.InstanceCheck() and nPlates.NameplateType(frame.displayedUnit) ~= "enemy" ) then return end
+    if ( frame:IsForbidden() ) then return end
+    if ( not nPlates.FrameIsNameplate(frame.displayedUnit) ) then return end
+
     local r,g,b = frame.healthBar:GetStatusBarColor()
 
     if ( frame.healthBar.beautyBorder ) then
@@ -391,21 +413,17 @@ end)
     -- Update Name
 
 hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
+    if ( frame:IsForbidden() ) then return end
     if ( not nPlates.FrameIsNameplate(frame.displayedUnit) ) then return end
-    if ( nPlates.InstanceCheck() and nPlates.NameplateType(frame.displayedUnit) ~= "enemy" ) then return end
-
-        -- Totem Icon
-
-    if ( nPlatesDB.ShowTotemIcon ) then
-        nPlates.UpdateTotemIcon(frame)
-    end
 
         -- Hide Friendly Nameplates
 
-    if ( UnitIsFriend(frame.displayedUnit,"player") and not UnitCanAttack(frame.displayedUnit,"player") and nPlatesDB.HideFriendly ) then
-        frame.healthBar:Hide()
-    else
-        frame.healthBar:Show()
+    if ( nPlatesDB.HideFriendly ) then
+        if ( UnitIsFriend(frame.displayedUnit,"player") and not UnitCanAttack(frame.displayedUnit,"player") ) then
+            frame.healthBar:Hide()
+        else
+            frame.healthBar:Show()
+        end
     end
 
     if ( not ShouldShowName(frame) ) then
@@ -470,8 +488,8 @@ end)
     -- Buff Frame Offsets
 
 local function UpdateBuffFrame(...)
-	for _,v in pairs(C_NamePlate.GetNamePlates()) do
-		local bf = v.UnitFrame.BuffFrame;
+    for _,v in pairs(C_NamePlate.GetNamePlates()) do
+        local bf = v.UnitFrame.BuffFrame;
 
         if ( v.UnitFrame.displayedUnit and UnitShouldDisplayName(v.UnitFrame.displayedUnit) ) then
             bf.baseYOffset = v.UnitFrame.name:GetHeight()+1;
