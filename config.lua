@@ -1,15 +1,12 @@
 local ADDON, nPlates = ...
+
 local L = nPlates.L
-
-local checkboxOn = PlaySoundKitID and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
-local checkboxOff = PlaySoundKitID and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
-
-local Options = CreateFrame("Frame", "nPlatesOptions", InterfaceOptionsFramePanelContainer)
+local format = string.format
+local tonumber = tonumber
 
 local function ForceUpdate()
-    for i, frame in ipairs(C_NamePlate.GetNamePlates()) do
+    for i, frame in ipairs(C_NamePlate.GetNamePlates(issecure())) do
         CompactUnitFrame_UpdateAll(frame.UnitFrame)
-        nPlates.NameSize(frame.UnitFrame)
     end
 end
 
@@ -22,9 +19,9 @@ local function showColorPicker(r,g,b,callback)
     ShowUIPanel(ColorPickerFrame)
 end
 
+local Options = CreateFrame("Frame", "nPlatesOptions", InterfaceOptionsFramePanelContainer)
 Options.name = GetAddOnMetadata(ADDON, "Title")
 Options.version = GetAddOnMetadata(ADDON, "Version")
-
 InterfaceOptions_AddCategory(Options)
 
 Options:Hide()
@@ -58,10 +55,11 @@ Options:SetScript("OnShow", function()
     NameSize.textHigh:SetText(NameSize.maxValue)
     NameSize:SetValue(nPlatesDB.NameSize or 11)
     NameSize:SetValueStep(1)
-    NameSize.text:SetText(L.NameSizeLabel..": "..string.format("%.0f",NameSize:GetValue()))
+    NameSize:SetObeyStepOnDrag(true)
+    NameSize.text:SetText(L.NameSizeLabel..": "..format("%.0f",NameSize:GetValue()))
     NameSize:SetScript("OnValueChanged", function(self,event,arg1)
-        NameSize.text:SetText(L.NameSizeLabel..": "..string.format("%.0f",NameSize:GetValue()))
-        nPlatesDB.NameSize = tonumber(string.format("%.0f",NameSize:GetValue()))
+        NameSize.text:SetText(L.NameSizeLabel..": "..format("%.0f",NameSize:GetValue()))
+        nPlatesDB.NameSize = tonumber(format("%.0f",NameSize:GetValue()))
         ForceUpdate()
     end)
 
@@ -70,7 +68,7 @@ Options:SetScript("OnShow", function()
     ShowLevel.Text:SetText(L.DisplayLevel)
     ShowLevel:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.ShowLevel = checked
         ForceUpdate()
     end)
@@ -80,7 +78,7 @@ Options:SetScript("OnShow", function()
     ShowServerName.Text:SetText(L.DisplayServerName)
     ShowServerName:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.ShowServerName = checked
         ForceUpdate()
     end)
@@ -90,7 +88,7 @@ Options:SetScript("OnShow", function()
     AbrrevLongNames.Text:SetText(L.AbbrevName)
     AbrrevLongNames:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.AbrrevLongNames = checked
         ForceUpdate()
     end)
@@ -100,7 +98,7 @@ Options:SetScript("OnShow", function()
     ShowPvP.Text:SetText(L.ShowPvP)
     ShowPvP:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.ShowPvP = checked
         ForceUpdate()
     end)
@@ -114,7 +112,7 @@ Options:SetScript("OnShow", function()
     TankMode.Text:SetText(L.TankMode)
     TankMode:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.TankMode = checked
         ForceUpdate()
     end)
@@ -124,7 +122,7 @@ Options:SetScript("OnShow", function()
     ColorNameByThreat.Text:SetText(L.NameThreat)
     ColorNameByThreat:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.ColorNameByThreat = checked
         ForceUpdate()
     end)
@@ -134,7 +132,7 @@ Options:SetScript("OnShow", function()
     UseOffTankColor.Text:SetText(L.OffTankColor)
     UseOffTankColor:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.UseOffTankColor = checked
         ForceUpdate()
     end)
@@ -233,17 +231,41 @@ Options:SetScript("OnShow", function()
     HideFriendly.Text:SetText(L.HideFriendly)
     HideFriendly:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.HideFriendly = checked
         ForceUpdate()
     end)
 
+    local SmallStacking = CreateFrame("CheckButton", "SmallStacking", RightSide, "InterfaceOptionsCheckButtonTemplate")
+    SmallStacking:SetPoint("TOPLEFT", HideFriendly, "BOTTOMLEFT", 0, -6)
+    SmallStacking.Text:SetText(L.SmallStacking)
+    SmallStacking.tooltipText = L.SmallStackingTooltip
+    SmallStacking:SetScript("OnUpdate", function()
+        if ( not InCombatLockdown() ) then
+            SmallStacking:Enable()
+        else
+            SmallStacking:Disable()
+        end
+    end)
+    SmallStacking:SetScript("OnClick", function(this)
+        if ( not InCombatLockdown() ) then
+        local checked = not not this:GetChecked()
+            PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+            nPlatesDB.SmallStacking = checked
+            if ( checked ) then
+                SetCVar("nameplateOverlapH", 1.1) SetCVar("nameplateOverlapV", 0.9)
+            else
+                for _, v in pairs({"nameplateOverlapH", "nameplateOverlapV"}) do SetCVar(v, GetCVarDefault(v),true) end
+            end
+        end
+    end)
+
     local ShowFriendlyClassColors = CreateFrame("CheckButton", "ShowFriendlyClassColors", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    ShowFriendlyClassColors:SetPoint("TOPLEFT", HideFriendly, "BOTTOMLEFT", 0, -6)
+    ShowFriendlyClassColors:SetPoint("TOPLEFT", SmallStacking, "BOTTOMLEFT", 0, -6)
     ShowFriendlyClassColors.Text:SetText(L.FriendlyClassColors)
     ShowFriendlyClassColors:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.ShowFriendlyClassColors = checked
         ForceUpdate()
     end)
@@ -253,7 +275,7 @@ Options:SetScript("OnShow", function()
     ShowEnemyClassColors.Text:SetText(L.EnemyClassColors)
     ShowEnemyClassColors:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.ShowEnemyClassColors = checked
         if ( not checked ) then
             DefaultCompactNamePlateEnemyFrameOptions.useClassColors = false
@@ -276,7 +298,7 @@ Options:SetScript("OnShow", function()
     DontClamp:SetScript("OnClick", function(this)
         if ( not InCombatLockdown() ) then
             local checked = not not this:GetChecked()
-            PlaySound(checked and checkboxOn or checkboxOff)
+            PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
             nPlatesDB.DontClamp = checked
             if ( not checked ) then
                 SetCVar("nameplateOtherTopInset", -1,true)
@@ -287,12 +309,49 @@ Options:SetScript("OnShow", function()
         end
     end)
 
+    local FelExplosivesColor = CreateFrame("CheckButton", "FelExplosivesColor", RightSide, "InterfaceOptionsCheckButtonTemplate")
+    FelExplosivesColor:SetPoint("TOPLEFT", DontClamp, "BOTTOMLEFT", 0, -6)
+    FelExplosivesColor.Text:SetText(L.FelExplosivesColor)
+    FelExplosivesColor:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+        nPlatesDB.FelExplosives = checked
+        ForceUpdate()
+    end)
+
+    local FelExplosivesColorPicker = CreateFrame("Frame", "FelExplosivesColorPicker", RightSide)
+    FelExplosivesColorPicker:SetSize(15,15)
+    FelExplosivesColorPicker:SetPoint("LEFT", FelExplosivesColorText, "RIGHT", 10, 0)
+    FelExplosivesColorPicker.bg = FelExplosivesColorPicker:CreateTexture(nil,"BACKGROUND",nil,-7)
+    FelExplosivesColorPicker.bg:SetAllPoints(FelExplosivesColorPicker)
+    FelExplosivesColorPicker.bg:SetColorTexture(1,1,1,1)
+    FelExplosivesColorPicker.bg:SetVertexColor(nPlatesDB.FelExplosivesColor.r,nPlatesDB.FelExplosivesColor.g,nPlatesDB.FelExplosivesColor.b)
+    FelExplosivesColorPicker.recolor = function(color)
+        local r,g,b
+        if (color) then
+            r,g,b = unpack(color)
+        else
+            r,g,b = ColorPickerFrame:GetColorRGB()
+        end
+        nPlatesDB.FelExplosivesColor.r = r
+        nPlatesDB.FelExplosivesColor.g = g
+        nPlatesDB.FelExplosivesColor.b = b
+        FelExplosivesColorPicker.bg:SetVertexColor(r,g,b)
+    end
+    FelExplosivesColorPicker:EnableMouse(true)
+    FelExplosivesColorPicker:SetScript("OnMouseDown", function(self,button,...)
+        if button == "LeftButton" then
+            local r,g,b = FelExplosivesColorPicker.bg:GetVertexColor()
+            showColorPicker(r,g,b,FelExplosivesColorPicker.recolor)
+        end
+    end)
+
     local ShowExecuteRange = CreateFrame("CheckButton", "ShowExecuteRange", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    ShowExecuteRange:SetPoint("TOPLEFT", DontClamp, "BOTTOMLEFT", 0, -6)
+    ShowExecuteRange:SetPoint("TOPLEFT", FelExplosivesColor, "BOTTOMLEFT", 0, -6)
     ShowExecuteRange.Text:SetText(L.ExecuteRange)
     ShowExecuteRange:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
-        PlaySound(checked and checkboxOn or checkboxOff)
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         nPlatesDB.ShowExecuteRange = checked
         ForceUpdate()
     end)
@@ -336,10 +395,11 @@ Options:SetScript("OnShow", function()
     ExecuteSlider.textHigh:SetText(ExecuteSlider.maxValue)
     ExecuteSlider:SetValue(nPlatesDB.ExecuteValue or 35)
     ExecuteSlider:SetValueStep(1)
-    ExecuteSlider.text:SetText(string.format("%.0f",ExecuteSlider:GetValue()))
+    ExecuteSlider:SetObeyStepOnDrag(true)
+    ExecuteSlider.text:SetText(format("%.0f",ExecuteSlider:GetValue()))
     ExecuteSlider:SetScript("OnValueChanged", function(self,event,arg1)
-        ExecuteSlider.text:SetText(string.format("%.0f",ExecuteSlider:GetValue()))
-        nPlatesDB.ExecuteValue = tonumber(string.format("%.0f",ExecuteSlider:GetValue()))
+        ExecuteSlider.text:SetText(format("%.0f",ExecuteSlider:GetValue()))
+        nPlatesDB.ExecuteValue = tonumber(format("%.0f",ExecuteSlider:GetValue()))
     end)
     ExecuteSlider:SetScript("OnUpdate", function(self)
         if ( nPlatesDB.ShowExecuteRange ) then
@@ -359,13 +419,14 @@ Options:SetScript("OnShow", function()
     NameplateScale.minValue, NameplateScale.maxValue = NameplateScale:GetMinMaxValues()
     NameplateScale.textLow:SetText(NameplateScale.minValue)
     NameplateScale.textHigh:SetText(NameplateScale.maxValue)
-    local scale = tonumber(string.format("%.2f",GetCVar("nameplateGlobalScale")))
+    local scale = tonumber(format("%.2f",GetCVar("nameplateGlobalScale")))
     NameplateScale:SetValue(scale)
     NameplateScale:SetValueStep(.01)
-    NameplateScale.text:SetText(L.NameplateScale..": "..string.format("%.2f",NameplateScale:GetValue()))
+    NameplateScale:SetObeyStepOnDrag(true)
+    NameplateScale.text:SetText(L.NameplateScale..": "..format("%.2f",NameplateScale:GetValue()))
     NameplateScale:SetScript("OnValueChanged", function(self,event,arg1)
-        NameplateScale.text:SetText(L.NameplateScale..": "..string.format("%.2f",NameplateScale:GetValue()))
-        local value = tonumber(string.format("%.2f",NameplateScale:GetValue()))
+        NameplateScale.text:SetText(L.NameplateScale..": "..format("%.2f",NameplateScale:GetValue()))
+        local value = tonumber(format("%.2f",NameplateScale:GetValue()))
         SetCVar("nameplateGlobalScale",value,true)
     end)
     NameplateScale:SetScript("OnUpdate", function(self)
@@ -386,13 +447,14 @@ Options:SetScript("OnShow", function()
     NameplateAlpha.minValue, NameplateAlpha.maxValue = NameplateAlpha:GetMinMaxValues()
     NameplateAlpha.textLow:SetText(NameplateAlpha.minValue)
     NameplateAlpha.textHigh:SetText(NameplateAlpha.maxValue)
-    local alpha = tonumber(string.format("%.2f",GetCVar("nameplateMinAlpha")))
+    local alpha = tonumber(format("%.2f",GetCVar("nameplateMinAlpha")))
     NameplateAlpha:SetValue(alpha)
     NameplateAlpha:SetValueStep(.01)
-    NameplateAlpha.text:SetText(L.NameplateAlpha..": "..string.format("%.2f",NameplateAlpha:GetValue()))
+    NameplateAlpha:SetObeyStepOnDrag(true)
+    NameplateAlpha.text:SetText(L.NameplateAlpha..": "..format("%.2f",NameplateAlpha:GetValue()))
     NameplateAlpha:SetScript("OnValueChanged", function(self,event,arg1)
-        NameplateAlpha.text:SetText(L.NameplateAlpha..": "..string.format("%.2f",NameplateAlpha:GetValue()))
-        local value = tonumber(string.format("%.2f",NameplateAlpha:GetValue()))
+        NameplateAlpha.text:SetText(L.NameplateAlpha..": "..format("%.2f",NameplateAlpha:GetValue()))
+        local value = tonumber(format("%.2f",NameplateAlpha:GetValue()))
         SetCVar("nameplateMinAlpha",value,true)
     end)
     NameplateAlpha:SetScript("OnUpdate", function(self)
@@ -416,10 +478,11 @@ Options:SetScript("OnShow", function()
     local range = GetCVar("nameplateMaxDistance")
     NameplateRange:SetValue(range)
     NameplateRange:SetValueStep(1)
-    NameplateRange.text:SetText(L.NameplateRange..": "..string.format("%.0f",NameplateRange:GetValue()))
+    NameplateRange:SetObeyStepOnDrag(true)
+    NameplateRange.text:SetText(L.NameplateRange..": "..format("%.0f",NameplateRange:GetValue()))
     NameplateRange:SetScript("OnValueChanged", function(self,event,arg1)
-        NameplateRange.text:SetText(L.NameplateRange..": "..string.format("%.0f",NameplateRange:GetValue()))
-        local value = tonumber(string.format("%.0f",NameplateRange:GetValue()))
+        NameplateRange.text:SetText(L.NameplateRange..": "..format("%.0f",NameplateRange:GetValue()))
+        local value = tonumber(format("%.0f",NameplateRange:GetValue()))
         SetCVar("nameplateMaxDistance",value,true)
     end)
     NameplateRange:SetScript("OnUpdate", function(self)
@@ -441,12 +504,14 @@ Options:SetScript("OnShow", function()
         ShowServerName:SetChecked(nPlatesDB.ShowServerName)
         AbrrevLongNames:SetChecked(nPlatesDB.AbrrevLongNames)
         HideFriendly:SetChecked(nPlatesDB.HideFriendly)
+        SmallStacking:SetChecked(nPlatesDB.SmallStacking)
         ShowFriendlyClassColors:SetChecked(nPlatesDB.ShowFriendlyClassColors)
         ShowEnemyClassColors:SetChecked(nPlatesDB.ShowEnemyClassColors)
         DontClamp:SetChecked(nPlatesDB.DontClamp)
         ShowExecuteRange:SetChecked(nPlatesDB.ShowExecuteRange)
         UseOffTankColor:SetChecked(nPlatesDB.UseOffTankColor)
         ShowPvP:SetChecked(nPlatesDB.ShowPvP)
+        FelExplosivesColor:SetChecked(nPlatesDB.FelExplosives)
     end
 
     Options:Refresh()

@@ -1,0 +1,14 @@
+<Ui>
+    <Script file='localization.lua' />
+    <Script file='func.lua' />
+    <Script file='config.lua' />
+    <Script file='core.lua' />
+    <Script file='slash.lua' />
+    <Frame name="nPlates">
+        <Scripts>
+            <OnLoad function="nPlates_OnLoad" />
+            <OnEvent function="nPlates_OnEvent" />
+        </Scripts>
+    </Frame>
+
+</Ui>
