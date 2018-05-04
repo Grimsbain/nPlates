@@ -3,6 +3,7 @@ local ADDON, nPlates = ...
 local len = string.len
 local gsub = string.gsub
 local match = string.match
+local lower = string.lower
 local format = format
 local floor = floor
 local ceil = ceil
@@ -141,7 +142,8 @@ end
 
 nPlates.FrameIsNameplate = function(unit)
     if ( type(unit) ~= "string" ) then return false end
-    if ( match(unit,"nameplate") ~= "nameplate" and match(unit,"NamePlate") ~= "NamePlate" ) then
+	unit = lower(unit)
+    if ( match(unit,"nameplate") ~= "nameplate" ) then --and match(unit,"NamePlate") ~= "NamePlate" ) then
         return false
     else
         return true

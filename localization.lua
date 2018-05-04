@@ -14,6 +14,8 @@ end })
 ------------------------------------------------------------------------
 
 L.AbbrevName = "Abbreviate Long Names"
+L.ColoringOptionsLabel = "Coloring Options"
+L.RaidMarkerColoring = "Raid Marker Coloring"
 L.DisplayLevel = "Display Level"
 L.DisplayServerName = "Display Server Name"
 L.EnableHealth = "Enable Health Text"

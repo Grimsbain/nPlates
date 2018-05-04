@@ -1,4 +1,4 @@
-local ADDON, nPlates = ...
+local addon, nPlates = ...
 
 local unpack = unpack
 local borderColor = {0.40, 0.40, 0.40, 1}
@@ -7,11 +7,13 @@ local nameFont = SystemFont_NamePlate:GetFont()
 local texturePath = "Interface\\AddOns\\nPlates\\media\\"
 local statusBar = texturePath.."UI-StatusBar"
 local playerFaction, _ = UnitFactionGroup("player")
+local _, playerClass = UnitClass("player")
 
     -- Set Options
 
 function nPlates_OnLoad(self)
     self:RegisterEvent("ADDON_LOADED")
+	self:RegisterEvent("RAID_TARGET_UPDATE")
 end
 
 function nPlates_OnEvent(self, event, ...)
@@ -41,6 +43,7 @@ function nPlates_OnEvent(self, event, ...)
             nPlates.RegisterDefaultSetting("ShowPvP", false)
             nPlates.RegisterDefaultSetting("FelExplosives", true)
             nPlates.RegisterDefaultSetting("FelExplosivesColor", { r = 197/255, g = 1, b = 0})
+			nPlates.RegisterDefaultSetting("RaidMarkerColoring", false)
 
                 -- Set CVars
 
@@ -65,6 +68,10 @@ function nPlates_OnEvent(self, event, ...)
                 end
             end
         end
+	elseif ( event == "RAID_TARGET_UPDATE" ) then
+		for i, frame in ipairs(C_NamePlate.GetNamePlates(issecure())) do
+			CompactUnitFrame_UpdateHealthColor(frame.UnitFrame)
+		end
     end
 end
 
@@ -194,12 +201,24 @@ end)
 
     -- Update Health Color
 
+local MARKER_COLORS = {
+	["1"] = { r = 1, g = 1, b = 0 },
+	["2"] = { r = 1, g = 127/255, b = 63/255 },
+	["3"] = { r = 163/255, g = 53/255, b = 238/255 },
+	["4"] = { r = 30/255, g = 1, b = 0 },
+	["5"] = { r = 170/255, g = 170/255, b = 221/255 },
+	["6"] = { r = 0, g = 112/255, b = 221/255 },
+	["7"] = { r = 1, g = 32/255, b = 32/255 },
+	["8"] = { r = 1, g = 1, b = 1 },
+}
+
 hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
     if ( frame:IsForbidden() ) then return end
     if ( not nPlates.FrameIsNameplate(frame.displayedUnit) ) then return end
 
+	local r, g, b
     if ( not UnitIsConnected(frame.unit) ) then
-        local r, g, b = 0.5, 0.5, 0.5
+        r, g, b = 0.5, 0.5, 0.5
     else
         if ( frame.optionTable.healthBarColorOverride ) then
             local healthBarColorOverride = frame.optionTable.healthBarColorOverride
@@ -207,10 +226,15 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
         else
             local localizedClass, englishClass = UnitClass(frame.unit)
             local classColor = RAID_CLASS_COLORS[englishClass]
+			local raidMarker = GetRaidTargetIndex(frame.displayedUnit)
+
             if ( UnitIsPlayer(frame.unit) and classColor and nPlates.UseClassColors(playerFaction,frame.displayedUnit) )then
                     r, g, b = classColor.r, classColor.g, classColor.b
             elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
                 r, g, b = 0.1, 0.1, 0.1
+			elseif ( raidMarker ) then
+				local markerColor = MARKER_COLORS[tostring(raidMarker)]
+				r, g, b = markerColor.r, markerColor.g, markerColor.b	
             elseif ( nPlates.IsPriority(frame.displayedUnit) and nPlatesDB.FelExplosives) then
                 r, g, b = nPlatesDB.FelExplosivesColor.r, nPlatesDB.FelExplosivesColor.g, nPlatesDB.FelExplosivesColor.b
             elseif ( frame.optionTable.colorHealthBySelection ) then

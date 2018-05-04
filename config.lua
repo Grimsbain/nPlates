@@ -103,64 +103,142 @@ Options:SetScript("OnShow", function()
         ForceUpdate()
     end)
 
-    local TankOptions = Options:CreateFontString("TankOptions", "ARTWORK", "GameFontNormalLarge")
-    TankOptions:SetPoint("TOPLEFT", ShowPvP, "BOTTOMLEFT", 0, -24)
-    TankOptions:SetText(L.TankOptionsLabel)
+	local ColoringOptions = Options:CreateFontString("ColoringOptions", "ARTWORK", "GameFontNormalLarge")
+    ColoringOptions:SetPoint("TOPLEFT", ShowPvP, "BOTTOMLEFT", 0, -24)
+    ColoringOptions:SetText(L.ColoringOptionsLabel)
 
-    local TankMode = CreateFrame("CheckButton", "TankMode", LeftSide, "InterfaceOptionsCheckButtonTemplate")
-    TankMode:SetPoint("TOPLEFT", TankOptions, "BOTTOMLEFT", 0, -12)
-    TankMode.Text:SetText(L.TankMode)
-    TankMode:SetScript("OnClick", function(this)
+	local ShowFriendlyClassColors = CreateFrame("CheckButton", "ShowFriendlyClassColors", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    ShowFriendlyClassColors:SetPoint("TOPLEFT", ColoringOptions, "BOTTOMLEFT", 0, -6)
+    ShowFriendlyClassColors.Text:SetText(L.FriendlyClassColors)
+    ShowFriendlyClassColors:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-        nPlatesDB.TankMode = checked
+        nPlatesDB.ShowFriendlyClassColors = checked
         ForceUpdate()
     end)
 
-    local ColorNameByThreat = CreateFrame("CheckButton", "ColorNameByThreat", LeftSide, "InterfaceOptionsCheckButtonTemplate")
-    ColorNameByThreat:SetPoint("TOPLEFT", TankMode, "BOTTOMLEFT", 0, -6)
-    ColorNameByThreat.Text:SetText(L.NameThreat)
-    ColorNameByThreat:SetScript("OnClick", function(this)
+    local ShowEnemyClassColors = CreateFrame("CheckButton", "ShowEnemyClassColors", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    ShowEnemyClassColors:SetPoint("TOPLEFT", ShowFriendlyClassColors, "BOTTOMLEFT", 0, -6)
+    ShowEnemyClassColors.Text:SetText(L.EnemyClassColors)
+    ShowEnemyClassColors:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-        nPlatesDB.ColorNameByThreat = checked
+        nPlatesDB.ShowEnemyClassColors = checked
+        if ( not checked ) then
+            DefaultCompactNamePlateEnemyFrameOptions.useClassColors = false
+        else
+            DefaultCompactNamePlateEnemyFrameOptions.useClassColors = true
+        end
         ForceUpdate()
     end)
 
-    local UseOffTankColor = CreateFrame("CheckButton", "UseOffTankColor", LeftSide, "InterfaceOptionsCheckButtonTemplate")
-    UseOffTankColor:SetPoint("TOPLEFT", ColorNameByThreat, "BOTTOMLEFT", 0, -6)
-    UseOffTankColor.Text:SetText(L.OffTankColor)
-    UseOffTankColor:SetScript("OnClick", function(this)
+	local RaidMarkerColoring = CreateFrame("CheckButton", "ShowRaidMarkerColoring", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    RaidMarkerColoring:SetPoint("TOPLEFT", ShowEnemyClassColors, "BOTTOMLEFT", 0, -6)
+    RaidMarkerColoring.Text:SetText(L.RaidMarkerColoring)
+    RaidMarkerColoring:SetScript("OnClick", function(this)
         local checked = not not this:GetChecked()
         PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-        nPlatesDB.UseOffTankColor = checked
+        nPlatesDB.RaidMarkerColoring = checked
         ForceUpdate()
     end)
 
-    local OffTankColorPicker = CreateFrame("Frame", "OffTankColor", RightSide)
-    OffTankColorPicker:SetSize(15,15)
-    OffTankColorPicker:SetPoint("LEFT", UseOffTankColorText, "RIGHT", 10, 0)
-    OffTankColorPicker.bg = OffTankColorPicker:CreateTexture(nil,"BACKGROUND",nil,-7)
-    OffTankColorPicker.bg:SetAllPoints(OffTankColorPicker)
-    OffTankColorPicker.bg:SetColorTexture(1,1,1,1)
-    OffTankColorPicker.bg:SetVertexColor(nPlatesDB.OffTankColor.r,nPlatesDB.OffTankColor.g,nPlatesDB.OffTankColor.b)
-    OffTankColorPicker.recolor = function(color)
+    local FelExplosivesColor = CreateFrame("CheckButton", "FelExplosivesColor", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    FelExplosivesColor:SetPoint("TOPLEFT", RaidMarkerColoring, "BOTTOMLEFT", 0, -6)
+    FelExplosivesColor.Text:SetText(L.FelExplosivesColor)
+    FelExplosivesColor:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+        nPlatesDB.FelExplosives = checked
+        ForceUpdate()
+    end)
+
+    local FelExplosivesColorPicker = CreateFrame("Frame", "FelExplosivesColorPicker", LeftSide)
+    FelExplosivesColorPicker:SetSize(15,15)
+    FelExplosivesColorPicker:SetPoint("LEFT", FelExplosivesColorText, "RIGHT", 10, 0)
+    FelExplosivesColorPicker.bg = FelExplosivesColorPicker:CreateTexture(nil,"BACKGROUND",nil,-7)
+    FelExplosivesColorPicker.bg:SetAllPoints(FelExplosivesColorPicker)
+    FelExplosivesColorPicker.bg:SetColorTexture(1,1,1,1)
+    FelExplosivesColorPicker.bg:SetVertexColor(nPlatesDB.FelExplosivesColor.r,nPlatesDB.FelExplosivesColor.g,nPlatesDB.FelExplosivesColor.b)
+    FelExplosivesColorPicker.recolor = function(color)
         local r,g,b
         if (color) then
             r,g,b = unpack(color)
         else
             r,g,b = ColorPickerFrame:GetColorRGB()
         end
-        nPlatesDB.OffTankColor.r = r
-        nPlatesDB.OffTankColor.g = g
-        nPlatesDB.OffTankColor.b = b
-        OffTankColorPicker.bg:SetVertexColor(r,g,b)
+        nPlatesDB.FelExplosivesColor.r = r
+        nPlatesDB.FelExplosivesColor.g = g
+        nPlatesDB.FelExplosivesColor.b = b
+        FelExplosivesColorPicker.bg:SetVertexColor(r,g,b)
     end
-    OffTankColorPicker:EnableMouse(true)
-    OffTankColorPicker:SetScript("OnMouseDown", function(self,button,...)
+    FelExplosivesColorPicker:EnableMouse(true)
+    FelExplosivesColorPicker:SetScript("OnMouseDown", function(self,button,...)
         if button == "LeftButton" then
-            local r,g,b = OffTankColorPicker.bg:GetVertexColor()
-            showColorPicker(r,g,b,OffTankColorPicker.recolor)
+            local r,g,b = FelExplosivesColorPicker.bg:GetVertexColor()
+            showColorPicker(r,g,b,FelExplosivesColorPicker.recolor)
+        end
+    end)
+
+    local ShowExecuteRange = CreateFrame("CheckButton", "ShowExecuteRange", LeftSide, "InterfaceOptionsCheckButtonTemplate")
+    ShowExecuteRange:SetPoint("TOPLEFT", FelExplosivesColor, "BOTTOMLEFT", 0, -6)
+    ShowExecuteRange.Text:SetText(L.ExecuteRange)
+    ShowExecuteRange:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+        nPlatesDB.ShowExecuteRange = checked
+        ForceUpdate()
+    end)
+
+    local ExecuteColorPicker = CreateFrame("Frame", "ExecuteColor", LeftSide)
+    ExecuteColorPicker:SetSize(15,15)
+    ExecuteColorPicker:SetPoint("LEFT", ShowExecuteRangeText, "RIGHT", 10, 0)
+    ExecuteColorPicker.bg = ExecuteColorPicker:CreateTexture(nil,"BACKGROUND",nil,-7)
+    ExecuteColorPicker.bg:SetAllPoints(ExecuteColorPicker)
+    ExecuteColorPicker.bg:SetColorTexture(1,1,1,1)
+    ExecuteColorPicker.bg:SetVertexColor(nPlatesDB.ExecuteColor.r,nPlatesDB.ExecuteColor.g,nPlatesDB.ExecuteColor.b)
+    ExecuteColorPicker.recolor = function(color)
+        local r,g,b
+        if (color) then
+            r,g,b = unpack(color)
+        else
+            r,g,b = ColorPickerFrame:GetColorRGB()
+        end
+        nPlatesDB.ExecuteColor.r = r
+        nPlatesDB.ExecuteColor.g = g
+        nPlatesDB.ExecuteColor.b = b
+        ExecuteColorPicker.bg:SetVertexColor(r,g,b)
+    end
+    ExecuteColorPicker:EnableMouse(true)
+    ExecuteColorPicker:SetScript("OnMouseDown", function(self,button,...)
+        if button == "LeftButton" then
+            local r,g,b = ExecuteColorPicker.bg:GetVertexColor()
+            showColorPicker(r,g,b,ExecuteColorPicker.recolor)
+        end
+    end)
+
+    local name = "ExecuteSlider"
+    local ExecuteSlider = CreateFrame("Slider", name, LeftSide, "OptionsSliderTemplate")
+    ExecuteSlider:SetPoint("TOPLEFT", ShowExecuteRange, "BOTTOMLEFT", 10, -18)
+    ExecuteSlider.textLow = _G[name.."Low"]
+    ExecuteSlider.textHigh = _G[name.."High"]
+    ExecuteSlider.text = _G[name.."Text"]
+    ExecuteSlider:SetMinMaxValues(0, 35)
+    ExecuteSlider.minValue, ExecuteSlider.maxValue = ExecuteSlider:GetMinMaxValues()
+    ExecuteSlider.textLow:SetText(ExecuteSlider.minValue)
+    ExecuteSlider.textHigh:SetText(ExecuteSlider.maxValue)
+    ExecuteSlider:SetValue(nPlatesDB.ExecuteValue or 35)
+    ExecuteSlider:SetValueStep(1)
+    ExecuteSlider:SetObeyStepOnDrag(true)
+    ExecuteSlider.text:SetText(format("%.0f",ExecuteSlider:GetValue()))
+    ExecuteSlider:SetScript("OnValueChanged", function(self,event,arg1)
+        ExecuteSlider.text:SetText(format("%.0f",ExecuteSlider:GetValue()))
+        nPlatesDB.ExecuteValue = tonumber(format("%.0f",ExecuteSlider:GetValue()))
+    end)
+    ExecuteSlider:SetScript("OnUpdate", function(self)
+        if ( nPlatesDB.ShowExecuteRange ) then
+            ExecuteSlider:Enable()
+        else
+            ExecuteSlider:Disable()
         end
     end)
 
@@ -260,33 +338,8 @@ Options:SetScript("OnShow", function()
         end
     end)
 
-    local ShowFriendlyClassColors = CreateFrame("CheckButton", "ShowFriendlyClassColors", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    ShowFriendlyClassColors:SetPoint("TOPLEFT", SmallStacking, "BOTTOMLEFT", 0, -6)
-    ShowFriendlyClassColors.Text:SetText(L.FriendlyClassColors)
-    ShowFriendlyClassColors:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-        nPlatesDB.ShowFriendlyClassColors = checked
-        ForceUpdate()
-    end)
-
-    local ShowEnemyClassColors = CreateFrame("CheckButton", "ShowEnemyClassColors", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    ShowEnemyClassColors:SetPoint("TOPLEFT", ShowFriendlyClassColors, "BOTTOMLEFT", 0, -6)
-    ShowEnemyClassColors.Text:SetText(L.EnemyClassColors)
-    ShowEnemyClassColors:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-        nPlatesDB.ShowEnemyClassColors = checked
-        if ( not checked ) then
-            DefaultCompactNamePlateEnemyFrameOptions.useClassColors = false
-        else
-            DefaultCompactNamePlateEnemyFrameOptions.useClassColors = true
-        end
-        ForceUpdate()
-    end)
-
-    local DontClamp = CreateFrame("CheckButton", "DontClamp", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    DontClamp:SetPoint("TOPLEFT", ShowEnemyClassColors, "BOTTOMLEFT", 0, -6)
+	local DontClamp = CreateFrame("CheckButton", "DontClamp", RightSide, "InterfaceOptionsCheckButtonTemplate")
+    DontClamp:SetPoint("TOPLEFT", SmallStacking, "BOTTOMLEFT", 0, -6)
     DontClamp.Text:SetText(L.StickyNameplates)
     DontClamp:SetScript("OnUpdate", function()
         if ( not InCombatLockdown() ) then
@@ -309,109 +362,9 @@ Options:SetScript("OnShow", function()
         end
     end)
 
-    local FelExplosivesColor = CreateFrame("CheckButton", "FelExplosivesColor", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    FelExplosivesColor:SetPoint("TOPLEFT", DontClamp, "BOTTOMLEFT", 0, -6)
-    FelExplosivesColor.Text:SetText(L.FelExplosivesColor)
-    FelExplosivesColor:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-        nPlatesDB.FelExplosives = checked
-        ForceUpdate()
-    end)
-
-    local FelExplosivesColorPicker = CreateFrame("Frame", "FelExplosivesColorPicker", RightSide)
-    FelExplosivesColorPicker:SetSize(15,15)
-    FelExplosivesColorPicker:SetPoint("LEFT", FelExplosivesColorText, "RIGHT", 10, 0)
-    FelExplosivesColorPicker.bg = FelExplosivesColorPicker:CreateTexture(nil,"BACKGROUND",nil,-7)
-    FelExplosivesColorPicker.bg:SetAllPoints(FelExplosivesColorPicker)
-    FelExplosivesColorPicker.bg:SetColorTexture(1,1,1,1)
-    FelExplosivesColorPicker.bg:SetVertexColor(nPlatesDB.FelExplosivesColor.r,nPlatesDB.FelExplosivesColor.g,nPlatesDB.FelExplosivesColor.b)
-    FelExplosivesColorPicker.recolor = function(color)
-        local r,g,b
-        if (color) then
-            r,g,b = unpack(color)
-        else
-            r,g,b = ColorPickerFrame:GetColorRGB()
-        end
-        nPlatesDB.FelExplosivesColor.r = r
-        nPlatesDB.FelExplosivesColor.g = g
-        nPlatesDB.FelExplosivesColor.b = b
-        FelExplosivesColorPicker.bg:SetVertexColor(r,g,b)
-    end
-    FelExplosivesColorPicker:EnableMouse(true)
-    FelExplosivesColorPicker:SetScript("OnMouseDown", function(self,button,...)
-        if button == "LeftButton" then
-            local r,g,b = FelExplosivesColorPicker.bg:GetVertexColor()
-            showColorPicker(r,g,b,FelExplosivesColorPicker.recolor)
-        end
-    end)
-
-    local ShowExecuteRange = CreateFrame("CheckButton", "ShowExecuteRange", RightSide, "InterfaceOptionsCheckButtonTemplate")
-    ShowExecuteRange:SetPoint("TOPLEFT", FelExplosivesColor, "BOTTOMLEFT", 0, -6)
-    ShowExecuteRange.Text:SetText(L.ExecuteRange)
-    ShowExecuteRange:SetScript("OnClick", function(this)
-        local checked = not not this:GetChecked()
-        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-        nPlatesDB.ShowExecuteRange = checked
-        ForceUpdate()
-    end)
-
-    local ExecuteColorPicker = CreateFrame("Frame", "ExecuteColor", RightSide)
-    ExecuteColorPicker:SetSize(15,15)
-    ExecuteColorPicker:SetPoint("LEFT", ShowExecuteRangeText, "RIGHT", 10, 0)
-    ExecuteColorPicker.bg = ExecuteColorPicker:CreateTexture(nil,"BACKGROUND",nil,-7)
-    ExecuteColorPicker.bg:SetAllPoints(ExecuteColorPicker)
-    ExecuteColorPicker.bg:SetColorTexture(1,1,1,1)
-    ExecuteColorPicker.bg:SetVertexColor(nPlatesDB.ExecuteColor.r,nPlatesDB.ExecuteColor.g,nPlatesDB.ExecuteColor.b)
-    ExecuteColorPicker.recolor = function(color)
-        local r,g,b
-        if (color) then
-            r,g,b = unpack(color)
-        else
-            r,g,b = ColorPickerFrame:GetColorRGB()
-        end
-        nPlatesDB.ExecuteColor.r = r
-        nPlatesDB.ExecuteColor.g = g
-        nPlatesDB.ExecuteColor.b = b
-        ExecuteColorPicker.bg:SetVertexColor(r,g,b)
-    end
-    ExecuteColorPicker:EnableMouse(true)
-    ExecuteColorPicker:SetScript("OnMouseDown", function(self,button,...)
-        if button == "LeftButton" then
-            local r,g,b = ExecuteColorPicker.bg:GetVertexColor()
-            showColorPicker(r,g,b,ExecuteColorPicker.recolor)
-        end
-    end)
-
-    local name = "ExecuteSlider"
-    local ExecuteSlider = CreateFrame("Slider", name, RightSide, "OptionsSliderTemplate")
-    ExecuteSlider:SetPoint("TOPLEFT", ShowExecuteRange, "BOTTOMLEFT", 10, -18)
-    ExecuteSlider.textLow = _G[name.."Low"]
-    ExecuteSlider.textHigh = _G[name.."High"]
-    ExecuteSlider.text = _G[name.."Text"]
-    ExecuteSlider:SetMinMaxValues(0, 35)
-    ExecuteSlider.minValue, ExecuteSlider.maxValue = ExecuteSlider:GetMinMaxValues()
-    ExecuteSlider.textLow:SetText(ExecuteSlider.minValue)
-    ExecuteSlider.textHigh:SetText(ExecuteSlider.maxValue)
-    ExecuteSlider:SetValue(nPlatesDB.ExecuteValue or 35)
-    ExecuteSlider:SetValueStep(1)
-    ExecuteSlider:SetObeyStepOnDrag(true)
-    ExecuteSlider.text:SetText(format("%.0f",ExecuteSlider:GetValue()))
-    ExecuteSlider:SetScript("OnValueChanged", function(self,event,arg1)
-        ExecuteSlider.text:SetText(format("%.0f",ExecuteSlider:GetValue()))
-        nPlatesDB.ExecuteValue = tonumber(format("%.0f",ExecuteSlider:GetValue()))
-    end)
-    ExecuteSlider:SetScript("OnUpdate", function(self)
-        if ( nPlatesDB.ShowExecuteRange ) then
-            ExecuteSlider:Enable()
-        else
-            ExecuteSlider:Disable()
-        end
-    end)
-
     local name = "NameplateScale"
     local NameplateScale = CreateFrame("Slider", name, RightSide, "OptionsSliderTemplate")
-    NameplateScale:SetPoint("TOPLEFT", ExecuteSlider, "BOTTOMLEFT", 0, -42)
+    NameplateScale:SetPoint("TOPLEFT", DontClamp, "BOTTOMLEFT", 10, -24)
     NameplateScale.textLow = _G[name.."Low"]
     NameplateScale.textHigh = _G[name.."High"]
     NameplateScale.text = _G[name.."Text"]
@@ -493,6 +446,67 @@ Options:SetScript("OnShow", function()
         end
     end)
 
+	local TankOptions = Options:CreateFontString("TankOptions", "ARTWORK", "GameFontNormalLarge")
+    TankOptions:SetPoint("TOPLEFT", NameplateRange, "BOTTOMLEFT", -10, -34)
+    TankOptions:SetText(L.TankOptionsLabel)
+
+    local TankMode = CreateFrame("CheckButton", "TankMode", RightSide, "InterfaceOptionsCheckButtonTemplate")
+    TankMode:SetPoint("TOPLEFT", TankOptions, "BOTTOMLEFT", 0, -12)
+    TankMode.Text:SetText(L.TankMode)
+    TankMode:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+        nPlatesDB.TankMode = checked
+        ForceUpdate()
+    end)
+
+    local ColorNameByThreat = CreateFrame("CheckButton", "ColorNameByThreat", RightSide, "InterfaceOptionsCheckButtonTemplate")
+    ColorNameByThreat:SetPoint("TOPLEFT", TankMode, "BOTTOMLEFT", 0, -6)
+    ColorNameByThreat.Text:SetText(L.NameThreat)
+    ColorNameByThreat:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+        nPlatesDB.ColorNameByThreat = checked
+        ForceUpdate()
+    end)
+
+    local UseOffTankColor = CreateFrame("CheckButton", "UseOffTankColor", RightSide, "InterfaceOptionsCheckButtonTemplate")
+    UseOffTankColor:SetPoint("TOPLEFT", ColorNameByThreat, "BOTTOMLEFT", 0, -6)
+    UseOffTankColor.Text:SetText(L.OffTankColor)
+    UseOffTankColor:SetScript("OnClick", function(this)
+        local checked = not not this:GetChecked()
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+        nPlatesDB.UseOffTankColor = checked
+        ForceUpdate()
+    end)
+
+    local OffTankColorPicker = CreateFrame("Frame", "OffTankColor", RightSide)
+    OffTankColorPicker:SetSize(15,15)
+    OffTankColorPicker:SetPoint("LEFT", UseOffTankColorText, "RIGHT", 10, 0)
+    OffTankColorPicker.bg = OffTankColorPicker:CreateTexture(nil,"BACKGROUND",nil,-7)
+    OffTankColorPicker.bg:SetAllPoints(OffTankColorPicker)
+    OffTankColorPicker.bg:SetColorTexture(1,1,1,1)
+    OffTankColorPicker.bg:SetVertexColor(nPlatesDB.OffTankColor.r,nPlatesDB.OffTankColor.g,nPlatesDB.OffTankColor.b)
+    OffTankColorPicker.recolor = function(color)
+        local r,g,b
+        if (color) then
+            r,g,b = unpack(color)
+        else
+            r,g,b = ColorPickerFrame:GetColorRGB()
+        end
+        nPlatesDB.OffTankColor.r = r
+        nPlatesDB.OffTankColor.g = g
+        nPlatesDB.OffTankColor.b = b
+        OffTankColorPicker.bg:SetVertexColor(r,g,b)
+    end
+    OffTankColorPicker:EnableMouse(true)
+    OffTankColorPicker:SetScript("OnMouseDown", function(self,button,...)
+        if button == "LeftButton" then
+            local r,g,b = OffTankColorPicker.bg:GetVertexColor()
+            showColorPicker(r,g,b,OffTankColorPicker.recolor)
+        end
+    end)
+
     local AddonTitle = Options:CreateFontString("$parentTitle", "ARTWORK", "GameFontNormalLarge")
     AddonTitle:SetPoint("BOTTOMRIGHT", -16, 16)
     AddonTitle:SetText(Options.name.." "..Options.version)
@@ -512,6 +526,7 @@ Options:SetScript("OnShow", function()
         UseOffTankColor:SetChecked(nPlatesDB.UseOffTankColor)
         ShowPvP:SetChecked(nPlatesDB.ShowPvP)
         FelExplosivesColor:SetChecked(nPlatesDB.FelExplosives)
+		RaidMarkerColoring:SetChecked(nPlatesDB.RaidMarkerColoring)
     end
 
     Options:Refresh()
