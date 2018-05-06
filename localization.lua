@@ -196,6 +196,7 @@ return end
 if CURRENT_LOCALE == "zhTW" then
 
 L.AbbrevName = "縮短過長名稱"
+L.ColoringOptionsLabel = "著色選項"
 L.DisplayLevel = "顯示等級"
 L.DisplayServerName = "顯示伺服器名稱"
 L.EnableHealth = "顯示生命值"
@@ -212,6 +213,7 @@ L.NameplateScale = "名條縮放"
 L.NameSizeLabel = "名稱大小"
 L.NameThreat = "名稱依據威脅著色"
 L.OffTankColor = "副坦顏色"
+L.RaidMarkerColoring = "團隊標記著色"
 L.ShowCurHP = "顯示當前數值"
 L.ShowPercHP = "顯示百分比"
 L.ShowPvP = "顯示 PvP 圖示"
