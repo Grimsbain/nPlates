@@ -43,7 +43,7 @@ function nPlates_OnEvent(self, event, ...)
             nPlates.RegisterDefaultSetting("ShowPvP", false)
             nPlates.RegisterDefaultSetting("FelExplosives", true)
             nPlates.RegisterDefaultSetting("FelExplosivesColor", { r = 197/255, g = 1, b = 0})
-			nPlates.RegisterDefaultSetting("RaidMarkerColoring", false)
+            nPlates.RegisterDefaultSetting("RaidMarkerColoring", false)
 
                 -- Set CVars
 
@@ -234,7 +234,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
                 r, g, b = 0.1, 0.1, 0.1
 			elseif ( raidMarker ) then
 				local markerColor = MARKER_COLORS[tostring(raidMarker)]
-				r, g, b = markerColor.r, markerColor.g, markerColor.b	
+				r, g, b = markerColor.r, markerColor.g, markerColor.b
             elseif ( nPlates.IsPriority(frame.displayedUnit) and nPlatesDB.FelExplosives) then
                 r, g, b = nPlatesDB.FelExplosivesColor.r, nPlatesDB.FelExplosivesColor.g, nPlatesDB.FelExplosivesColor.b
             elseif ( frame.optionTable.colorHealthBySelection ) then
@@ -425,21 +425,6 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthBorder", function(frame)
             for i = 1, 8 do
                 frame.healthBar.beautyBorder[i]:Show()
                 frame.healthBar.beautyShadow[i]:Show()
-            end
-        end
-    end
-
-        -- Check for duel or mind control.
-
-    if (UnitIsPlayer(frame.displayedUnit)) then
-        local faction, _ = UnitFactionGroup(frame.displayedUnit)
-        if( faction == playerFaction and UnitCanAttack("player",frame.displayedUnit) ) then
-            if ( frame.healthBar.border ) then frame.healthBar.border:Show() end
-            if ( frame.healthBar.beautyBorder and frame.healthBar.beautyShadow ) then
-                for i = 1, 8 do
-                    frame.healthBar.beautyBorder[i]:Hide()
-                    frame.healthBar.beautyShadow[i]:Hide()
-                end
             end
         end
     end
