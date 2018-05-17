@@ -330,10 +330,7 @@ end)
 
 hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
 	if ( frame:IsForbidden() ) then return end
-	if ( not frame.isNameplate ) then
-		print("Not nameplate.", frame:GetName())
-		return
-	end
+	if ( not frame.isNameplate ) then return end
 
         -- Healthbar
 
@@ -412,10 +409,7 @@ end)
 
 hooksecurefunc("DefaultCompactNamePlateFrameSetupInternal", function(frame, setupOptions, frameOptions)
     if ( frame:IsForbidden() ) then return end
-	if ( not frame.isNameplate ) then
-		print("Not nameplate.", frame:GetName())
-		return
-	end
+	if ( not frame.isNameplate ) then return end
 
         -- Healthbar
 
