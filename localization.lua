@@ -1,4 +1,4 @@
-local ADDON, nPlates = ...
+local addon, nPlates = ...
 
 local L = {}
 nPlates.L = L
@@ -159,32 +159,36 @@ if CURRENT_LOCALE == "koKR" then
 
 L.AbbrevName = "긴 이름 줄임"
 L.ColoringOptionsLabel = "색상 옵션"
+L.CombatPlates = "전투 시 이름표"
+L.CombatPlatesTooltip = "전투에서 벗어난 경우 자동으로 적 이름표를 숨깁니다."
 L.DisplayLevel = "레벨 표시"
 L.DisplayServerName = "서버명 표시"
-L.EnableHealth = "생명력 수치 사용"
 L.EnemyClassColors = "적 직업 색상 표시"
 L.ExecuteRange = "사거리 색상 표시"
 L.FelExplosivesColor = "지옥 폭발물 색상"
 L.FelExplosivesMobName = "지옥 폭발물"
 L.FrameOptionsLabel = "창 옵션"
 L.FriendlyClassColors = "아군 직업 색상 표시"
-L.HealthOptions = "생명력 옵션"
+L.HealthBoth = "생명력 - 백분율"
+L.HealthDisabled = "표시 안 함"
+L.HealthPercOnly = "백분율만"
+L.HealthValeuOnly = "생명력만"
 L.HideFriendly = "아군 이름표 숨김"
 L.NameOptionsLabel = "이름 옵션"
 L.NameplateAlpha = "이름표 최소 투명도"
-L.NameplateRange = "이름표 거리"
+L.NameplateRange = "이름표 최대 거리"
 L.NameplateScale = "이름표 크기 비율"
 L.NameSizeLabel = "이름 길이"
 L.NameThreat = "위협 수준별 이름 색칠"
 L.OffTankColor = "오프탱 색상"
-L.ShowCurHP = "현재값 표시"
-L.ShowPercHP = "% 표시"
+L.RaidMarkerColoring = "공격대 표시기 대상 색칠"
 L.ShowPvP = "PvP 아이콘 표시"
-L.ShowWhenFull = "가득 찬 경우 표시"
 L.SmallStackingTooltip = "이름표 배열 방식이 이름표 겹침 허용인 경우에만 사용됩니다."
-L.StickyNameplates = "화면 끝에 달라붙는 이름표"
+L.StickyNameplates = "대상 이름표 화면 안으로 고정"
 L.TankMode = "방어 전담 모드"
 L.TankOptionsLabel = "방어 전담 옵션"
+L.WhiteSelectionColor = "선택된 대상 흰색 테두리"
+
 return end
 
 ------------------------------------------------------------------------
