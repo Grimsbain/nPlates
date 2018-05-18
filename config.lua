@@ -1,6 +1,6 @@
 local addon, nPlates = ...
-
 local L = nPlates.L
+
 local floor = math.floor
 
 local Options = CreateFrame("Frame", "nPlatesOptions", InterfaceOptionsFramePanelContainer)
