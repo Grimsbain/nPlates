@@ -91,10 +91,8 @@ local function UpdateCastbar(frame)
 
         -- Force Icon Texture
 
-	if ( frame.castBar.Icon ) then
-		if ( frame.castBar.Icon:GetTexture() == nil ) then
-			frame.castBar.Icon:SetTexture("Interface\\Icons\\Ability_DualWield")
-		end
+	if ( notInterruptible ) then
+		frame.castBar.Icon:SetTexture("Interface\\Icons\\Ability_Warrior_ShieldMastery")
 		frame.castBar.Icon:SetShown(true)
 	end
 
