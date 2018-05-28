@@ -91,10 +91,17 @@ local function UpdateCastbar(frame)
 
         -- Force Icon Texture
 
-	if ( notInterruptible ) then
-		frame.castBar.Icon:SetTexture("Interface\\Icons\\Ability_Warrior_ShieldMastery")
-		frame.castBar.Icon:SetShown(true)
-	end
+    if ( notInterruptible or not frame.castBar.Icon:IsVisible() and frame.castBar.Background ) then
+        local _, class = UnitClass(frame.displayedUnit)
+        if ( class ) then
+            frame.castBar.Background:SetTexture("Interface\\Icons\\ClassIcon_"..class)
+        else
+            frame.castBar.Background:SetTexture("Interface\\Icons\\Ability_DualWield")
+        end
+        frame.castBar.Background:Show()
+    else
+        frame.castBar.Background:Hide()
+    end
 
         -- Abbreviate Long Spell Names
 
@@ -390,6 +397,15 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
 
     if ( not frame.castBar.Icon.beautyBorder ) then
         nPlates:SetBorder(frame.castBar.Icon)
+    end
+
+        -- Castbar Icon Background
+
+    if ( not frame.castBar.Background ) then
+        frame.castBar.Background = frame.castBar:CreateTexture("$parent_Background", "BACKGROUND")
+        frame.castBar.Background:SetAllPoints(frame.castBar.Icon)
+        frame.castBar.Background:SetTexture("Interface\\Icons\\Ability_DualWield")
+        frame.castBar.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     end
 
         -- Update Castbar
