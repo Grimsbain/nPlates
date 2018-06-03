@@ -104,6 +104,39 @@ return end
 
 if CURRENT_LOCALE == "frFR" then
 
+L.AbbrevName = "Raccourcir les longs noms"
+L.ColoringOptionsLabel = "Options des couleurs"
+L.CombatPlates = "Barres d'info. en mode combat"
+L.CombatPlatesTooltip = "Cacher automatiquement les barres d'info. en dehors du combat."
+L.DisplayLevel = "Afficher le niveau"
+L.DisplayServerName = "Afficher le nom du serveur"
+L.EnemyClassColors = "Afficher la couleur des classes de la faction opposée"
+L.ExecuteRange = "Changer la couleur en phase d'exécution"
+L.FelExplosivesColor = "Changer la couleur lors d'explosion gangrenée (donjons mythiques)"
+L.FelExplosivesMobName = "Explosifs gangrenés"
+L.FrameOptionsLabel = "Options de la barre"
+L.FriendlyClassColors = "Afficher la couleur des classes de la faction alliée"
+L.HealthBoth = "Vie - Pourcentage"
+L.HealthDisabled = "Désactivé"
+L.HealthPercOnly = "Pourcentage seulement"
+L.HealthValeuOnly = "Points de vie seulement"
+L.HideFriendly = "Cacher les barres d'info. alliées"
+L.NameOptionsLabel = "Options des noms"
+L.NameplateAlpha = "Transparence minimale"
+L.NameplateRange = "Portée"
+L.NameplateScale = "Echelle"
+L.NameSizeLabel = "Taille du texte"
+L.NameThreat = "Colorer les noms en fonction de la menace"
+L.OffTankColor = "Couleur des off tanks (tanks alliés)"
+L.RaidMarkerColoring = "Colorer en fonction des marqueurs de raid"
+L.ShowPvP = "Afficher l'icône JcJ"
+L.SmallStacking = "Empilement proche des barres d'info."
+L.SmallStackingTooltip = "Seulement activée si vous avez choisi les barres d'info. empilées"
+L.StickyNameplates = "Barres d'info. collantes"
+L.TankMode = "Mode tank"
+L.TankOptionsLabel = "Options de menace"
+L.WhiteSelectionColor = "Couleur blanche pour la cible sélectionnée"
+
 return end
 
 ------------------------------------------------------------------------
