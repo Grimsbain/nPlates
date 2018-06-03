@@ -129,7 +129,7 @@ Options:SetScript("OnShow", function()
 	local ExecuteSlider = nPlates:CreateSlider("ExecuteSlider", LeftSide, COMPACT_UNIT_FRAME_PROFILE_HEALTHTEXT_PERC, ShowExecuteRange, 10, -18, nil, nPlatesDB.ExecuteValue, PERCENTAGE_STRING, currentExecutePercent, 0, 35, 1, false)
     ExecuteSlider:SetScript("OnValueChanged", function(self, value)
 		value = floor(value)
-        executeSlider.text:SetFormattedText(PERCENTAGE_STRING, value)
+        ExecuteSlider.text:SetFormattedText(PERCENTAGE_STRING, value)
 		nPlatesDB.ExecuteValue = value
 		nPlates:UpdateAllNameplates()
     end)
