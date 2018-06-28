@@ -1,8 +1,8 @@
-## Interface: 70300
+## Interface: 80000
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates for NeavUI.
 ## Author: Grimsbain
-## Version: 2.55
+## Version: 2.56
 ## SavedVariablesPerCharacter: nPlatesDB
 ## RequiredDeps: Blizzard_NamePlates
 ## LoadWith: Blizzard_NamePlates

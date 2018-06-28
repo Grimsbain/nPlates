@@ -73,9 +73,9 @@ local function UpdateCastbar(frame)
 
     if ( frame.unit ) then
         if ( frame.castBar.casting ) then
-            notInterruptible = select(9, UnitCastingInfo(frame.displayedUnit))
+            notInterruptible = select(8, UnitCastingInfo(frame.displayedUnit))
         else
-            notInterruptible = select(8, UnitChannelInfo(frame.displayedUnit))
+            notInterruptible = select(7, UnitChannelInfo(frame.displayedUnit))
         end
 
         if ( UnitCanAttack("player", frame.displayedUnit) ) then
@@ -284,7 +284,11 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
 
             -- Shorten Long Names
 
-        local name = GetUnitName(frame.displayedUnit, nPlatesDB.ShowServerName) or UNKNOWN
+        local name, realm = UnitName(frame.displayedUnit) or UNKNOWN
+
+		if ( nPlatesDB.ShowServerName ) then
+			name = name.." - "..realm
+		end
         if ( nPlatesDB.AbrrevLongNames ) then
             name = nPlates:Abbrev(name, 20)
         end
@@ -369,16 +373,15 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
         -- Spell Name
 
     frame.castBar.Text:ClearAllPoints()
-    frame.castBar.Text:SetFont(nPlates.castbarFont, 8)
-    frame.castBar.Text:SetShadowOffset(.5, -.5)
+	frame.castBar.Text:SetFontObject("nPlate_CastbarFont")
     frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
 
         -- Set Castbar Timer
 
     if ( not frame.castBar.CastTime ) then
         frame.castBar.CastTime = frame.castBar:CreateFontString(nil, "OVERLAY")
-        frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon)
-        frame.castBar.CastTime:SetFont(nPlates.castbarFont, 12, "OUTLINE")
+        frame.castBar.CastTime:SetFontObject("nPlate_CastbarTimerFont")
+		frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon)
     end
 
         -- Castbar Icon

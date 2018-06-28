@@ -19,8 +19,6 @@ local pvpIcons = {
 nPlates.statusBar = texturePath.."UI-StatusBar"
 nPlates.border = texturePath.."borderTexture"
 nPlates.shadow = texturePath.."textureShadow"
-nPlates.nameFont = SystemFont_NamePlate:GetFont()
-nPlates.castbarFont = SystemFont_Shadow_Small:GetFont()
 nPlates.defaultBorderColor = CreateColor(0.40, 0.40, 0.40, 1)
 nPlates.interruptibleColor = CreateColor(0.0, 0.75, 0.0, 1)
 nPlates.nonInterruptibleColor = CreateColor(0.75, 0.0, 0.0, 1)
@@ -194,7 +192,7 @@ function nPlates:UpdateNameSize(frame)
 		return
 	end
     local size = nPlatesDB.NameSize or 10
-    frame.name:SetFont(nPlates.nameFont, size)
+	frame.name:SetFontObject("nPlate_NameFont"..size)
     frame.name:SetShadowOffset(0.5, -0.5)
 end
 
@@ -384,8 +382,7 @@ function nPlates:AddHealthbarText(frame)
 			HealthBar.value = HealthBar:CreateFontString("$parentHeathValue", "OVERLAY")
 			HealthBar.value:Hide()
 			HealthBar.value:SetPoint("CENTER", HealthBar)
-			HealthBar.value:SetFont(nPlates.nameFont, 10)
-			HealthBar.value:SetShadowOffset(.5, -.5)
+			HealthBar.value:SetFontObject("nPlate_NameFont10")
 		end
 	end
 end

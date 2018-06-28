@@ -1,4 +1,5 @@
 <Ui>
+	<Include file='fonts.xml' />
     <Script file='localization.lua' />
     <Script file='func.lua' />
     <Script file='config.lua' />
