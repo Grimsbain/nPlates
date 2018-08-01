@@ -532,7 +532,7 @@ function nPlates:LockInCombat(frame)
     end)
 end
 
-function  nPlates:CreateCheckBox(name, parent, label, tooltip, relativeTo, x, y, disableInCombat)
+function nPlates:CreateCheckBox(name, parent, label, tooltip, relativeTo, x, y, disableInCombat)
 	local checkBox = CreateFrame("CheckButton", name, parent, "InterfaceOptionsCheckButtonTemplate")
     checkBox:SetPoint("TOPLEFT", relativeTo, "BOTTOMLEFT", x, y)
     checkBox.Text:SetText(label)
