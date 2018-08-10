@@ -5,13 +5,13 @@ local _, playerClass = UnitClass("player")
 
 function nPlates_OnLoad(self)
     self:RegisterEvent("ADDON_LOADED")
-	self:RegisterEvent("NAME_PLATE_CREATED")
-	self:RegisterEvent("NAME_PLATE_UNIT_ADDED")
-	self:RegisterEvent("PLAYER_TARGET_CHANGED")
-	self:RegisterEvent("PLAYER_REGEN_DISABLED")
-	self:RegisterEvent("PLAYER_REGEN_ENABLED")
-	self:RegisterEvent("RAID_TARGET_UPDATE")
-	self:RegisterEvent("UNIT_AURA")
+    self:RegisterEvent("NAME_PLATE_CREATED")
+    self:RegisterEvent("NAME_PLATE_UNIT_ADDED")
+    self:RegisterEvent("PLAYER_TARGET_CHANGED")
+    self:RegisterEvent("PLAYER_REGEN_DISABLED")
+    self:RegisterEvent("PLAYER_REGEN_ENABLED")
+    self:RegisterEvent("RAID_TARGET_UPDATE")
+    self:RegisterEvent("UNIT_AURA")
 end
 
 function nPlates_OnEvent(self, event, ...)
@@ -20,29 +20,29 @@ function nPlates_OnEvent(self, event, ...)
         if ( name == "nPlates" ) then
             nPlates:SetDefaultOptions()
             nPlates:CVarCheck()
-			self:UnregisterEvent("ADDON_LOADED")
+            self:UnregisterEvent("ADDON_LOADED")
         end
-	elseif ( event == "NAME_PLATE_CREATED" ) then
-		local nameplate = ...
-		nPlates:AddHealthbarText(nameplate)
-		nameplate.UnitFrame.isNameplate = true
-	elseif ( event == "NAME_PLATE_UNIT_ADDED" ) then
-		local unit = ...
-		nPlates:FixPlayerBorder(unit)
-		nPlates:UpdateBuffFrameAnchorsByUnit(unit)
-	elseif ( event == "PLAYER_TARGET_CHANGED" ) then
-		nPlates:UpdateAllBuffFrameAnchors()
-	elseif ( event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" ) then
-		if ( nPlatesDB.CombatPlates ) then
-			SetCVar("nameplateShowEnemies", event == "PLAYER_REGEN_DISABLED" and 1 or 0)
-		else
-			SetCVar("nameplateShowEnemies", 1)
-		end
-	elseif ( event == "RAID_TARGET_UPDATE" ) then
-		nPlates:UpdateRaidMarkerColoring()
-	elseif ( event == "UNIT_AURA" ) then
-		local unit = ...
-		nPlates:UpdateBuffFrameAnchorsByUnit(unit)
+    elseif ( event == "NAME_PLATE_CREATED" ) then
+        local nameplate = ...
+        nPlates:AddHealthbarText(nameplate)
+        nameplate.UnitFrame.isNameplate = true
+    elseif ( event == "NAME_PLATE_UNIT_ADDED" ) then
+        local unit = ...
+        nPlates:FixPlayerBorder(unit)
+        nPlates:UpdateBuffFrameAnchorsByUnit(unit)
+    elseif ( event == "PLAYER_TARGET_CHANGED" ) then
+        nPlates:UpdateAllBuffFrameAnchors()
+    elseif ( event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" ) then
+        if ( nPlatesDB.CombatPlates ) then
+            SetCVar("nameplateShowEnemies", event == "PLAYER_REGEN_DISABLED" and 1 or 0)
+        else
+            SetCVar("nameplateShowEnemies", 1)
+        end
+    elseif ( event == "RAID_TARGET_UPDATE" ) then
+        nPlates:UpdateRaidMarkerColoring()
+    elseif ( event == "UNIT_AURA" ) then
+        local unit = ...
+        nPlates:UpdateBuffFrameAnchorsByUnit(unit)
     end
 end
 
@@ -91,12 +91,12 @@ local function UpdateCastbar(frame)
 
         -- Force Icon Texture
 
-	if ( notInterruptible or not frame.castBar.Icon:IsVisible() and frame.castBar.Background ) then
-		frame.castBar.Background:SetTexture("Interface\\Icons\\Ability_DualWield")
-		frame.castBar.Background:Show()
-	else
-		frame.castBar.Background:Hide()
-	end
+    if ( notInterruptible or not frame.castBar.Icon:IsVisible() and frame.castBar.Background ) then
+        frame.castBar.Background:SetTexture("Interface\\Icons\\Ability_DualWield")
+        frame.castBar.Background:Show()
+    else
+        frame.castBar.Background:Hide()
+    end
 
         -- Abbreviate Long Spell Names
 
@@ -109,41 +109,41 @@ local function UpdateCastbar(frame)
     end
 end
 
-	-- Updated Health Text
+    -- Updated Health Text
 
 hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
     if ( frame:IsForbidden() ) then return end
-	if ( not frame.healthBar.value ) then
-		return
-	end
+    if ( not frame.healthBar.value ) then
+        return
+    end
 
-	local option = nPlatesDB.CurrentHealthOption
+    local option = nPlatesDB.CurrentHealthOption
 
-	if ( option ~= 1 ) then
-		local health = UnitHealth(frame.displayedUnit)
-		local maxHealth = UnitHealthMax(frame.displayedUnit)
-		local perc = math.floor(100 * (health/maxHealth))
+    if ( option ~= 1 ) then
+        local health = UnitHealth(frame.displayedUnit)
+        local maxHealth = UnitHealthMax(frame.displayedUnit)
+        local perc = math.floor(100 * (health/maxHealth))
 
-		if ( health > 5 ) then
-			if ( option == 2 and perc >= 100 ) then
-				frame.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
-			elseif ( option == 2 ) then
-				frame.healthBar.value:SetFormattedText("%s - %s%%", nPlates:FormatValue(health), perc)
-			elseif ( option == 3 ) then
-				frame.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
-			elseif ( option == 4 ) then
-				frame.healthBar.value:SetFormattedText("%s%%", perc)
-			else
-				frame.healthBar.value:SetText("")
-			end
-		else
-			frame.healthBar.value:SetText("")
-		end
+        if ( health > 5 ) then
+            if ( option == 2 and perc >= 100 ) then
+                frame.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
+            elseif ( option == 2 ) then
+                frame.healthBar.value:SetFormattedText("%s - %s%%", nPlates:FormatValue(health), perc)
+            elseif ( option == 3 ) then
+                frame.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
+            elseif ( option == 4 ) then
+                frame.healthBar.value:SetFormattedText("%s%%", perc)
+            else
+                frame.healthBar.value:SetText("")
+            end
+        else
+            frame.healthBar.value:SetText("")
+        end
 
-		frame.healthBar.value:Show()
-	else
-		frame.healthBar.value:Hide()
-	end
+        frame.healthBar.value:Show()
+    else
+        frame.healthBar.value:Hide()
+    end
 end)
 
     -- Update Health Color
@@ -152,7 +152,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
     if ( frame:IsForbidden() ) then return end
     if ( not frame.isNameplate ) then return end
 
-	local r, g, b
+    local r, g, b
     if ( not UnitIsConnected(frame.unit) ) then
         r, g, b = 0.5, 0.5, 0.5
     else
@@ -162,15 +162,15 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
         else
             local localizedClass, englishClass = UnitClass(frame.unit)
             local classColor = RAID_CLASS_COLORS[englishClass]
-			local raidMarker = GetRaidTargetIndex(frame.displayedUnit)
+            local raidMarker = GetRaidTargetIndex(frame.displayedUnit)
 
             if ( frame.optionTable.allowClassColorsForNPCs or UnitIsPlayer(frame.unit) and classColor and nPlates:UseClassColors(playerFaction, frame.displayedUnit) ) then
                     r, g, b = classColor.r, classColor.g, classColor.b
             elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
                 r, g, b = 0.1, 0.1, 0.1
-			elseif ( nPlatesDB.RaidMarkerColoring and raidMarker ) then
-				local markerColor = nPlates.markerColors[tostring(raidMarker)]
-				r, g, b = markerColor.r, markerColor.g, markerColor.b
+            elseif ( nPlatesDB.RaidMarkerColoring and raidMarker ) then
+                local markerColor = nPlates.markerColors[tostring(raidMarker)]
+                r, g, b = markerColor.r, markerColor.g, markerColor.b
             elseif ( nPlatesDB.FelExplosives and nPlates:IsPriority(frame.displayedUnit) ) then
                 r, g, b = nPlatesDB.FelExplosivesColor.r, nPlatesDB.FelExplosivesColor.g, nPlatesDB.FelExplosivesColor.b
             elseif ( frame.optionTable.colorHealthBySelection ) then
@@ -209,7 +209,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
         r, g, b = nPlatesDB.ExecuteColor.r, nPlatesDB.ExecuteColor.g, nPlatesDB.ExecuteColor.b
     end
 
-		-- Update Healthbar Color
+        -- Update Healthbar Color
 
     local cR,cG,cB = frame.healthBar:GetStatusBarColor()
     if ( r ~= cR or g ~= cG or b ~= cB ) then
@@ -225,8 +225,8 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
 
         -- Update Border Color
 
-	if ( frame.healthBar.beautyBorder ) then
-		nPlates:SetHealthBorderColor(frame, r, g, b)
+    if ( frame.healthBar.beautyBorder ) then
+        nPlates:SetHealthBorderColor(frame, r, g, b)
     end
 end)
 
@@ -234,11 +234,11 @@ end)
 
 hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", function(frame)
     if ( frame:IsForbidden() ) then return end
-	if ( not frame.isNameplate ) then return end
+    if ( not frame.isNameplate ) then return end
 
-	if ( frame.healthBar.beautyBorder ) then
-		local r, g, b = frame.healthBar:GetStatusBarColor()
-		nPlates:SetHealthBorderColor(frame, r, g, b)
+    if ( frame.healthBar.beautyBorder ) then
+        local r, g, b = frame.healthBar:GetStatusBarColor()
+        nPlates:SetHealthBorderColor(frame, r, g, b)
     end
 end)
 
@@ -246,30 +246,30 @@ end)
 
 hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
     if ( frame:IsForbidden() ) then return end
-	if ( not frame.isNameplate ) then return end
+    if ( not frame.isNameplate ) then return end
 
         -- Hide Friendly Nameplates
 
     if ( nPlatesDB.HideFriendly ) then
         if ( UnitIsFriend(frame.displayedUnit, "player") and not
-			 UnitCanAttack(frame.displayedUnit, "player") and not
-			 UnitIsUnit(frame.displayedUnit, "player")
-		) then
+             UnitCanAttack(frame.displayedUnit, "player") and not
+             UnitIsUnit(frame.displayedUnit, "player")
+        ) then
             frame.healthBar:Hide()
         else
             frame.healthBar:Show()
         end
-	else
-		frame.healthBar:Show()
+    else
+        frame.healthBar:Show()
     end
 
     if ( not ShouldShowName(frame) ) then
         frame.name:Hide()
     else
 
-			-- Update Name Size
+            -- Update Name Size
 
-		nPlates:UpdateNameSize(frame)
+        nPlates:UpdateNameSize(frame)
 
             -- PvP Icon
 
@@ -286,9 +286,9 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
 
         local name, realm = UnitName(frame.displayedUnit) or UNKNOWN
 
-		if ( nPlatesDB.ShowServerName ) then
-			name = name.." - "..realm
-		end
+        if ( nPlatesDB.ShowServerName ) then
+            name = name.." - "..realm
+        end
         if ( nPlatesDB.AbrrevLongNames ) then
             name = nPlates:Abbrev(name, 20)
         end
@@ -299,7 +299,7 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
             local playerLevel = UnitLevel("player")
             local targetLevel = UnitLevel(frame.displayedUnit)
             local difficultyColor = GetRelativeDifficultyColor(playerLevel, targetLevel)
-			local levelColor = nPlates:RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
+            local levelColor = nPlates:RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
 
             if ( targetLevel == -1 ) then
                 frame.name:SetText(pvpIcon..name)
@@ -333,8 +333,8 @@ end)
     -- Skin Nameplate
 
 hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
-	if ( frame:IsForbidden() ) then return end
-	if ( not frame.isNameplate ) then return end
+    if ( frame:IsForbidden() ) then return end
+    if ( not frame.isNameplate ) then return end
 
         -- Healthbar
 
@@ -348,7 +348,7 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
 
         -- Healthbar Border
 
-	frame.healthBar.border:Hide()
+    frame.healthBar.border:Hide()
 
     if ( not frame.healthBar.beautyBorder ) then
         nPlates:SetBorder(frame.healthBar)
@@ -373,7 +373,7 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
         -- Spell Name
 
     frame.castBar.Text:ClearAllPoints()
-	frame.castBar.Text:SetFontObject("nPlate_CastbarFont")
+    frame.castBar.Text:SetFontObject("nPlate_CastbarFont")
     frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
 
         -- Set Castbar Timer
@@ -381,7 +381,7 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
     if ( not frame.castBar.CastTime ) then
         frame.castBar.CastTime = frame.castBar:CreateFontString(nil, "OVERLAY")
         frame.castBar.CastTime:SetFontObject("nPlate_CastbarTimerFont")
-		frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon)
+        frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon)
     end
 
         -- Castbar Icon
@@ -397,14 +397,14 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
         nPlates:SetBorder(frame.castBar.Icon)
     end
 
-		-- Castbar Icon Background
+        -- Castbar Icon Background
 
-	if ( not frame.castBar.Background ) then
-		frame.castBar.Background = frame.castBar:CreateTexture("$parent_Background", "BACKGROUND")
-		frame.castBar.Background:SetAllPoints(frame.castBar.Icon)
-		frame.castBar.Background:SetTexture("Interface\\Icons\\Ability_DualWield")
-		frame.castBar.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	end
+    if ( not frame.castBar.Background ) then
+        frame.castBar.Background = frame.castBar:CreateTexture("$parent_Background", "BACKGROUND")
+        frame.castBar.Background:SetAllPoints(frame.castBar.Icon)
+        frame.castBar.Background:SetTexture("Interface\\Icons\\Ability_DualWield")
+        frame.castBar.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    end
 
         -- Update Castbar
 
@@ -421,7 +421,7 @@ end)
 
 hooksecurefunc("DefaultCompactNamePlateFrameSetupInternal", function(frame, setupOptions, frameOptions)
     if ( frame:IsForbidden() ) then return end
-	if ( not frame.isNameplate ) then return end
+    if ( not frame.isNameplate ) then return end
 
         -- Healthbar
 

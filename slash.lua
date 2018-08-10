@@ -21,15 +21,15 @@ SlashCmdList["nplates"] = function(msg)
             "nameplateMaxDistance",
             "nameplateOtherTopInset",
             "nameplateOtherBottomInset",
-			"nameplateShowEnemies"
+            "nameplateShowEnemies"
         })
         do
             SetCVar(v, GetCVarDefault(v))
         end
-		nPlatesDB.SmallStacking = false
-		nPlatesDB.CombatPlates = false
-		nPlatesDB.DontClamp = false
-		ReloadUI()
+        nPlatesDB.SmallStacking = false
+        nPlatesDB.CombatPlates = false
+        nPlatesDB.DontClamp = false
+        ReloadUI()
     else
         print("|cffCC3333n|rPlates Options\nConfig - Open ingame gui options.\nReset: Reset all cvar options to Blizzard defaults. "..REQUIRES_RELOAD)
     end
