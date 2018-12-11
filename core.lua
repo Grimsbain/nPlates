@@ -287,7 +287,9 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
         local name, realm = UnitName(frame.displayedUnit) or UNKNOWN
 
         if ( nPlatesDB.ShowServerName ) then
-            name = name.." - "..realm
+            if realm then
+                name = name.." - "..realm
+            end
         end
         if ( nPlatesDB.AbrrevLongNames ) then
             name = nPlates:Abbrev(name, 20)
@@ -338,13 +340,11 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
 
         -- Healthbar
 
-    frame.healthBar:SetHeight(12)
+    frame.healthBar:SetStatusBarTexture(nPlates.statusBar)
+    frame.healthBar.barTexture:SetTexture(nPlates.statusBar)
     frame.healthBar:ClearAllPoints()
     frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
     frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
-    frame.healthBar:SetStatusBarTexture(nPlates.statusBar)
-
-    frame.healthBar.barTexture:SetTexture(nPlates.statusBar)
 
         -- Healthbar Border
 
@@ -365,16 +365,11 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
         nPlates:SetBorder(frame.castBar)
     end
 
-        -- Hide Border Shield
-
-    frame.castBar.BorderShield:Hide()
-    frame.castBar.BorderShield:ClearAllPoints()
-
         -- Spell Name
 
     frame.castBar.Text:ClearAllPoints()
     frame.castBar.Text:SetFontObject("nPlate_CastbarFont")
-    frame.castBar.Text:SetPoint("LEFT", frame.castBar, "LEFT", 2, 0)
+    frame.castBar.Text:SetPoint("LEFT", frame.castBar, 2, 0)
 
         -- Set Castbar Timer
 
@@ -383,13 +378,6 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
         frame.castBar.CastTime:SetFontObject("nPlate_CastbarTimerFont")
         frame.castBar.CastTime:SetPoint("BOTTOMRIGHT", frame.castBar.Icon)
     end
-
-        -- Castbar Icon
-
-    frame.castBar.Icon:SetSize(24, 24)
-    frame.castBar.Icon:ClearAllPoints()
-    frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4.9, 0)
-    frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
         -- Castbar Icon Border
 
@@ -417,13 +405,23 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
     end)
 end)
 
-    -- Personal Resource Display
-
-hooksecurefunc("DefaultCompactNamePlateFrameSetupInternal", function(frame, setupOptions, frameOptions)
+hooksecurefunc("DefaultCompactNamePlateFrameAnchorInternal", function(frame, setupOptions)
     if ( frame:IsForbidden() ) then return end
     if ( not frame.isNameplate ) then return end
 
         -- Healthbar
 
     frame.healthBar:SetHeight(12)
+
+        -- Castbar
+
+    frame.castBar.Icon:SetSize(24, 24)
+    frame.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    frame.castBar.Icon:ClearAllPoints()
+    frame.castBar.Icon:SetPoint("BOTTOMLEFT", frame.castBar, "BOTTOMRIGHT", 4.9, 0)
+
+        -- Hide Border Shield
+
+    frame.castBar.BorderShield:Hide()
+    frame.castBar.BorderShield:ClearAllPoints()
 end)

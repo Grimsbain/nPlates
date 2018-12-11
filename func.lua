@@ -86,6 +86,32 @@ end
 
     -- Set Defaults
 
+nPlates.defaultOptions = {
+    ["NameSize"] =  10,
+    ["ShowLevel"] =  true,
+    ["ShowServerName"] =  false,
+    ["AbrrevLongNames"] =  true,
+    ["ShowPvP"] =  false,
+    ["ShowFriendlyClassColors"] =  true,
+    ["ShowEnemyClassColors"] =  true,
+    ["WhiteSelectionColor"] =  false,
+    ["RaidMarkerColoring"] =  false,
+    ["FelExplosives"] =  true,
+    ["FelExplosivesColor"] =  { r = 197/255, g = 1, b = 0},
+    ["ShowExecuteRange"] =  false,
+    ["ExecuteValue"] =  35,
+    ["ExecuteColor"] =  { r = 0, g = 71/255, b = 126/255},
+    ["CurrentHealthOption"] =  2,
+    ["HideFriendly"] =  false,
+    ["SmallStacking"] =  false,
+    ["DontClamp"] =  false,
+    ["CombatPlates"] =  false,
+    ["TankMode"] =  false,
+    ["ColorNameByThreat"] =  false,
+    ["UseOffTankColor"] =  false,
+    ["OffTankColor"] =  { r = 0.60, g = 0.20, b = 1.0},
+}
+
 function nPlates:RegisterDefaultSetting(key, value)
     if ( nPlatesDB == nil ) then
         nPlatesDB = {}
@@ -95,32 +121,10 @@ function nPlates:RegisterDefaultSetting(key, value)
     end
 end
 
-    -- Set Defaults
-
 function nPlates:SetDefaultOptions()
-    nPlates:RegisterDefaultSetting("NameSize", 10)
-    nPlates:RegisterDefaultSetting("ShowLevel", true)
-    nPlates:RegisterDefaultSetting("ShowServerName", false)
-    nPlates:RegisterDefaultSetting("AbrrevLongNames", true)
-    nPlates:RegisterDefaultSetting("ShowPvP", false)
-    nPlates:RegisterDefaultSetting("ShowFriendlyClassColors", true)
-    nPlates:RegisterDefaultSetting("ShowEnemyClassColors", true)
-    nPlates:RegisterDefaultSetting("WhiteSelectionColor", false)
-    nPlates:RegisterDefaultSetting("RaidMarkerColoring", false)
-    nPlates:RegisterDefaultSetting("FelExplosives", true)
-    nPlates:RegisterDefaultSetting("FelExplosivesColor", { r = 197/255, g = 1, b = 0})
-    nPlates:RegisterDefaultSetting("ShowExecuteRange", false)
-    nPlates:RegisterDefaultSetting("ExecuteValue", 35)
-    nPlates:RegisterDefaultSetting("ExecuteColor", { r = 0, g = 71/255, b = 126/255})
-    nPlates:RegisterDefaultSetting("CurrentHealthOption", 2)
-    nPlates:RegisterDefaultSetting("HideFriendly", false)
-    nPlates:RegisterDefaultSetting("SmallStacking", false)
-    nPlates:RegisterDefaultSetting("DontClamp", false)
-    nPlates:RegisterDefaultSetting("CombatPlates", false)
-    nPlates:RegisterDefaultSetting("TankMode", false)
-    nPlates:RegisterDefaultSetting("ColorNameByThreat", false)
-    nPlates:RegisterDefaultSetting("UseOffTankColor", false)
-    nPlates:RegisterDefaultSetting("OffTankColor", { r = 0.60, g = 0.20, b = 1.0})
+    for setting, value in pairs(nPlates.defaultOptions) do
+        nPlates:RegisterDefaultSetting(setting, value)
+    end
 end
 
     -- Set Cvars
@@ -522,6 +526,25 @@ end
 
     -- Config Functions
 
+local prevControl
+
+function nPlates:pairsByKeys(t, f)
+    local a = {}
+    for n in pairs(t) do table.insert(a, n) end
+    table.sort(a, f)
+    local i = 0
+    local iter = function ()
+        i = i + 1
+        if a[i] == nil then
+            return nil
+        else
+            return a[i], t[a[i]]
+        end
+    end
+    return iter
+end
+
+
 function nPlates:LockInCombat(frame)
     frame:SetScript("OnUpdate", function(self)
         if ( not InCombatLockdown() ) then
@@ -532,44 +555,182 @@ function nPlates:LockInCombat(frame)
     end)
 end
 
-function nPlates:CreateCheckBox(name, parent, label, tooltip, relativeTo, x, y, disableInCombat)
-    local checkBox = CreateFrame("CheckButton", name, parent, "InterfaceOptionsCheckButtonTemplate")
-    checkBox:SetPoint("TOPLEFT", relativeTo, "BOTTOMLEFT", x, y)
-    checkBox.Text:SetText(label)
-
-    if ( tooltip ) then
-        checkBox.tooltipText = tooltip
+function nPlates:RegisterControl(control, parentFrame)
+    if ( ( not parentFrame ) or ( not control ) ) then
+        return;
     end
 
-    if ( disableInCombat ) then
+    parentFrame.controls = parentFrame.controls or {}
+
+    tinsert(parentFrame.controls, control);
+end
+
+function nPlates:CreateLabel(cfg)
+    --[[
+        {
+            type = "Label",
+            name = "LabelName",
+            parent = Options,
+            label = L.LabelText,
+            fontObject = "GameFontNormalLarge",
+            relativeTo = LeftSide,
+            relativePoint = "TOPLEFT",
+            offsetX = 16,
+            offsetY = -16,
+        },
+    --]]
+    cfg.initialPoint = cfg.initialPoint or "TOPLEFT"
+    cfg.relativePoint = cfg.relativePoint or "BOTTOMLEFT"
+    cfg.offsetX = cfg.offsetX or 0
+    cfg.offsetY = cfg.offsetY or -16
+    cfg.relativeTo = cfg.relativeTo or prevControl
+    cfg.fontObject = cfg.fontObject or "GameFontNormalLarge"
+
+    local label = cfg.parent:CreateFontString(cfg.name, "ARTWORK", cfg.fontObject)
+    label:SetPoint(cfg.initialPoint, cfg.relativeTo, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
+    label:SetText(cfg.label)
+
+    prevControl = label
+    return label
+end
+
+function nPlates:CreateCheckBox(cfg)
+    --[[
+        {
+            type = "CheckBox",
+            name = "Test",
+            parent = parent,
+            label = L.TestLabel,
+            tooltip = L.TestTooltip,
+            isCvar = nil or True,
+            var = "TestVar",
+            needsRestart = nil or True,
+            disableInCombat = nil or True,
+            updateAll = nil or True,
+            func = function(self)
+                -- Do stuff here.
+            end,
+            colorPicker = {
+                name = "ColorPicker",
+                parent = Options,
+                var = "TestVarColor",
+            },
+            initialPoint = "TOPLEFT",
+            relativeTo = frame,
+            relativePoint, "BOTTOMLEFT",
+            offsetX = 0,
+            offsetY = -6,
+        },
+    --]]
+    cfg.initialPoint = cfg.initialPoint or "TOPLEFT"
+    cfg.relativePoint = cfg.relativePoint or "BOTTOMLEFT"
+    cfg.offsetX = cfg.offsetX or 0
+    cfg.offsetY = cfg.offsetY or -6
+    cfg.relativeTo = cfg.relativeTo or prevControl
+
+    local checkBox = CreateFrame("CheckButton", cfg.name, cfg.parent, "InterfaceOptionsCheckButtonTemplate")
+    checkBox:SetPoint(cfg.initialPoint, cfg.relativeTo, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
+    checkBox.Text:SetText(cfg.label)
+    checkBox.GetValue = function(self) return checkBox:GetChecked() end
+    checkBox.SetControl = function(self) checkBox:SetChecked(nPlatesDB[cfg.var]) end
+    checkBox.var = cfg.var
+    checkBox.isCvar = cfg.isCvar
+
+    if cfg.tooltip then
+        checkBox.tooltipText = cfg.tooltip
+    end
+
+    if cfg.disableInCombat then
         nPlates:LockInCombat(checkBox)
     end
 
+    if cfg.colorPicker then
+        nPlates:CreateColorPicker(cfg.colorPicker, checkBox.Text)
+    end
+
+    checkBox:SetScript("OnClick", function(self)
+        local checked = self:GetChecked()
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+        checkBox.value = checked
+        nPlatesDB[cfg.var] = checked
+
+        if cfg.func then
+            cfg.func(self)
+        end
+        if cfg.updateAll then
+            nPlates:UpdateAllNameplates()
+        end
+    end)
+
+    nPlates:RegisterControl(checkBox, cfg.parent)
+    prevControl = checkBox
     return checkBox
 end
 
-function nPlates:CreateSlider(name, parent, label, relativeTo, x, y, cvar, nDB, fromatString, defaultValue, minValue, maxValue, step, disableInCombat)
+function nPlates:CreateSlider(cfg)
+        --[[
+        {
+            type = "Slider",
+            name = "Test",
+            parent = parent,
+            label = L.TestLabel,
+            isCvar = True,
+            var = "DBVariableGoesHere",
+            fromatString = "%.2f",
+            minValue = 0,
+            maxValue = 1,
+            step = .10,
+            needsRestart = True,
+            disableInCombat = True,
+            func = function(self)
+                -- Do stuff here.
+            end,
+            OnUpdate = function(self)
+                -- Do stuff here.
+            end
+            initialPoint = "TOPLEFT",
+            relativeTo = frame,
+            relativePoint, "BOTTOMLEFT",
+            offsetX = 0,
+            offsetY = -6,
+        },
+    --]]
+    cfg.initialPoint = cfg.initialPoint or "TOPLEFT"
+    cfg.relativePoint = cfg.relativePoint or "BOTTOMLEFT"
+    cfg.offsetX = cfg.offsetX or 0
+    cfg.offsetY = cfg.offsetY or -26
+    cfg.relativeTo = cfg.relativeTo or prevControl
+
     local value
-    if ( cvar ) then
-        value = BlizzardOptionsPanel_GetCVarSafe(cvar)
+    if cfg.isCvar then
+        value = BlizzardOptionsPanel_GetCVarSafe(cfg.var)
     else
-        value = nDB
+        value = nPlatesDB[cfg.var]
     end
 
-    local slider = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
+    local slider = CreateFrame("Slider", cfg.name, cfg.parent, "OptionsSliderTemplate")
     slider:SetWidth(180)
-    slider:SetPoint("TOPLEFT", relativeTo, "BOTTOMLEFT", x, y)
-    slider.textLow = _G[name.."Low"]
-    slider.textHigh = _G[name.."High"]
-    slider.text = _G[name.."Text"]
+    slider:SetPoint(cfg.initialPoint, cfg.relativeTo, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
+    slider.GetValue = function(self) return slider.value end
+    slider.SetControl = function(self) slider:SetValue(value) end
+    slider.value = value
+    slider.var = cfg.var
+    slider.textLow = _G[cfg.name.."Low"]
+    slider.textHigh = _G[cfg.name.."High"]
+    slider.text = _G[cfg.name.."Text"]
 
-    slider:SetMinMaxValues(minValue, maxValue)
+    slider:SetMinMaxValues(cfg.minValue, cfg.maxValue)
     slider.minValue, slider.maxValue = slider:GetMinMaxValues()
     slider:SetValue(value)
-    slider:SetValueStep(step)
+    slider:SetValueStep(cfg.step)
     slider:SetObeyStepOnDrag(true)
 
-    slider.text:SetFormattedText(fromatString, defaultValue)
+    if cfg.multiplier then
+        slider.text:SetFormattedText(cfg.fromatString, floor(value*cfg.multiplier))
+    else
+        slider.text:SetFormattedText(cfg.fromatString, value)
+    end
+
     slider.text:ClearAllPoints()
     slider.text:SetPoint("BOTTOMRIGHT", slider, "TOPRIGHT")
 
@@ -578,13 +739,45 @@ function nPlates:CreateSlider(name, parent, label, relativeTo, x, y, cvar, nDB, 
     slider.textLow:ClearAllPoints()
     slider.textLow:SetPoint("BOTTOMLEFT", slider, "TOPLEFT")
     slider.textLow:SetPoint("BOTTOMRIGHT", slider.text, "BOTTOMLEFT", -4, 0)
-    slider.textLow:SetText(label)
+    slider.textLow:SetText(cfg.label)
     slider.textLow:SetJustifyH("LEFT")
 
-    if ( disableInCombat ) then
+    if cfg.disableInCombat then
         nPlates:LockInCombat(slider)
     end
 
+    slider:SetScript("OnValueChanged", function(self, value)
+        slider.value = value
+
+        if cfg.multiplier then
+            slider.text:SetFormattedText(cfg.fromatString, floor(value*cfg.multiplier))
+        else
+            slider.text:SetFormattedText(cfg.fromatString, value)
+        end
+
+        if cfg.isCvar then
+            SetCVar(cfg.var, value)
+        else
+            nPlatesDB[cfg.var] = value
+        end
+
+        if cfg.func then
+            cfg.func(self)
+        end
+
+        if cfg.updateAll then
+            nPlates:UpdateAllNameplates()
+        end
+    end)
+
+    if cfg.OnUpdate then
+        slider:SetScript("OnUpdate", function(self)
+            cfg.OnUpdate(self)
+        end)
+    end
+
+    nPlates:RegisterControl(slider, cfg.parent)
+    prevControl = slider
     return slider
 end
 
@@ -597,14 +790,19 @@ function nPlates:showColorPicker(r, g, b, callback)
     ShowUIPanel(ColorPickerFrame)
 end
 
-function nPlates:CreateColorPicker(name, parent, relativeTo, x, y, nDB)
-    local colorPicker = CreateFrame("Frame", name, parent)
+function nPlates:CreateColorPicker(cfg, relativeTo)
+    cfg.initialPoint = cfg.initialPoint or "LEFT"
+    cfg.relativePoint = cfg.relativePoint or "RIGHT"
+    cfg.offsetX = cfg.offsetX or 10
+    cfg.offsetY = cfg.offsetY or 0
+
+    local colorPicker = CreateFrame("Frame", cfg.name, cfg.parent)
     colorPicker:SetSize(15, 15)
-    colorPicker:SetPoint("LEFT", relativeTo, "RIGHT", x, y)
+    colorPicker:SetPoint(cfg.initialPoint, relativeTo, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
     colorPicker.bg = colorPicker:CreateTexture(nil, "BACKGROUND", nil, -7)
     colorPicker.bg:SetAllPoints(colorPicker)
     colorPicker.bg:SetColorTexture(1, 1, 1, 1)
-    colorPicker.bg:SetVertexColor(nDB.r, nDB.g, nDB.b)
+    colorPicker.bg:SetVertexColor(nPlatesDB[cfg.var].r,nPlatesDB[cfg.var].g, nPlatesDB[cfg.var].b)
     colorPicker.recolor = function(color)
         local r, g, b
         if ( color ) then
@@ -612,9 +810,9 @@ function nPlates:CreateColorPicker(name, parent, relativeTo, x, y, nDB)
         else
             r, g, b = ColorPickerFrame:GetColorRGB()
         end
-        nDB.r = r
-        nDB.g = g
-        nDB.b = b
+        nPlatesDB[cfg.var].r = r
+        nPlatesDB[cfg.var].g = g
+        nPlatesDB[cfg.var].b = b
         colorPicker.bg:SetVertexColor(r, g, b)
         nPlates:UpdateAllNameplates()
     end
@@ -630,25 +828,86 @@ function nPlates:CreateColorPicker(name, parent, relativeTo, x, y, nDB)
     return colorPicker
 end
 
--- HonorFrame Taint Workaround
--- Credit: https://www.townlong-yak.com/bugs/afKy4k-HonorFrameLoadTaint
+function nPlates:CreateDropdown(cfg)
+    cfg.initialPoint = cfg.initialPoint or "TOPLEFT"
+    cfg.relativePoint = cfg.relativePoint or "BOTTOMLEFT"
+    cfg.offsetX = cfg.offsetX or 0
+    cfg.offsetY = cfg.offsetY or -26
+    cfg.relativeTo = cfg.relativeTo or prevControl
+    --[[
+        {
+            type = "Dropdown",
+            name = "TestDropdown",
+            parent = Options,
+            label = L.LocalizedName,
+            var = "DBVariableGoesHere",
+            needsRestart = true,
+            func = function(self)
+                -- Do stuff here. Only ran on click.
+            end,
+            optionsTable = {
+                { text = L.TopLeft, value = 1, },
+                { text = L.BottomLeft, value = 2, },
+                { text = L.TopRight, value = 3, },
+                { text = L.BottomRight, value = 4, },
+            },
+        },
+    ]]
 
-if ( UIDROPDOWNMENU_VALUE_PATCH_VERSION or 0 ) < 2 then
-    UIDROPDOWNMENU_VALUE_PATCH_VERSION = 2
-    hooksecurefunc("UIDropDownMenu_InitializeHelper", function()
-        if UIDROPDOWNMENU_VALUE_PATCH_VERSION ~= 2 then
-            return
+    local dropdown = CreateFrame("Button", cfg.name, cfg.parent, "UIDropDownMenuTemplate")
+    dropdown:SetPoint(cfg.initialPoint, cfg.relativeTo, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
+    dropdown:EnableMouse(true)
+    dropdown.GetValue = function(self) return UIDropDownMenu_GetSelectedValue(self) end
+    dropdown.SetControl = function(self)
+        self.value = nPlatesDB[cfg.var]
+        UIDropDownMenu_SetSelectedValue(dropdown, self.value)
+        UIDropDownMenu_SetText(dropdown, cfg.optionsTable[self.value].text)
+    end
+    dropdown.var = cfg.var
+    dropdown.value = nPlatesDB[cfg.var]
+
+    dropdown.title = dropdown:CreateFontString("$parentTitle", "BACKGROUND", "GameFontNormalSmall")
+    dropdown.title:SetPoint("BOTTOMLEFT", dropdown, "TOPLEFT", 20, 5)
+    dropdown.title:SetText(cfg.label)
+
+    local function Dropdown_OnClick(self)
+        UIDropDownMenu_SetSelectedValue(dropdown, self.value)
+        nPlatesDB[cfg.var] = cfg.optionsTable[self.value].value
+
+        if cfg.func then
+            cfg.func(dropdown)
         end
-        for i=1, UIDROPDOWNMENU_MAXLEVELS do
-            for j=1, UIDROPDOWNMENU_MAXBUTTONS do
-                local b = _G["DropDownList" .. i .. "Button" .. j]
-                if ( not (issecurevariable(b, "value") or b:IsShown()) ) then
-                    b.value = nil
-                    repeat
-                        j, b["fx" .. j] = j+1
-                    until issecurevariable(b, "value")
-                end
+
+        if cfg.updateAll then
+            nPlates:UpdateAllNameplates()
+        end
+    end
+
+    local function Initialize(self, level)
+        local selectedValue = UIDropDownMenu_GetSelectedValue(dropdown)
+        local info = UIDropDownMenu_CreateInfo()
+
+        for i, filter in ipairs(cfg.optionsTable) do
+            info.text = filter.text
+            info.value = i
+            info.value2 = filter.value
+            info.func = Dropdown_OnClick
+            if info.value2 == selectedValue then
+                info.checked = 1
+                UIDropDownMenu_SetText(self, filter.text)
+            else
+                info.checked = nil
             end
+            UIDropDownMenu_AddButton(info)
         end
-    end)
+    end
+
+    UIDropDownMenu_SetWidth(dropdown, 180)
+    UIDropDownMenu_SetSelectedValue(dropdown, nPlatesDB[cfg.var])
+    UIDropDownMenu_SetText(dropdown, cfg.optionsTable[nPlatesDB[cfg.var]].text)
+    UIDropDownMenu_Initialize(dropdown, Initialize)
+
+    nPlates:RegisterControl(dropdown, cfg.parent)
+    prevControl = dropdown
+    return dropdown
 end
