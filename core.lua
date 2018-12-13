@@ -411,6 +411,9 @@ hooksecurefunc("DefaultCompactNamePlateFrameAnchorInternal", function(frame, set
 
         -- Healthbar
 
+    frame.healthBar:ClearAllPoints()
+    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
+    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
     frame.healthBar:SetHeight(12)
 
         -- Castbar
