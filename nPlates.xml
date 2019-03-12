@@ -5,6 +5,7 @@
     <Script file="config.lua" />
     <Script file="core.lua" />
     <Script file="slash.lua" />
+
     <Frame name="nPlates">
         <Scripts>
             <OnLoad function="nPlates_OnLoad" />

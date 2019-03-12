@@ -24,7 +24,7 @@ SlashCmdList["nplates"] = function(msg)
             "nameplateShowEnemies"
         })
         do
-            SetCVar(v, GetCVarDefault(v))
+            C_CVar.SetCVar(v, GetCVarDefault(v))
         end
         nPlatesDB.SmallStacking = false
         nPlatesDB.CombatPlates = false

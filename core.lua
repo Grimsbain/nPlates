@@ -20,7 +20,7 @@ function nPlates_OnEvent(self, event, ...)
         if ( name == "nPlates" ) then
             nPlates:SetDefaultOptions()
             nPlates:CVarCheck()
-            self:UnregisterEvent("ADDON_LOADED")
+            self:UnregisterEvent(event)
         end
     elseif ( event == "NAME_PLATE_CREATED" ) then
         local nameplate = ...
@@ -33,11 +33,10 @@ function nPlates_OnEvent(self, event, ...)
     elseif ( event == "PLAYER_TARGET_CHANGED" ) then
         nPlates:UpdateAllBuffFrameAnchors()
     elseif ( event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" ) then
-        if ( nPlatesDB.CombatPlates ) then
-            SetCVar("nameplateShowEnemies", event == "PLAYER_REGEN_DISABLED" and 1 or 0)
-        else
-            SetCVar("nameplateShowEnemies", 1)
+        if ( not nPlatesDB.CombatPlates ) then
+            return
         end
+        C_CVar.SetCVar("nameplateShowEnemies", event == "PLAYER_REGEN_DISABLED" and 1 or 0)
     elseif ( event == "RAID_TARGET_UPDATE" ) then
         nPlates:UpdateRaidMarkerColoring()
     elseif ( event == "UNIT_AURA" ) then
@@ -92,7 +91,7 @@ local function UpdateCastbar(frame)
         -- Force Icon Texture
 
     if ( notInterruptible or not frame.castBar.Icon:IsVisible() and frame.castBar.Background ) then
-        frame.castBar.Background:SetTexture("Interface\\Icons\\Ability_DualWield")
+        frame.castBar.Background:SetTexture([[Interface\Icons\Ability_DualWield]])
         frame.castBar.Background:Show()
     else
         frame.castBar.Background:Hide()
@@ -119,19 +118,19 @@ hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
 
     local option = nPlatesDB.CurrentHealthOption
 
-    if ( option ~= 1 ) then
+    if ( option ~= "HealthDisabled" ) then
         local health = UnitHealth(frame.displayedUnit)
         local maxHealth = UnitHealthMax(frame.displayedUnit)
         local perc = math.floor(100 * (health/maxHealth))
 
         if ( health > 5 ) then
-            if ( option == 2 and perc >= 100 ) then
+            if ( option == "HealthBoth" and perc >= 100 ) then
                 frame.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
-            elseif ( option == 2 ) then
+            elseif ( option == "HealthBoth" ) then
                 frame.healthBar.value:SetFormattedText("%s - %s%%", nPlates:FormatValue(health), perc)
-            elseif ( option == 3 ) then
+            elseif ( option == "HealthValueOnly" ) then
                 frame.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
-            elseif ( option == 4 ) then
+            elseif ( option == "HealthPercOnly" ) then
                 frame.healthBar.value:SetFormattedText("%s%%", perc)
             else
                 frame.healthBar.value:SetText("")
@@ -298,18 +297,17 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
             -- Level
 
         if ( nPlatesDB.ShowLevel ) then
-            local playerLevel = UnitLevel("player")
             local targetLevel = UnitLevel(frame.displayedUnit)
-            local difficultyColor = GetRelativeDifficultyColor(playerLevel, targetLevel)
-            local levelColor = nPlates:RGBHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
+            local difficultyColor = GetCreatureDifficultyColor(targetLevel)
+            local levelColor = nPlates:RGBToHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
 
             if ( targetLevel == -1 ) then
-                frame.name:SetText(pvpIcon..name)
+                frame.name:SetFormattedText("%s%s", pvpIcon, name)
             else
-                frame.name:SetText(pvpIcon.."|cffffff00|r"..levelColor..targetLevel.."|r "..name)
+                frame.name:SetFormattedText("%s%s%d|r %s", pvpIcon, levelColor, targetLevel, name)
             end
         else
-            frame.name:SetText(pvpIcon..name)
+            frame.name:SetFormattedText("%s%s", pvpIcon, name)
         end
 
             -- Color Name To Threat Status
@@ -390,7 +388,7 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
     if ( not frame.castBar.Background ) then
         frame.castBar.Background = frame.castBar:CreateTexture("$parent_Background", "BACKGROUND")
         frame.castBar.Background:SetAllPoints(frame.castBar.Icon)
-        frame.castBar.Background:SetTexture("Interface\\Icons\\Ability_DualWield")
+        frame.castBar.Background:SetTexture([[Interface\Icons\Ability_DualWield]])
         frame.castBar.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     end
 

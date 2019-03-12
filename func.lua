@@ -36,16 +36,12 @@ nPlates.markerColors = {
 
     -- RBG to Hex Colors
 
-function nPlates:RGBHex(r, g, b)
+function nPlates:RGBToHex(r, g, b)
     if ( type(r) == "table" ) then
-        if ( r.r ) then
-            r, g, b = r.r, r.g, r.b
-        else
-            r, g, b = unpack(r)
-        end
+        return RGBTableToColorCode(r)
     end
 
-    return ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
+    return RGBToColorCode(r, g, b)
 end
 
     -- Format Health
@@ -125,6 +121,21 @@ function nPlates:SetDefaultOptions()
     for setting, value in pairs(nPlates.defaultOptions) do
         nPlates:RegisterDefaultSetting(setting, value)
     end
+
+    local currentHealthOption = nPlatesDB["CurrentHealthOption"]
+    if type(currentHealthOption) == "number" then
+        if currentHealthOption == 1 then
+            currentHealthOption = "HealthDisable"
+        elseif currentHealthOption == 2 then
+            currentHealthOption = "HealthBoth"
+        elseif currentHealthOption == 3 then
+            currentHealthOption = "HealthValueOnly"
+        elseif currentHealthOption == 4 then
+            currentHealthOption = "HealthPercOnly"
+        end
+
+        nPlatesDB["CurrentHealthOption"] = currentHealthOption
+    end
 end
 
     -- Set Cvars
@@ -133,31 +144,31 @@ function nPlates:CVarCheck()
     if ( not nPlates:IsTaintable() ) then
         -- Combat Plates
         if ( nPlatesDB.CombatPlates ) then
-            SetCVar("nameplateShowEnemies", UnitAffectingCombat("player") and 1 or 0)
+            C_CVar.SetCVar("nameplateShowEnemies", UnitAffectingCombat("player") and 1 or 0)
         else
-            SetCVar("nameplateShowEnemies", 1)
+            C_CVar.SetCVar("nameplateShowEnemies", 1)
         end
 
         -- Set min and max scale.
-        SetCVar("namePlateMinScale", 1)
-        SetCVar("namePlateMaxScale", 1)
+        C_CVar.SetCVar("namePlateMinScale", 1)
+        C_CVar.SetCVar("namePlateMaxScale", 1)
 
         -- Set sticky nameplates.
         if ( not nPlatesDB.DontClamp ) then
-            SetCVar("nameplateOtherTopInset", -1, true)
-            SetCVar("nameplateOtherBottomInset", -1, true)
+            C_CVar.SetCVar("nameplateOtherTopInset", -1)
+            C_CVar.SetCVar("nameplateOtherBottomInset", -1)
         else
             for _, v in pairs({"nameplateOtherTopInset", "nameplateOtherBottomInset"}) do
-                SetCVar(v, GetCVarDefault(v), true)
+                C_CVar.SetCVar(v, GetCVarDefault(v))
             end
         end
 
         -- Set small stacking nameplates.
         if ( nPlatesDB.SmallStacking ) then
-            SetCVar("nameplateOverlapH", 1.1) SetCVar("nameplateOverlapV", 0.9)
+            C_CVar.SetCVar("nameplateOverlapH", 1.1) C_CVar.SetCVar("nameplateOverlapV", 0.9)
         else
             for _, v in pairs({"nameplateOverlapH", "nameplateOverlapV"}) do
-                SetCVar(v, GetCVarDefault(v), true)
+                C_CVar.SetCVar(v, GetCVarDefault(v))
             end
         end
     end
@@ -191,26 +202,27 @@ end
 
     -- Set Name Size
 
-function nPlates:UpdateNameSize(frame)
-    if ( not frame ) then
+function nPlates:UpdateNameSize(self)
+    if ( not self ) then
         return
     end
     local size = nPlatesDB.NameSize or 10
-    frame.name:SetFontObject("nPlate_NameFont"..size)
-    frame.name:SetShadowOffset(0.5, -0.5)
+    self.name:SetFontObject("nPlate_NameFont"..size)
+    self.name:SetShadowOffset(0.5, -0.5)
+    self.name:SetJustifyV("BOTTOM")
 end
 
     -- Abbreviate Long Strings
 
-function nPlates:Abbrev(str, length)
-    if ( not str ) then
+function nPlates:Abbrev(text, length)
+    if ( not text ) then
         return UNKNOWN
     end
 
     length = length or 20
 
-    str = (len(str) > length) and gsub(str, "%s?(.[\128-\191]*)%S+%s", "%1. ") or str
-    return str
+    text = (len(text) > length) and gsub(text, "%s?(.[\128-\191]*)%S+%s", "%1. ") or text
+    return text
 end
 
     -- PvP Icon
@@ -232,7 +244,9 @@ function nPlates:UpdateRaidMarkerColoring()
     if ( not nPlatesDB.RaidMarkerColoring ) then return end
 
     for i, frame in pairs(C_NamePlate.GetNamePlates(issecure())) do
-        CompactUnitFrame_UpdateHealthColor(frame.UnitFrame)
+        if ( not frame or not frame:IsForbidden() ) then
+            CompactUnitFrame_UpdateHealthColor(frame.UnitFrame)
+        end
     end
 end
 
@@ -348,7 +362,7 @@ end
 
 function nPlates:UpdateAllBuffFrameAnchors()
     for _, frame in pairs(C_NamePlate.GetNamePlates(issecure())) do
-        if ( not frame.UnitFrame:IsForbidden() ) then
+        if ( not frame:IsForbidden() ) then
             local BuffFrame = frame.UnitFrame.BuffFrame
 
             if ( frame.UnitFrame.displayedUnit and UnitShouldDisplayName(frame.UnitFrame.displayedUnit) ) then
@@ -363,8 +377,14 @@ function nPlates:UpdateAllBuffFrameAnchors()
 end
 
 function nPlates:UpdateBuffFrameAnchorsByUnit(unit)
+    if ( not unit ) then
+        return
+    end
+
     local frame = C_NamePlate.GetNamePlateForUnit(unit, issecure())
-    if ( not frame ) then return end
+    if ( not frame or frame:IsForbidden() ) then
+        return
+    end
 
     local BuffFrame = frame.UnitFrame.BuffFrame
 
@@ -399,7 +419,7 @@ function nPlates:FixPlayerBorder(unit)
         return
     end
 
-    if ( not UnitIsUnit(unit, "player") ) then return; end
+    if ( not UnitIsUnit(unit, "player") ) then return end
 
     local frame = C_NamePlate.GetNamePlateForUnit("player", issecure())
     if ( frame ) then
@@ -528,12 +548,16 @@ end
 
 local prevControl
 
-function nPlates:pairsByKeys(t, f)
+    -- Sorts a table by key.
+
+local function pairsByKeys(t, f)
     local a = {}
-    for n in pairs(t) do table.insert(a, n) end
-    table.sort(a, f)
+    for n in pairs(t) do
+        tinsert(a, n)
+    end
+    sort(a, f)
     local i = 0
-    local iter = function ()
+    local iter = function()
         i = i + 1
         if a[i] == nil then
             return nil
@@ -544,25 +568,39 @@ function nPlates:pairsByKeys(t, f)
     return iter
 end
 
+local function DisableInCombat(self)
+    if ( nPlates:IsTaintable() ) then
+        self:Disable()
+    else
+        self:Enable()
+    end
 
-function nPlates:LockInCombat(frame)
-    frame:SetScript("OnUpdate", function(self)
-        if ( not InCombatLockdown() ) then
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    self:RegisterEvent("PLAYER_REGEN_ENABLED")
+    self:RegisterEvent("PLAYER_REGEN_DISABLED")
+    self:SetScript("OnEvent", function(self, event, ...)
+        if ( event == "PLAYER_ENTERING_WORLD" ) then
+            if ( nPlates:IsTaintable() ) then
+                self:Disable()
+            else
+                self:Enable()
+            end
+        elseif ( event == "PLAYER_REGEN_ENABLED" ) then
             self:Enable()
-        else
+        elseif ( event == "PLAYER_REGEN_DISABLED" ) then
             self:Disable()
         end
     end)
 end
 
-function nPlates:RegisterControl(control, parentFrame)
+local function RegisterControl(control, parentFrame)
     if ( ( not parentFrame ) or ( not control ) ) then
-        return;
+        return
     end
 
     parentFrame.controls = parentFrame.controls or {}
 
-    tinsert(parentFrame.controls, control);
+    tinsert(parentFrame.controls, control)
 end
 
 function nPlates:CreateLabel(cfg)
@@ -636,12 +674,16 @@ function nPlates:CreateCheckBox(cfg)
     checkBox.var = cfg.var
     checkBox.isCvar = cfg.isCvar
 
+    if cfg.needsRestart then
+        checkBox.restart = false
+    end
+
     if cfg.tooltip then
         checkBox.tooltipText = cfg.tooltip
     end
 
     if cfg.disableInCombat then
-        nPlates:LockInCombat(checkBox)
+        DisableInCombat(checkBox)
     end
 
     if cfg.colorPicker then
@@ -654,6 +696,9 @@ function nPlates:CreateCheckBox(cfg)
         checkBox.value = checked
         nPlatesDB[cfg.var] = checked
 
+        if cfg.needsRestart then
+            checkBox.restart = not checkBox.restart
+        end
         if cfg.func then
             cfg.func(self)
         end
@@ -662,7 +707,7 @@ function nPlates:CreateCheckBox(cfg)
         end
     end)
 
-    nPlates:RegisterControl(checkBox, cfg.parent)
+    RegisterControl(checkBox, cfg.parent)
     prevControl = checkBox
     return checkBox
 end
@@ -743,7 +788,7 @@ function nPlates:CreateSlider(cfg)
     slider.textLow:SetJustifyH("LEFT")
 
     if cfg.disableInCombat then
-        nPlates:LockInCombat(slider)
+        DisableInCombat(slider)
     end
 
     slider:SetScript("OnValueChanged", function(self, value)
@@ -765,6 +810,14 @@ function nPlates:CreateSlider(cfg)
             cfg.func(self)
         end
 
+        if cfg.needsRestart then
+            if slider.value ~= slider.oldValue then
+                slider.restart = true
+            else
+                slider.restart = false
+            end
+        end
+
         if cfg.updateAll then
             nPlates:UpdateAllNameplates()
         end
@@ -776,7 +829,7 @@ function nPlates:CreateSlider(cfg)
         end)
     end
 
-    nPlates:RegisterControl(slider, cfg.parent)
+    RegisterControl(slider, cfg.parent)
     prevControl = slider
     return slider
 end
@@ -861,7 +914,7 @@ function nPlates:CreateDropdown(cfg)
     dropdown.SetControl = function(self)
         self.value = nPlatesDB[cfg.var]
         UIDropDownMenu_SetSelectedValue(dropdown, self.value)
-        UIDropDownMenu_SetText(dropdown, cfg.optionsTable[self.value].text)
+        UIDropDownMenu_SetText(dropdown, cfg.optionsTable[self.value])
     end
     dropdown.var = cfg.var
     dropdown.value = nPlatesDB[cfg.var]
@@ -872,10 +925,18 @@ function nPlates:CreateDropdown(cfg)
 
     local function Dropdown_OnClick(self)
         UIDropDownMenu_SetSelectedValue(dropdown, self.value)
-        nPlatesDB[cfg.var] = cfg.optionsTable[self.value].value
+        nPlatesDB[cfg.var] = self.value
 
         if cfg.func then
             cfg.func(dropdown)
+        end
+
+        if cfg.needsRestart then
+            if self.value ~= dropdown.oldValue then
+                dropdown.restart = true
+            else
+                dropdown.restart = false
+            end
         end
 
         if cfg.updateAll then
@@ -887,14 +948,13 @@ function nPlates:CreateDropdown(cfg)
         local selectedValue = UIDropDownMenu_GetSelectedValue(dropdown)
         local info = UIDropDownMenu_CreateInfo()
 
-        for i, filter in ipairs(cfg.optionsTable) do
-            info.text = filter.text
-            info.value = i
-            info.value2 = filter.value
+        for value, text in pairsByKeys(cfg.optionsTable) do
+            info.text = text
+            info.value = value
             info.func = Dropdown_OnClick
-            if info.value2 == selectedValue then
+            if info.value == selectedValue then
                 info.checked = 1
-                UIDropDownMenu_SetText(self, filter.text)
+                UIDropDownMenu_SetText(dropdown, text)
             else
                 info.checked = nil
             end
@@ -904,10 +964,10 @@ function nPlates:CreateDropdown(cfg)
 
     UIDropDownMenu_SetWidth(dropdown, 180)
     UIDropDownMenu_SetSelectedValue(dropdown, nPlatesDB[cfg.var])
-    UIDropDownMenu_SetText(dropdown, cfg.optionsTable[nPlatesDB[cfg.var]].text)
+    UIDropDownMenu_SetText(dropdown, cfg.optionsTable[nPlatesDB[cfg.var]])
     UIDropDownMenu_Initialize(dropdown, Initialize)
 
-    nPlates:RegisterControl(dropdown, cfg.parent)
+    RegisterControl(dropdown, cfg.parent)
     prevControl = dropdown
     return dropdown
 end

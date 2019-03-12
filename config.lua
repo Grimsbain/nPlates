@@ -184,10 +184,10 @@ Options:SetScript("OnShow", function()
             var = "CurrentHealthOption",
             updateAll = true,
             optionsTable = {
-                { text = L.HealthDisabled, value = 1, },
-                { text = L.HealthBoth, value = 2, },
-                { text = L.HealthValeuOnly, value = 3, },
-                { text = L.HealthPercOnly, value = 4, }
+                ["HealthDisabled"] = L.HealthDisabled,
+                ["HealthBoth"] = L.HealthBoth,
+                ["HealthValueOnly"] = L.HealthValueOnly,
+                ["HealthPercOnly"] = L.HealthPercOnly,
             },
         },
         {
@@ -208,11 +208,11 @@ Options:SetScript("OnShow", function()
             disableInCombat = true,
             func = function(self)
                 if ( self:GetChecked() ) then
-                    SetCVar("nameplateOverlapH", 0.8)
-                    SetCVar("nameplateOverlapV", 0.8)
+                    C_CVar.SetCVar("nameplateOverlapH", 0.8)
+                    C_CVar.SetCVar("nameplateOverlapV", 0.8)
                 else
                     for _, v in pairs({"nameplateOverlapH", "nameplateOverlapV"}) do
-                        SetCVar(v, GetCVarDefault(v))
+                        C_CVar.SetCVar(v, GetCVarDefault(v))
                     end
                 end
             end
@@ -226,7 +226,7 @@ Options:SetScript("OnShow", function()
             var = "CombatPlates",
             disableInCombat = true,
             func = function(self)
-                SetCVar("nameplateShowEnemies", not self:GetChecked() and 1 or 0)
+                C_CVar.SetCVar("nameplateShowEnemies", not self:GetChecked() and 1 or 0)
                 ReloadUI()
             end
         },
@@ -239,11 +239,11 @@ Options:SetScript("OnShow", function()
             disableInCombat = true,
             func = function(self)
                 if ( not self:GetChecked() ) then
-                    SetCVar("nameplateOtherTopInset", -1)
-                    SetCVar("nameplateOtherBottomInset", -1)
+                    C_CVar.SetCVar("nameplateOtherTopInset", -1)
+                    C_CVar.SetCVar("nameplateOtherBottomInset", -1)
                 else
                     for _, v in pairs({"nameplateOtherTopInset", "nameplateOtherBottomInset"}) do
-                        SetCVar(v, GetCVarDefault(v))
+                        C_CVar.SetCVar(v, GetCVarDefault(v))
                     end
                 end
             end
