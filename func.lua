@@ -801,7 +801,7 @@ function nPlates:CreateSlider(cfg)
         end
 
         if cfg.isCvar then
-            SetCVar(cfg.var, value)
+            C_CVar.SetCVar(cfg.var, value)
         else
             nPlatesDB[cfg.var] = value
         end
