@@ -334,15 +334,11 @@ end)
 
 hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
     if ( frame:IsForbidden() ) then return end
-    if ( not frame.isNameplate ) then return end
 
         -- Healthbar
 
     frame.healthBar:SetStatusBarTexture(nPlates.statusBar)
     frame.healthBar.barTexture:SetTexture(nPlates.statusBar)
-    frame.healthBar:ClearAllPoints()
-    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
-    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
 
         -- Healthbar Border
 
@@ -405,11 +401,15 @@ end)
 
 hooksecurefunc("DefaultCompactNamePlateFrameAnchorInternal", function(frame, setupOptions)
     if ( frame:IsForbidden() ) then return end
-    if ( not frame.isNameplate ) then return end
 
         -- Healthbar
 
-    PixelUtil.SetHeight(frame.healthBar, 12)
+    frame.healthBar:SetHeight(12)
+
+    if ( setupOptions.healthBarAlpha ~= 1 ) then
+        frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
+        frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
+    end
 
         -- Castbar
 
@@ -421,11 +421,4 @@ hooksecurefunc("DefaultCompactNamePlateFrameAnchorInternal", function(frame, set
         -- Hide Border Shield
 
     frame.castBar.BorderShield:ClearAllPoints()
-end)
-
-hooksecurefunc("DefaultCompactNamePlateFrameAnchors", function(frame)
-    if ( frame:IsForbidden() ) then return end
-
-    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
-    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
 end)
