@@ -409,9 +409,7 @@ hooksecurefunc("DefaultCompactNamePlateFrameAnchorInternal", function(frame, set
 
         -- Healthbar
 
-    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
-    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
-    frame.healthBar:SetHeight(12)
+    PixelUtil.SetHeight(frame.healthBar, 12)
 
         -- Castbar
 
@@ -423,4 +421,11 @@ hooksecurefunc("DefaultCompactNamePlateFrameAnchorInternal", function(frame, set
         -- Hide Border Shield
 
     frame.castBar.BorderShield:ClearAllPoints()
+end)
+
+hooksecurefunc("DefaultCompactNamePlateFrameAnchors", function(frame)
+    if ( frame:IsForbidden() ) then return end
+
+    frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
+    frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
 end)
