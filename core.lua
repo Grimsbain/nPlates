@@ -4,14 +4,18 @@ local playerFaction, _ = UnitFactionGroup("player")
 local _, playerClass = UnitClass("player")
 
 function nPlates_OnLoad(self)
-    self:RegisterEvent("ADDON_LOADED")
-    self:RegisterEvent("NAME_PLATE_CREATED")
-    self:RegisterEvent("NAME_PLATE_UNIT_ADDED")
-    self:RegisterEvent("PLAYER_TARGET_CHANGED")
-    self:RegisterEvent("PLAYER_REGEN_DISABLED")
-    self:RegisterEvent("PLAYER_REGEN_ENABLED")
-    self:RegisterEvent("RAID_TARGET_UPDATE")
-    self:RegisterEvent("UNIT_AURA")
+    local events = {
+        "ADDON_LOADED",
+        "NAME_PLATE_CREATED",
+        "NAME_PLATE_UNIT_ADDED",
+        "PLAYER_TARGET_CHANGED",
+        "PLAYER_REGEN_DISABLED",
+        "PLAYER_REGEN_ENABLED",
+        "RAID_TARGET_UPDATE",
+        "UNIT_AURA",
+    }
+
+    FrameUtil.RegisterFrameForEvents(self, events)
 end
 
 function nPlates_OnEvent(self, event, ...)
