@@ -1,6 +1,6 @@
 local addon, nPlates = ...
 
-local playerFaction, _ = UnitFactionGroup("player")
+local englishFaction, localizedFaction = UnitFactionGroup("player")
 local _, playerClass = UnitClass("player")
 
 function nPlates_OnLoad(self)
@@ -167,7 +167,7 @@ hooksecurefunc("CompactUnitFrame_UpdateHealthColor", function(frame)
             local classColor = RAID_CLASS_COLORS[englishClass]
             local raidMarker = GetRaidTargetIndex(frame.displayedUnit)
 
-            if ( frame.optionTable.allowClassColorsForNPCs or UnitIsPlayer(frame.unit) and classColor and nPlates:UseClassColors(playerFaction, frame.displayedUnit) ) then
+            if ( frame.optionTable.allowClassColorsForNPCs or UnitIsPlayer(frame.unit) and classColor and nPlates:UseClassColors(englishFaction, frame.displayedUnit) ) then
                     r, g, b = classColor.r, classColor.g, classColor.b
             elseif ( CompactUnitFrame_IsTapDenied(frame) ) then
                 r, g, b = 0.1, 0.1, 0.1
