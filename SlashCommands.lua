@@ -1,7 +1,7 @@
 local addon, nPlates = ...
 
 local function ShowConfig()
-    if InterfaceOptionsFrame:IsShown() then
+    if ( InterfaceOptionsFrame:IsShown() ) then
         InterfaceOptionsFrame:Hide()
     else
         InterfaceOptionsFrame_OpenToCategory(nPlatesOptions)
@@ -9,11 +9,11 @@ local function ShowConfig()
     end
 end
 
-SlashCmdList["nplates"] = function(msg)
+local function nPlatesSlash(msg)
     if ( msg == "config") then
         ShowConfig()
     elseif ( msg == "reset" ) then
-        for _, v in pairs({
+        for _, setting in pairs({
             "nameplateGlobalScale",
             "nameplateMinAlpha",
             "namePlateMinScale",
@@ -24,8 +24,9 @@ SlashCmdList["nplates"] = function(msg)
             "nameplateShowEnemies"
         })
         do
-            C_CVar.SetCVar(v, GetCVarDefault(v))
+            C_CVar.SetCVar(setting, GetCVarDefault(setting))
         end
+
         nPlatesDB.SmallStacking = false
         nPlatesDB.CombatPlates = false
         nPlatesDB.DontClamp = false
@@ -34,4 +35,5 @@ SlashCmdList["nplates"] = function(msg)
         print("|cffCC3333n|rPlates Options\nConfig - Open ingame gui options.\nReset: Reset all cvar options to Blizzard defaults. "..REQUIRES_RELOAD)
     end
 end
-SLASH_nplates1 = "/nplates"
+
+RegisterNewSlashCommand(nPlatesSlash, "nplates", "np2")

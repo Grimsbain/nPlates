@@ -1,38 +1,114 @@
 local addon, nPlates = ...
 local L = nPlates.L
 
-local Options = CreateFrame("Frame", "nPlatesOptions", InterfaceOptionsFramePanelContainer)
-Options.name = GetAddOnMetadata(addon, "Title")
-Options.version = GetAddOnMetadata(addon, "Version")
-Options.default = function(self)
-    for setting, value in pairs(nPlates.defaultOptions) do
-        nPlatesDB[setting] = value
+-- Default Options
+
+nPlates.defaultOptions = {
+    ["NameSize"] =  10,
+    ["ShowLevel"] =  true,
+    ["ShowServerName"] =  false,
+    ["AbrrevLongNames"] =  true,
+    ["ShowPvP"] =  false,
+    ["ShowFriendlyClassColors"] =  true,
+    ["ShowEnemyClassColors"] =  true,
+    ["WhiteSelectionColor"] =  false,
+    ["RaidMarkerColoring"] =  false,
+    ["FelExplosives"] =  true,
+    ["FelExplosivesColor"] =  { r = 197/255, g = 1, b = 0},
+    ["ShowExecuteRange"] =  false,
+    ["ExecuteValue"] =  35,
+    ["ExecuteColor"] =  { r = 0, g = 71/255, b = 126/255},
+    ["CurrentHealthOption"] =  2,
+    ["HideFriendly"] =  false,
+    ["SmallStacking"] =  false,
+    ["DontClamp"] =  false,
+    ["CombatPlates"] =  false,
+    ["TankMode"] =  false,
+    ["ColorNameByThreat"] =  false,
+    ["UseOffTankColor"] =  false,
+    ["OffTankColor"] =  { r = 0.60, g = 0.20, b = 1.0},
+}
+
+
+nPlatesConfigMixin = {}
+
+function nPlatesConfigMixin:OnLoad()
+    self:RegisterEvent("VARIABLES_LOADED")
+
+    self.prevControl = nil
+    self.controls = {}
+    self.profileBackup = {}
+
+    self.name = GetAddOnMetadata(addon, "Title")
+    self.version = GetAddOnMetadata(addon, "Version")
+    self.okay = self.SaveChanges
+    self.cancel = self.CancelChanges
+    self.default = self.RestoreDefaults
+    self.refresh = self.UpdatePanel
+    InterfaceOptions_AddCategory(self)
+end
+
+function nPlatesConfigMixin:OnEvent(event, ...)
+    if ( event == "VARIABLES_LOADED") then
+        self:Init()
+        self:SaveProfileBackup()
+        self:UnregisterEvent(event)
+    end
+end
+
+function nPlatesConfigMixin:SaveProfileBackup()
+    self.profileBackup = CopyTable(nPlatesDB)
+end
+
+function nPlatesConfigMixin:SaveChanges()
+    for _, control in pairs(self.controls) do
+        if ( self:ShouldUpdate(control) ) then
+            self.profileBackup[control.optionName] = control:GetValue()
+        end
+    end
+end
+
+function nPlatesConfigMixin:ShouldUpdate(control)
+    local oldValue = self.profileBackup[control.optionName]
+    local value = control:GetValue()
+
+    return oldValue ~= value
+end
+
+function nPlatesConfigMixin:CancelChanges()
+    for _, control in pairs(self.controls) do
+        if ( self:ShouldUpdate(control) ) then
+            nPlatesDB[control.optionName] = self.profileBackup[control.optionName]
+            control:Update()
+        end
+    end
+end
+
+function nPlatesConfigMixin:RestoreDefaults()
+    for _, control in pairs(self.controls) do
+        nPlatesDB[control.optionName] = nPlates.defaultOptions[control.optionName]
+        control:Update()
     end
     ReloadUI()
 end
-InterfaceOptions_AddCategory(Options)
 
-Options:Hide()
-Options:SetScript("OnShow", function()
-    local panelWidth = Options:GetWidth()/2
+function nPlatesConfigMixin:UpdatePanel()
+    for _, control in pairs(self.controls) do
+        if ( control.SetControl ) then
+            control:SetControl()
+        end
+    end
+end
 
-    local LeftSide = CreateFrame("Frame", "LeftSide", Options)
-    LeftSide:SetHeight(Options:GetHeight())
-    LeftSide:SetWidth(panelWidth)
-    LeftSide:SetPoint("TOPLEFT", Options)
-
-    local RightSide = CreateFrame("Frame", "RightSide", Options)
-    RightSide:SetHeight(Options:GetHeight())
-    RightSide:SetWidth(panelWidth)
-    RightSide:SetPoint("TOPRIGHT", Options)
+function nPlatesConfigMixin:Init()
 
     local UIControls = {
         {
             type = "Label",
             name = "NameOptions",
-            parent = Options,
-            label = L.NameOptionsLabel,
-            relativeTo = LeftSide,
+            parent = self,
+            text = L.NameOptionsLabel,
+            relativeTo = self.LeftSide,
             relativePoint = "TOPLEFT",
             offsetX = 16,
             offsetY = -16,
@@ -40,9 +116,9 @@ Options:SetScript("OnShow", function()
         {
             type = "Slider",
             name = "currentNameSize",
-            parent = Options,
+            parent = self,
             label = L.NameSizeLabel,
-            var = "NameSize",
+            optionName = "NameSize",
             fromatString = "%.0f",
             minValue = 8,
             maxValue = 35,
@@ -52,106 +128,106 @@ Options:SetScript("OnShow", function()
         {
             type = "CheckBox",
             name = "ShowLevel",
-            parent = Options,
-            label = L.DisplayLevel,
-            var = "ShowLevel",
+            parent = self,
+            text = L.DisplayLevel,
+            optionName = "ShowLevel",
             updateAll = true,
         },
         {
             type = "CheckBox",
             name = "ShowServerName",
-            parent = Options,
-            label = L.DisplayServerName,
-            var = "ShowServerName",
+            parent = self,
+            text = L.DisplayServerName,
+            optionName = "ShowServerName",
             updateAll = true,
         },
         {
             type = "CheckBox",
             name = "AbrrevLongNames",
-            parent = Options,
-            label = L.AbbrevName,
-            var = "AbrrevLongNames",
+            parent = self,
+            text = L.AbbrevName,
+            optionName = "AbrrevLongNames",
             updateAll = true,
         },
         {
             type = "CheckBox",
             name = "ShowPvP",
-            parent = Options,
-            label = L.ShowPvP,
-            var = "ShowPvP",
+            parent = self,
+            text = L.ShowPvP,
+            optionName = "ShowPvP",
             updateAll = true,
         },
         {
             type = "Label",
             name = "ColoringOptions",
-            parent = Options,
-            label = L.ColoringOptionsLabel,
+            parent = self,
+            text = L.ColoringOptionsLabel,
             offsetY = -18,
         },
         {
             type = "CheckBox",
             name = "ShowFriendlyClassColors",
-            parent = Options,
-            label = L.FriendlyClassColors,
-            var = "ShowFriendlyClassColors",
+            parent = self,
+            text = L.FriendlyClassColors,
+            optionName = "ShowFriendlyClassColors",
             updateAll = true,
         },
         {
             type = "CheckBox",
             name = "ShowEnemyClassColors",
-            parent = Options,
-            label = L.EnemyClassColors,
-            var = "ShowEnemyClassColors",
+            parent = self,
+            text = L.EnemyClassColors,
+            optionName = "ShowEnemyClassColors",
             updateAll = true,
         },
         {
             type = "CheckBox",
             name = "WhiteSelectionColor",
-            parent = Options,
-            label = L.WhiteSelectionColor,
-            var = "WhiteSelectionColor",
+            parent = self,
+            text = L.WhiteSelectionColor,
+            optionName = "WhiteSelectionColor",
             updateAll = true,
         },
         {
             type = "CheckBox",
             name = "RaidMarkerColoring",
-            parent = Options,
-            label = L.RaidMarkerColoring,
-            var = "RaidMarkerColoring",
+            parent = self,
+            text = L.RaidMarkerColoring,
+            optionName = "RaidMarkerColoring",
             updateAll = true,
         },
         {
             type = "CheckBox",
             name = "FelExplosives",
-            parent = Options,
-            label = L.FelExplosivesColor,
-            var = "FelExplosives",
+            parent = self,
+            text = L.FelExplosivesColor,
+            optionName = "FelExplosives",
             updateAll = true,
             colorPicker = {
                 name = "FelExplosivesColorPicker",
-                parent = Options,
-                var = "FelExplosivesColor",
+                parent = self,
+                optionName = "FelExplosivesColor",
             }
         },
         {
             type = "CheckBox",
             name = "ShowExecuteRange",
-            parent = Options,
-            label = L.ExecuteRange,
-            var = "ShowExecuteRange",
+            parent = self,
+            text = L.ExecuteRange,
+            optionName = "ShowExecuteRange",
             updateAll = true,
             colorPicker = {
                 name = "ExecuteColorPicker",
-                parent = Options,
-                var = "ExecuteColor",
+                parent = self,
+                optionName = "ExecuteColor",
             }
         },
         {
             type = "Slider",
             name = "ExecuteSlider",
-            parent = Options,
+            parent = self,
             label = COMPACT_UNIT_FRAME_PROFILE_HEALTHTEXT_PERC,
-            var = "ExecuteValue",
+            optionName = "ExecuteValue",
             fromatString = PERCENTAGE_STRING,
             minValue = 0,
             maxValue = 35,
@@ -169,9 +245,9 @@ Options:SetScript("OnShow", function()
         {
             type = "Label",
             name = "FrameOptions",
-            parent = Options,
-            label = L.FrameOptionsLabel,
-            relativeTo = RightSide,
+            parent = self,
+            text = L.FrameOptionsLabel,
+            relativeTo = self.RightSide,
             relativePoint = "TOPLEFT",
             offsetX = 16,
             offsetY = -16,
@@ -179,9 +255,10 @@ Options:SetScript("OnShow", function()
         {
             type = "Dropdown",
             name = "HealthText",
-            parent = Options,
-            label = "",
-            var = "CurrentHealthOption",
+            parent = self,
+            label = L.HealthOptions,
+            optionName = "CurrentHealthOption",
+            offsetX = -20,
             updateAll = true,
             optionsTable = {
                 ["HealthDisabled"] = L.HealthDisabled,
@@ -190,22 +267,23 @@ Options:SetScript("OnShow", function()
                 ["HealthPercOnly"] = L.HealthPercOnly,
             },
         },
-        {
-            type = "CheckBox",
-            name = "HideFriendly",
-            parent = Options,
-            label = L.HideFriendly,
-            var = "HideFriendly",
-            updateAll = true,
-        },
+        -- {
+        --     type = "CheckBox",
+        --     name = "HideFriendly",
+        --     parent = self,
+        --     text = L.HideFriendly,
+        --     optionName = "HideFriendly",
+        --     updateAll = true,
+        -- },
         {
             type = "CheckBox",
             name = "SmallStacking",
-            parent = Options,
-            label = L.SmallStacking,
-            tooltip = L.SmallStackingTooltip,
-            var = "SmallStacking",
+            parent = self,
+            text = L.SmallStacking,
+            tooltipText = L.SmallStackingTooltip,
+            optionName = "SmallStacking",
             disableInCombat = true,
+            offsetX = 20,
             func = function(self)
                 if ( self:GetChecked() ) then
                     C_CVar.SetCVar("nameplateOverlapH", 0.8)
@@ -220,10 +298,10 @@ Options:SetScript("OnShow", function()
         {
             type = "CheckBox",
             name = "CombatPlates",
-            parent = Options,
-            label = L.CombatPlates,
-            tooltip = L.CombatPlatesTooltip,
-            var = "CombatPlates",
+            parent = self,
+            text = L.CombatPlates,
+            tooltipText = L.CombatPlatesTooltip,
+            optionName = "CombatPlates",
             disableInCombat = true,
             func = function(self)
                 C_CVar.SetCVar("nameplateShowEnemies", not self:GetChecked() and 1 or 0)
@@ -233,9 +311,9 @@ Options:SetScript("OnShow", function()
         {
             type = "CheckBox",
             name = "DontClamp",
-            parent = Options,
-            label = L.StickyNameplates,
-            var = "DontClamp",
+            parent = self,
+            text = L.StickyNameplates,
+            optionName = "DontClamp",
             disableInCombat = true,
             func = function(self)
                 if ( not self:GetChecked() ) then
@@ -251,12 +329,12 @@ Options:SetScript("OnShow", function()
         {
             type = "Slider",
             name = "NameplateScale",
-            parent = Options,
+            parent = self,
             label = L.NameplateScale,
             disableInCombat = true,
             isCvar = true,
             multiplier = 100,
-            var = "nameplateGlobalScale",
+            optionName = "nameplateGlobalScale",
             fromatString = PERCENTAGE_STRING,
             minValue = .75,
             maxValue = 1.5,
@@ -265,12 +343,12 @@ Options:SetScript("OnShow", function()
         {
             type = "Slider",
             name = "NameplateAlpha",
-            parent = Options,
+            parent = self,
             label = L.NameplateAlpha,
             disableInCombat = true,
             isCvar = true,
             multiplier = 100,
-            var = "nameplateMinAlpha",
+            optionName = "nameplateMinAlpha",
             fromatString = PERCENTAGE_STRING,
             minValue = .50,
             maxValue = 1.0,
@@ -279,11 +357,11 @@ Options:SetScript("OnShow", function()
         {
             type = "Slider",
             name = "NameplateRange",
-            parent = Options,
+            parent = self,
             label = L.NameplateRange,
             disableInCombat = true,
             isCvar = true,
-            var = "nameplateMaxDistance",
+            optionName = "nameplateMaxDistance",
             fromatString = "%.0f",
             minValue = 40,
             maxValue = 60,
@@ -292,47 +370,47 @@ Options:SetScript("OnShow", function()
         {
             type = "Label",
             name = "TankOptions",
-            parent = Options,
-            label = L.TankOptionsLabel,
+            parent = self,
+            text = L.TankOptionsLabel,
             offsetX = -10,
             offsetY = -16,
         },
         {
             type = "CheckBox",
             name = "TankMode",
-            parent = Options,
-            label = L.TankMode,
-            var = "TankMode",
+            parent = self,
+            text = L.TankMode,
+            optionName = "TankMode",
             updateAll = true,
             offsetX = 10,
         },
         {
             type = "CheckBox",
             name = "ColorNameByThreat",
-            parent = Options,
-            label = L.NameThreat,
-            var = "ColorNameByThreat",
+            parent = self,
+            text = L.NameThreat,
+            optionName = "ColorNameByThreat",
             updateAll = true,
         },
         {
             type = "CheckBox",
             name = "UseOffTankColor",
-            parent = Options,
-            label = L.OffTankColor,
-            var = "UseOffTankColor",
+            parent = self,
+            text = L.OffTankColor,
+            optionName = "UseOffTankColor",
             updateAll = true,
             colorPicker = {
                 name = "OffTankColorPicker",
-                parent = Options,
-                var = "OffTankColor",
+                parent = self,
+                optionName = "OffTankColor",
             }
         },
         {
             type = "Label",
             name = "AddonTitle",
-            parent = Options,
-            label = Options.name.." "..Options.version,
-            relativeTo = RightSide,
+            parent = self,
+            text = self.name.." "..self.version,
+            relativeTo = self.RightSide,
             initialPoint = "BOTTOMRIGHT",
             relativePoint = "BOTTOMRIGHT",
             offsetX = -16,
@@ -340,26 +418,17 @@ Options:SetScript("OnShow", function()
         },
     }
 
-    for i, control in pairs(UIControls) do
-        if control.type == "Label" then
+    for _, control in pairs(UIControls) do
+        if ( control.type == "Label" ) then
             nPlates:CreateLabel(control)
-        elseif control.type == "CheckBox" then
+        elseif ( control.type == "CheckBox" ) then
             nPlates:CreateCheckBox(control)
-        elseif control.type == "Slider" then
+        elseif ( control.type == "Slider" ) then
             nPlates:CreateSlider(control)
-        elseif control.type == "Dropdown" then
+        elseif ( control.type == "Dropdown" ) then
             nPlates:CreateDropdown(control)
         end
     end
 
-    function Options:Refresh()
-        for _, control in pairs(self.controls) do
-            if control.SetControl then
-                control:SetControl()
-            end
-        end
-    end
-
-    Options:Refresh()
-    Options:SetScript("OnShow", nil)
-end)
+    self:UpdatePanel()
+end

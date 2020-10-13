@@ -1,10 +1,12 @@
-## Interface: 80300
+## Interface: 90001
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates for NeavUI.
 ## Author: Grimsbain
-## Version: 2.69
+## Version: 2.70
 ## SavedVariablesPerCharacter: nPlatesDB
 ## RequiredDeps: Blizzard_NamePlates
 ## LoadWith: Blizzard_NamePlates
 
+Libs\LibStub\LibStub.lua
+Libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
 nPlates.xml

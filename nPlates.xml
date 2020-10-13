@@ -1,15 +1,16 @@
 <Ui>
-    <Include file="fonts.xml" />
-    <Script file="localization.lua" />
-    <Script file="func.lua" />
-    <Script file="config.lua" />
-    <Script file="core.lua" />
-    <Script file="slash.lua" />
+    <Script file="Localization.lua"/>
 
-    <Frame name="nPlates">
+    <Include file="Fonts.xml"/>
+    <Include file="Settings.xml"/>
+    <Script file="Functions.lua"/>
+    <Script file="Core.lua"/>
+    <Script file="SlashCommands.lua"/>
+
+    <Frame name="nPlatesDriver" mixin="nPlatesMixin">
         <Scripts>
-            <OnLoad function="nPlates_OnLoad" />
-            <OnEvent function="nPlates_OnEvent" />
+            <OnLoad method="OnLoad"/>
+            <OnEvent method="OnEvent"/>
         </Scripts>
     </Frame>
 </Ui>

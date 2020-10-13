@@ -3,10 +3,11 @@ local addon, nPlates = ...
 local englishFaction, localizedFaction = UnitFactionGroup("player")
 local _, playerClass = UnitClass("player")
 
-function nPlates_OnLoad(self)
+nPlatesMixin = {}
+
+function nPlatesMixin:OnLoad()
     local events = {
         "ADDON_LOADED",
-        "NAME_PLATE_CREATED",
         "NAME_PLATE_UNIT_ADDED",
         "PLAYER_TARGET_CHANGED",
         "PLAYER_REGEN_DISABLED",
@@ -18,7 +19,7 @@ function nPlates_OnLoad(self)
     FrameUtil.RegisterFrameForEvents(self, events)
 end
 
-function nPlates_OnEvent(self, event, ...)
+function nPlatesMixin:OnEvent(event, ...)
     if ( event == "ADDON_LOADED" ) then
         local name = ...
         if ( name == "nPlates" ) then
@@ -26,10 +27,6 @@ function nPlates_OnEvent(self, event, ...)
             nPlates:CVarCheck()
             self:UnregisterEvent(event)
         end
-    elseif ( event == "NAME_PLATE_CREATED" ) then
-        local nameplate = ...
-        nPlates:AddHealthbarText(nameplate)
-        nameplate.UnitFrame.isNameplate = true
     elseif ( event == "NAME_PLATE_UNIT_ADDED" ) then
         local unit = ...
         nPlates:FixPlayerBorder(unit)
@@ -115,9 +112,14 @@ end
     -- Updated Health Text
 
 hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
-    if ( frame:IsForbidden() ) then return end
-    if ( not frame.healthBar.value ) then
+    if ( frame:IsForbidden() ) then
         return
+    end
+
+    if ( not frame.healthBar.value ) then
+        frame.healthBar.value = frame.healthBar:CreateFontString("$parentHeathValue", "OVERLAY")
+        frame.healthBar.value:SetPoint("CENTER", frame.healthBar)
+        frame.healthBar.value:SetFontObject("nPlate_NameFont10")
     end
 
     local option = nPlatesDB.CurrentHealthOption
@@ -127,7 +129,7 @@ hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
         local maxHealth = UnitHealthMax(frame.displayedUnit)
         local perc = math.floor(100 * (health/maxHealth))
 
-        if ( health > 5 ) then
+        if ( health > 0 ) then
             if ( option == "HealthBoth" and perc >= 100 ) then
                 frame.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
             elseif ( option == "HealthBoth" ) then
@@ -253,18 +255,18 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
 
         -- Hide Friendly Nameplates
 
-    if ( nPlatesDB.HideFriendly ) then
-        if ( UnitIsFriend(frame.displayedUnit, "player") and not
-             UnitCanAttack(frame.displayedUnit, "player") and not
-             UnitIsUnit(frame.displayedUnit, "player")
-        ) then
-            frame.healthBar:Hide()
-        else
-            frame.healthBar:Show()
-        end
-    else
-        frame.healthBar:Show()
-    end
+    -- if ( nPlatesDB.HideFriendly ) then
+    --     if ( UnitIsFriend(frame.displayedUnit, "player") and
+    --          not UnitCanAttack(frame.displayedUnit, "player") and
+    --          not UnitIsUnit(frame.displayedUnit, "player")
+    --     ) then
+    --         frame.healthBar:Hide()
+    --     else
+    --         frame.healthBar:Show()
+    --     end
+    -- else
+    --     frame.healthBar:Show()
+    -- end
 
     if ( not ShouldShowName(frame) ) then
         frame.name:Hide()
@@ -285,17 +287,20 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
             frame.name:SetTextColor(r, g, b)
         end
 
+        local name, server = UnitName(frame.displayedUnit)
+
             -- Shorten Long Names
 
-        local name, realm = UnitName(frame.displayedUnit) or UNKNOWN
-
-        if ( nPlatesDB.ShowServerName ) then
-            if realm then
-                name = name.." - "..realm
-            end
-        end
         if ( nPlatesDB.AbrrevLongNames ) then
             name = nPlates:Abbrev(name, 20)
+        end
+
+            -- Server Name
+
+        if ( nPlatesDB.ShowServerName ) then
+            if ( server ) then
+                name = name.." - "..server
+            end
         end
 
             -- Level
