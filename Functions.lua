@@ -79,34 +79,6 @@ function nPlates:FormatTime(seconds)
     return floor(seconds), seconds - floor(seconds)
 end
 
-    -- Set Defaults
-
--- nPlates.defaultOptions = {
---     ["NameSize"] =  10,
---     ["ShowLevel"] =  true,
---     ["ShowServerName"] =  false,
---     ["AbrrevLongNames"] =  true,
---     ["ShowPvP"] =  false,
---     ["ShowFriendlyClassColors"] =  true,
---     ["ShowEnemyClassColors"] =  true,
---     ["WhiteSelectionColor"] =  false,
---     ["RaidMarkerColoring"] =  false,
---     ["FelExplosives"] =  true,
---     ["FelExplosivesColor"] =  { r = 197/255, g = 1, b = 0},
---     ["ShowExecuteRange"] =  false,
---     ["ExecuteValue"] =  35,
---     ["ExecuteColor"] =  { r = 0, g = 71/255, b = 126/255},
---     ["CurrentHealthOption"] =  2,
---     ["HideFriendly"] =  false,
---     ["SmallStacking"] =  false,
---     ["DontClamp"] =  false,
---     ["CombatPlates"] =  false,
---     ["TankMode"] =  false,
---     ["ColorNameByThreat"] =  false,
---     ["UseOffTankColor"] =  false,
---     ["OffTankColor"] =  { r = 0.60, g = 0.20, b = 1.0},
--- }
-
 function nPlates:RegisterDefaultSetting(key, value)
     if ( nPlatesDB == nil ) then
         nPlatesDB = {}
@@ -335,8 +307,6 @@ function nPlates:UpdateBuffFrameAnchorsByUnit(unit)
     if ( not frame or frame:IsForbidden() ) then
         return
     end
-
-    frame.UnitFrame.isNameplate = true
 
     local BuffFrame = frame.UnitFrame.BuffFrame
 

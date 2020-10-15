@@ -31,6 +31,9 @@ function nPlatesMixin:OnEvent(event, ...)
         local unit = ...
         nPlates:FixPlayerBorder(unit)
         nPlates:UpdateBuffFrameAnchorsByUnit(unit)
+
+        local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
+        nameplate.UnitFrame.isNameplate = true
     elseif ( event == "PLAYER_TARGET_CHANGED" ) then
         nPlates:UpdateAllBuffFrameAnchors()
     elseif ( event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" ) then
@@ -112,9 +115,8 @@ end
     -- Updated Health Text
 
 hooksecurefunc("CompactUnitFrame_UpdateStatusText", function(frame)
-    if ( frame:IsForbidden() ) then
-        return
-    end
+    if ( frame:IsForbidden() ) then return end
+    if ( frame.statusText ) then return end
 
     if ( not frame.healthBar.value ) then
         frame.healthBar.value = frame.healthBar:CreateFontString("$parentHeathValue", "OVERLAY")
