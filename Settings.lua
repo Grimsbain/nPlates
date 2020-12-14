@@ -267,14 +267,6 @@ function nPlatesConfigMixin:Init()
                 ["HealthPercOnly"] = L.HealthPercOnly,
             },
         },
-        -- {
-        --     type = "CheckBox",
-        --     name = "HideFriendly",
-        --     parent = self,
-        --     text = L.HideFriendly,
-        --     optionName = "HideFriendly",
-        --     updateAll = true,
-        -- },
         {
             type = "CheckBox",
             name = "SmallStacking",

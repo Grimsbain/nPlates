@@ -255,21 +255,6 @@ hooksecurefunc("CompactUnitFrame_UpdateName", function(frame)
     if ( frame:IsForbidden() ) then return end
     if ( not frame.isNameplate ) then return end
 
-        -- Hide Friendly Nameplates
-
-    -- if ( nPlatesDB.HideFriendly ) then
-    --     if ( UnitIsFriend(frame.displayedUnit, "player") and
-    --          not UnitCanAttack(frame.displayedUnit, "player") and
-    --          not UnitIsUnit(frame.displayedUnit, "player")
-    --     ) then
-    --         frame.healthBar:Hide()
-    --     else
-    --         frame.healthBar:Show()
-    --     end
-    -- else
-    --     frame.healthBar:Show()
-    -- end
-
     if ( not ShouldShowName(frame) ) then
         frame.name:Hide()
     else
