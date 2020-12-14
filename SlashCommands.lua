@@ -18,7 +18,6 @@ local function nPlatesSlash(msg)
             "nameplateMinAlpha",
             "namePlateMinScale",
             "namePlateMaxScale",
-            "nameplateMaxDistance",
             "nameplateOtherTopInset",
             "nameplateOtherBottomInset",
             "nameplateShowEnemies"
