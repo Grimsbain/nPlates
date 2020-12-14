@@ -215,6 +215,12 @@ end
     -- Check if class colors should be used.
 
 function nPlates:UseClassColors(playerFaction, unit)
+    local inArena = IsActiveBattlefieldArena()
+
+    if ( inArena and nPlatesDB.ShowEnemyClassColors ) then
+        return true
+    end
+
     local targetFaction, _ = UnitFactionGroup(unit)
     return ( playerFaction == targetFaction and nPlatesDB.ShowFriendlyClassColors) or ( playerFaction ~= targetFaction and nPlatesDB.ShowEnemyClassColors )
 end

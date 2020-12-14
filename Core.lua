@@ -361,7 +361,7 @@ hooksecurefunc("DefaultCompactNamePlateFrameSetup", function(frame, options)
 
         -- Castbar
 
-    frame.castBar:SetHeight(12)
+    frame.castBar:SetHeight(10)
     frame.castBar:SetStatusBarTexture(nPlates.statusBar)
 
         -- Castbar Border
@@ -415,11 +415,11 @@ hooksecurefunc("DefaultCompactNamePlateFrameAnchorInternal", function(frame, set
 
         -- Healthbar
 
-    frame.healthBar:SetHeight(12)
+    frame.healthBar:SetHeight(10)
 
     if ( setupOptions.healthBarAlpha ~= 1 ) then
-        frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4.2)
-        frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4.2)
+        frame.healthBar:SetPoint("BOTTOMLEFT", frame.castBar, "TOPLEFT", 0, 4)
+        frame.healthBar:SetPoint("BOTTOMRIGHT", frame.castBar, "TOPRIGHT", 0, 4)
     end
 
         -- Castbar
