@@ -1,4 +1,4 @@
-local addon, nPlates = ...
+local _, nPlates = ...
 local L = nPlates.L
 
 local len = string.len
@@ -79,6 +79,8 @@ function nPlates:FormatTime(seconds)
     return floor(seconds), seconds - floor(seconds)
 end
 
+    -- Setup Setings
+
 function nPlates:RegisterDefaultSetting(key, value)
     if ( nPlatesDB == nil ) then
         nPlatesDB = {}
@@ -88,24 +90,22 @@ function nPlates:RegisterDefaultSetting(key, value)
     end
 end
 
+local oldHealthOptions = {
+    [1] = "HealthDisable",
+    [2] = "HealthBoth",
+    [3] = "HealthValueOnly",
+    [4] = "HealthPercOnly",
+}
+
 function nPlates:SetDefaultOptions()
     for setting, value in pairs(nPlates.defaultOptions) do
         nPlates:RegisterDefaultSetting(setting, value)
     end
 
     local currentHealthOption = nPlatesDB["CurrentHealthOption"]
-    if type(currentHealthOption) == "number" then
-        if currentHealthOption == 1 then
-            currentHealthOption = "HealthDisable"
-        elseif currentHealthOption == 2 then
-            currentHealthOption = "HealthBoth"
-        elseif currentHealthOption == 3 then
-            currentHealthOption = "HealthValueOnly"
-        elseif currentHealthOption == 4 then
-            currentHealthOption = "HealthPercOnly"
-        end
 
-        nPlatesDB["CurrentHealthOption"] = currentHealthOption
+    if ( type(currentHealthOption) == "number" ) then
+        nPlatesDB["CurrentHealthOption"] = oldHealthOptions[currentHealthOption]
     end
 end
 
@@ -136,7 +136,8 @@ function nPlates:CVarCheck()
 
         -- Set small stacking nameplates.
         if ( nPlatesDB.SmallStacking ) then
-            C_CVar.SetCVar("nameplateOverlapH", 1.1) C_CVar.SetCVar("nameplateOverlapV", 0.9)
+            C_CVar.SetCVar("nameplateOverlapH", 1.1)
+            C_CVar.SetCVar("nameplateOverlapV", 0.9)
         else
             for _, v in pairs({"nameplateOverlapH", "nameplateOverlapV"}) do
                 C_CVar.SetCVar(v, GetCVarDefault(v))
@@ -145,7 +146,7 @@ function nPlates:CVarCheck()
     end
 end
 
-    -- Force Nameplate Update
+    -- Update All Nameplates
 
 function nPlates:UpdateAllNameplates()
     for _, frame in ipairs(C_NamePlate.GetNamePlates(issecure())) do
@@ -153,6 +154,24 @@ function nPlates:UpdateAllNameplates()
             CompactUnitFrame_UpdateAll(frame.UnitFrame)
         end
     end
+end
+
+    -- Update Single Nameplate
+
+function nPlates:UpdateNameplate(namePlateFrameBase)
+    local unitFrame = namePlateFrameBase.UnitFrame
+
+    unitFrame.isNameplate = true
+
+    nPlates.UpdateName(unitFrame)
+end
+
+    -- Setup Nameplate Hooks
+
+function nPlates:SetupNameplate(namePlateFrameBase)
+    hooksecurefunc(namePlateFrameBase, "ApplyOffsets", function(frame)
+        nPlates:UpdateBuffFrameAnchorsByFrame(frame.UnitFrame)
+    end)
 end
 
     -- Check for Combat
@@ -170,7 +189,6 @@ function nPlates:UpdateNameSize(self)
 
     local size = nPlatesDB.NameSize or 10
     self.name:SetFontObject("nPlate_NameFont"..size)
-    self.name:SetShadowOffset(0.5, -0.5)
     self.name:SetJustifyV("BOTTOM")
 end
 
@@ -205,8 +223,8 @@ end
 function nPlates:UpdateRaidMarkerColoring()
     if ( not nPlatesDB.RaidMarkerColoring ) then return end
 
-    for i, frame in pairs(C_NamePlate.GetNamePlates(issecure())) do
-        if ( not frame or not frame:IsForbidden() ) then
+    for _, frame in pairs(C_NamePlate.GetNamePlates(issecure())) do
+        if ( not frame:IsForbidden() ) then
             CompactUnitFrame_UpdateHealthColor(frame.UnitFrame)
         end
     end
@@ -249,11 +267,16 @@ end
     -- Off Tank Color Checks
 
 function nPlates:UseOffTankColor(unit)
-    if ( nPlatesDB.UseOffTankColor and ( UnitPlayerOrPetInRaid(unit) or UnitPlayerOrPetInParty(unit) ) ) then
-        if ( not UnitIsUnit("player", unit) and PlayerIsTank("player") and PlayerIsTank(unit) ) then
+    if ( not nPlatesDB.UseOffTankColor or not PlayerIsTank("player") ) then
+        return
+    end
+
+    if ( UnitPlayerOrPetInRaid(unit) or UnitPlayerOrPetInParty(unit) ) then
+        if ( not UnitIsUnit("player", unit) and PlayerIsTank(unit) ) then
             return true
         end
     end
+
     return false
 end
 
@@ -274,7 +297,6 @@ end
 
 local moblist = {
     [L.FelExplosivesMobName] = true,
-    -- ["Dungeoneer's Training Dummy"] = true,
 }
 
 function nPlates:IsPriority(unit)
@@ -287,42 +309,24 @@ end
 
     -- Update BuffFrame Anchors
 
-function nPlates:UpdateAllBuffFrameAnchors()
-    for _, frame in pairs(C_NamePlate.GetNamePlates(issecure())) do
-        if ( not frame:IsForbidden() ) then
-            local BuffFrame = frame.UnitFrame.BuffFrame
+function nPlates:UpdateBuffFrameAnchorsByFrame(self)
+    if ( not self or self:IsForbidden() ) then
+        return
+    end
 
-            if ( frame.UnitFrame.displayedUnit and UnitShouldDisplayName(frame.UnitFrame.displayedUnit) ) then
-                BuffFrame.baseYOffset = frame.UnitFrame.name:GetHeight() + 1
-            elseif ( frame.UnitFrame.displayedUnit ) then
-                BuffFrame.baseYOffset = 0
+    if ( self.BuffFrame ) then
+        if ( self.displayedUnit and UnitShouldDisplayName(self.displayedUnit) ) then
+            if ( not nPlates:IsUsingLargerNamePlateStyle() ) then
+                self.BuffFrame.baseYOffset = self.name:GetHeight()-7
+            else
+                self.BuffFrame.baseYOffset = self.name:GetHeight()-28
             end
-
-            BuffFrame:UpdateAnchor()
+        elseif ( self.displayedUnit ) then
+            self.BuffFrame.baseYOffset = 0
         end
+
+        self.BuffFrame:UpdateAnchor()
     end
-end
-
-function nPlates:UpdateBuffFrameAnchorsByUnit(unit)
-    if ( not unit ) then
-        return
-    end
-
-    local frame = C_NamePlate.GetNamePlateForUnit(unit, issecure())
-
-    if ( not frame or frame:IsForbidden() ) then
-        return
-    end
-
-    local BuffFrame = frame.UnitFrame.BuffFrame
-
-    if ( frame.UnitFrame.displayedUnit and UnitShouldDisplayName(frame.UnitFrame.displayedUnit) ) then
-        BuffFrame.baseYOffset = frame.UnitFrame.name:GetHeight()+1
-    elseif ( frame.UnitFrame.displayedUnit ) then
-        BuffFrame.baseYOffset = 0
-    end
-
-    BuffFrame:UpdateAnchor()
 end
 
     -- Fixes the border when using the Personal Resource Display.
@@ -333,7 +337,9 @@ function nPlates:FixPlayerBorder(unit)
         return
     end
 
-    if ( not UnitIsUnit(unit, "player") ) then return end
+    if ( not UnitIsUnit(unit, "player") ) then
+        return
+    end
 
     local frame = C_NamePlate.GetNamePlateForUnit("player", issecure())
 
@@ -354,144 +360,157 @@ end
 
     -- Set Border
 
-function nPlates:SetBorder(frame)
-    if ( frame.beautyBorder ) then
+function nPlates:SetBorder(self)
+    if ( self.beautyBorder ) then
         return
     end
 
-    local objectType = frame:GetObjectType()
-    local padding = 2
+    local padding = 2.5
     local size = 8
     local space = size/3.5
+    local objectType = self:GetObjectType()
+    local textureParent = (objectType == "Frame" or objectType == "StatusBar" and self) or self:GetParent()
 
-    frame.beautyBorder = {}
-    frame.beautyShadow = {}
+    self.beautyBorder = {}
+    self.beautyShadow = {}
 
     for i = 1, 8 do
-        if ( objectType == "Frame" or objectType == "StatusBar" ) then
-            -- Border
-            frame.beautyBorder[i] = frame:CreateTexture("$parentBeautyBorder"..i, "OVERLAY")
-            frame.beautyBorder[i]:SetParent(frame)
-            -- Shadow
-            frame.beautyShadow[i] = frame:CreateTexture("$parentBeautyShadow"..i, "BORDER")
-            frame.beautyShadow[i]:SetParent(frame)
+        -- Border
+        self.beautyBorder[i] = textureParent:CreateTexture("$parentBeautyBorder"..i, "OVERLAY")
+        self.beautyBorder[i]:SetParent(textureParent)
 
-        elseif ( objectType == "Texture") then
-            local frameParent = frame:GetParent()
+        self.beautyBorder[i]:SetTexture(nPlates.border)
+        self.beautyBorder[i]:SetSize(size, size)
+        self.beautyBorder[i]:SetVertexColor(nPlates.defaultBorderColor:GetRGB())
+        self.beautyBorder[i]:ClearAllPoints()
 
-            -- Border
-            frame.beautyBorder[i] = frameParent:CreateTexture("$parentBeautyBorder"..i, "OVERLAY")
-            frame.beautyBorder[i]:SetParent(frameParent)
+        -- Shadow
+        self.beautyShadow[i] = textureParent:CreateTexture("$parentBeautyShadow"..i, "BORDER")
+        self.beautyShadow[i]:SetParent(textureParent)
 
-            -- Shadow
-            frame.beautyShadow[i] = frameParent:CreateTexture("$parentBeautyShadow"..i, "BORDER")
-            frame.beautyShadow[i]:SetParent(frameParent)
-        end
+        self.beautyShadow[i]:SetTexture(nPlates.shadow)
+        self.beautyShadow[i]:SetSize(size, size)
+        self.beautyShadow[i]:SetVertexColor(0, 0, 0, 1)
+        self.beautyShadow[i]:ClearAllPoints()
     end
 
-    for _, texture in ipairs(frame.beautyBorder) do
-        texture:SetTexture(nPlates.border)
-        texture:SetSize(size, size)
-        texture:SetVertexColor(nPlates.defaultBorderColor:GetRGB())
-        texture:ClearAllPoints()
-    end
+    -- TOPLEFT
+    self.beautyBorder[1]:SetTexCoord(0, 1/3, 0, 1/3)
+    self.beautyBorder[1]:SetPoint("TOPLEFT", self, -padding, padding)
+    -- TOPRIGHT
+    self.beautyBorder[2]:SetTexCoord(2/3, 1, 0, 1/3)
+    self.beautyBorder[2]:SetPoint("TOPRIGHT", self, padding, padding)
+    -- BOTTOMLEFT
+    self.beautyBorder[3]:SetTexCoord(0, 1/3, 2/3, 1)
+    self.beautyBorder[3]:SetPoint("BOTTOMLEFT", self, -padding, -padding)
+    -- BOTTOMRIGHT
+    self.beautyBorder[4]:SetTexCoord(2/3, 1, 2/3, 1)
+    self.beautyBorder[4]:SetPoint("BOTTOMRIGHT", self, padding, -padding)
+    -- TOP
+    self.beautyBorder[5]:SetTexCoord(1/3, 2/3, 0, 1/3)
+    self.beautyBorder[5]:SetPoint("TOPLEFT", self.beautyBorder[1], "TOPRIGHT")
+    self.beautyBorder[5]:SetPoint("TOPRIGHT", self.beautyBorder[2], "TOPLEFT")
+    -- BOTTOM
+    self.beautyBorder[6]:SetTexCoord(1/3, 2/3, 2/3, 1)
+    self.beautyBorder[6]:SetPoint("BOTTOMLEFT", self.beautyBorder[3], "BOTTOMRIGHT")
+    self.beautyBorder[6]:SetPoint("BOTTOMRIGHT", self.beautyBorder[4], "BOTTOMLEFT")
+    -- LEFT
+    self.beautyBorder[7]:SetTexCoord(0, 1/3, 1/3, 2/3)
+    self.beautyBorder[7]:SetPoint("TOPLEFT", self.beautyBorder[1], "BOTTOMLEFT")
+    self.beautyBorder[7]:SetPoint("BOTTOMLEFT", self.beautyBorder[3], "TOPLEFT")
+    -- RIGHT
+    self.beautyBorder[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
+    self.beautyBorder[8]:SetPoint("TOPRIGHT", self.beautyBorder[2], "BOTTOMRIGHT")
+    self.beautyBorder[8]:SetPoint("BOTTOMRIGHT", self.beautyBorder[4], "TOPRIGHT")
 
-    for _, texture in ipairs(frame.beautyShadow) do
-        texture:SetTexture(nPlates.shadow)
-        texture:SetSize(size, size)
-        texture:SetVertexColor(0, 0, 0, 1)
-        texture:ClearAllPoints()
-    end
-
-    frame.beautyBorder[1]:SetTexCoord(0, 1/3, 0, 1/3)
-    frame.beautyBorder[1]:SetPoint("TOPLEFT", frame, -padding, padding)
-
-    frame.beautyBorder[2]:SetTexCoord(2/3, 1, 0, 1/3)
-    frame.beautyBorder[2]:SetPoint("TOPRIGHT", frame, padding, padding)
-
-    frame.beautyBorder[3]:SetTexCoord(0, 1/3, 2/3, 1)
-    frame.beautyBorder[3]:SetPoint("BOTTOMLEFT", frame, -padding, -padding)
-
-    frame.beautyBorder[4]:SetTexCoord(2/3, 1, 2/3, 1)
-    frame.beautyBorder[4]:SetPoint("BOTTOMRIGHT", frame, padding, -padding)
-
-    frame.beautyBorder[5]:SetTexCoord(1/3, 2/3, 0, 1/3)
-    frame.beautyBorder[5]:SetPoint("TOPLEFT", frame.beautyBorder[1], "TOPRIGHT")
-    frame.beautyBorder[5]:SetPoint("TOPRIGHT", frame.beautyBorder[2], "TOPLEFT")
-
-    frame.beautyBorder[6]:SetTexCoord(1/3, 2/3, 2/3, 1)
-    frame.beautyBorder[6]:SetPoint("BOTTOMLEFT", frame.beautyBorder[3], "BOTTOMRIGHT")
-    frame.beautyBorder[6]:SetPoint("BOTTOMRIGHT", frame.beautyBorder[4], "BOTTOMLEFT")
-
-    frame.beautyBorder[7]:SetTexCoord(0, 1/3, 1/3, 2/3)
-    frame.beautyBorder[7]:SetPoint("TOPLEFT", frame.beautyBorder[1], "BOTTOMLEFT")
-    frame.beautyBorder[7]:SetPoint("BOTTOMLEFT", frame.beautyBorder[3], "TOPLEFT")
-
-    frame.beautyBorder[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
-    frame.beautyBorder[8]:SetPoint("TOPRIGHT", frame.beautyBorder[2], "BOTTOMRIGHT")
-    frame.beautyBorder[8]:SetPoint("BOTTOMRIGHT", frame.beautyBorder[4], "TOPRIGHT")
-
-    frame.beautyShadow[1]:SetTexCoord(0, 1/3, 0, 1/3)
-    frame.beautyShadow[1]:SetPoint("TOPLEFT", frame, -padding-space, padding+space)
-
-    frame.beautyShadow[2]:SetTexCoord(2/3, 1, 0, 1/3)
-    frame.beautyShadow[2]:SetPoint("TOPRIGHT", frame, padding+space, padding+space)
-
-    frame.beautyShadow[3]:SetTexCoord(0, 1/3, 2/3, 1)
-    frame.beautyShadow[3]:SetPoint("BOTTOMLEFT", frame, -padding-space, -padding-space)
-
-    frame.beautyShadow[4]:SetTexCoord(2/3, 1, 2/3, 1)
-    frame.beautyShadow[4]:SetPoint("BOTTOMRIGHT", frame, padding+space, -padding-space)
-
-    frame.beautyShadow[5]:SetTexCoord(1/3, 2/3, 0, 1/3)
-    frame.beautyShadow[5]:SetPoint("TOPLEFT", frame.beautyShadow[1], "TOPRIGHT")
-    frame.beautyShadow[5]:SetPoint("TOPRIGHT", frame.beautyShadow[2], "TOPLEFT")
-
-    frame.beautyShadow[6]:SetTexCoord(1/3, 2/3, 2/3, 1)
-    frame.beautyShadow[6]:SetPoint("BOTTOMLEFT", frame.beautyShadow[3], "BOTTOMRIGHT")
-    frame.beautyShadow[6]:SetPoint("BOTTOMRIGHT", frame.beautyShadow[4], "BOTTOMLEFT")
-
-    frame.beautyShadow[7]:SetTexCoord(0, 1/3, 1/3, 2/3)
-    frame.beautyShadow[7]:SetPoint("TOPLEFT", frame.beautyShadow[1], "BOTTOMLEFT")
-    frame.beautyShadow[7]:SetPoint("BOTTOMLEFT", frame.beautyShadow[3], "TOPLEFT")
-
-    frame.beautyShadow[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
-    frame.beautyShadow[8]:SetPoint("TOPRIGHT", frame.beautyShadow[2], "BOTTOMRIGHT")
-    frame.beautyShadow[8]:SetPoint("BOTTOMRIGHT", frame.beautyShadow[4], "TOPRIGHT")
+    -- TOPLEFT
+    self.beautyShadow[1]:SetTexCoord(0, 1/3, 0, 1/3)
+    self.beautyShadow[1]:SetPoint("TOPLEFT", self, -padding-space, padding+space)
+    -- TOPRIGHT
+    self.beautyShadow[2]:SetTexCoord(2/3, 1, 0, 1/3)
+    self.beautyShadow[2]:SetPoint("TOPRIGHT", self, padding+space, padding+space)
+    -- BOTTOMLEFT
+    self.beautyShadow[3]:SetTexCoord(0, 1/3, 2/3, 1)
+    self.beautyShadow[3]:SetPoint("BOTTOMLEFT", self, -padding-space, -padding-space)
+    -- BOTTOMRIGHT
+    self.beautyShadow[4]:SetTexCoord(2/3, 1, 2/3, 1)
+    self.beautyShadow[4]:SetPoint("BOTTOMRIGHT", self, padding+space, -padding-space)
+    -- TOP
+    self.beautyShadow[5]:SetTexCoord(1/3, 2/3, 0, 1/3)
+    self.beautyShadow[5]:SetPoint("TOPLEFT", self.beautyShadow[1], "TOPRIGHT")
+    self.beautyShadow[5]:SetPoint("TOPRIGHT", self.beautyShadow[2], "TOPLEFT")
+    -- BOTTOM
+    self.beautyShadow[6]:SetTexCoord(1/3, 2/3, 2/3, 1)
+    self.beautyShadow[6]:SetPoint("BOTTOMLEFT", self.beautyShadow[3], "BOTTOMRIGHT")
+    self.beautyShadow[6]:SetPoint("BOTTOMRIGHT", self.beautyShadow[4], "BOTTOMLEFT")
+    -- LEFT
+    self.beautyShadow[7]:SetTexCoord(0, 1/3, 1/3, 2/3)
+    self.beautyShadow[7]:SetPoint("TOPLEFT", self.beautyShadow[1], "BOTTOMLEFT")
+    self.beautyShadow[7]:SetPoint("BOTTOMLEFT", self.beautyShadow[3], "TOPLEFT")
+    -- RIGHT
+    self.beautyShadow[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
+    self.beautyShadow[8]:SetPoint("TOPRIGHT", self.beautyShadow[2], "BOTTOMRIGHT")
+    self.beautyShadow[8]:SetPoint("BOTTOMRIGHT", self.beautyShadow[4], "TOPRIGHT")
 end
 
--- Set Castbar Border Colors
+    -- Set Castbar Border Colors
 
-function nPlates:SetCastbarBorderColor(frame, color)
-    if ( not frame or not color ) then
+function nPlates:SetCastbarBorderColor(self, color)
+    if ( not self or not color ) then
         return
     end
 
-    if ( frame.castBar.beautyBorder ) then
-        for _, texture in ipairs(frame.castBar.beautyBorder) do
+    if ( self.castBar.beautyBorder ) then
+        for _, texture in ipairs(self.castBar.beautyBorder) do
             texture:SetVertexColor(color:GetRGB())
         end
     end
 
-    if ( frame.castBar.Icon.beautyBorder ) then
-        for _, texture in ipairs(frame.castBar.Icon.beautyBorder) do
+    if ( self.castBar.Icon.beautyBorder ) then
+        for _, texture in ipairs(self.castBar.Icon.beautyBorder) do
             texture:SetVertexColor(color:GetRGB())
+        end
+    end
+end
+
+function nPlates:UpdateInterruptibleState(self, notInterruptible)
+    if ( not self ) then
+        return
+    end
+
+    if ( self.casting or self.channeling ) then
+        local color = notInterruptible and nPlates.nonInterruptibleColor or nPlates.interruptibleColor
+
+        if ( self.beautyBorder ) then
+            for _, texture in ipairs(self.beautyBorder) do
+                texture:SetVertexColor(color:GetRGB())
+            end
+        end
+
+        if ( self.Icon.beautyBorder ) then
+            for _, texture in ipairs(self.Icon.beautyBorder) do
+                texture:SetVertexColor(color:GetRGB())
+            end
         end
     end
 end
 
     -- Set Healthbar Border Color
 
-function nPlates:SetHealthBorderColor(frame, r, g, b)
-    if ( not frame ) then
+function nPlates:SetHealthBorderColor(self, r, g, b)
+    if ( not self ) then
         return
     end
 
-    local border = frame.healthBar.beautyBorder
+    local border = self.healthBar.beautyBorder
 
     if ( border ) then
+        if ( not r ) then
+            r, g, b = self.healthBar:GetStatusBarColor()
+        end
+
         for _, texture in ipairs(border) do
-            if ( UnitIsUnit(frame.displayedUnit, "target") ) then
+            if ( UnitIsUnit(self.displayedUnit, "target") ) then
                 if ( nPlatesDB.WhiteSelectionColor ) then
                     texture:SetVertexColor(1, 1, 1, 1)
                 else
