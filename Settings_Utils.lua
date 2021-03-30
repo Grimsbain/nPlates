@@ -496,7 +496,7 @@ function nPlates:CreateDropdown(cfg)
         local info = L_UIDropDownMenu_CreateInfo()
         info.func = Dropdown_OnClick
 
-        for value, text in pairsByKeys(optionsTable) do
+        for value, text in pairs(optionsTable) do
             info.text = text
             info.value = value
             info.checked = value == selectedValue

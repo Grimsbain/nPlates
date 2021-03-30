@@ -23,14 +23,14 @@ nPlates.interruptibleColor = CreateColor(0.0, 0.75, 0.0, 1)
 nPlates.nonInterruptibleColor = CreateColor(0.75, 0.0, 0.0, 1)
 
 nPlates.markerColors = {
-    ["1"] = { r = 1.0, g = 1.0, b = 0.0 },
-    ["2"] = { r = 1.0, g = 127/255, b = 63/255 },
-    ["3"] = { r = 163/255, g = 53/255, b = 238/255 },
-    ["4"] = { r = 30/255, g = 1.0, b = 0.0 },
-    ["5"] = { r = 170/255, g = 170/255, b = 221/255 },
-    ["6"] = { r = 0.0, g = 112/255, b = 221/255 },
-    ["7"] = { r = 1.0, g = 32/255, b = 32/255 },
-    ["8"] = { r = 1.0, g = 1.0, b = 1.0 },
+    [1] = { r = 1.0, g = 1.0, b = 0.0 },
+    [2] = { r = 1.0, g = 127/255, b = 63/255 },
+    [3] = { r = 163/255, g = 53/255, b = 238/255 },
+    [4] = { r = 30/255, g = 1.0, b = 0.0 },
+    [5] = { r = 170/255, g = 170/255, b = 221/255 },
+    [6] = { r = 0.0, g = 112/255, b = 221/255 },
+    [7] = { r = 1.0, g = 32/255, b = 32/255 },
+    [8] = { r = 1.0, g = 1.0, b = 1.0 },
 }
 
     -- RBG to Hex Colors
@@ -174,10 +174,51 @@ function nPlates:SetupNameplate(namePlateFrameBase)
     end)
 end
 
+    -- Update BuffFrame Anchors
+
+function nPlates:UpdateBuffFrameAnchorsByFrame(self)
+    if ( not self or self:IsForbidden() ) then
+        return
+    end
+
+    if ( self.BuffFrame ) then
+        if ( self.displayedUnit and UnitShouldDisplayName(self.displayedUnit) ) then
+            if ( not nPlates:IsUsingLargerNamePlateStyle() ) then
+                self.BuffFrame.baseYOffset = self.name:GetHeight()-7
+            else
+                self.BuffFrame.baseYOffset = self.name:GetHeight()-28
+            end
+        elseif ( self.displayedUnit ) then
+            self.BuffFrame.baseYOffset = 0
+        end
+
+        self.BuffFrame:UpdateAnchor()
+    end
+end
+
+    -- Raid Marker Coloring Update
+
+function nPlates:UpdateRaidMarkerColoring()
+    if ( not nPlatesDB.RaidMarkerColoring ) then return end
+
+    for _, frame in pairs(C_NamePlate.GetNamePlates(issecure())) do
+        if ( not frame:IsForbidden() ) then
+            CompactUnitFrame_UpdateHealthColor(frame.UnitFrame)
+        end
+    end
+end
+
     -- Check for Combat
 
 function nPlates:IsTaintable()
     return (InCombatLockdown() or (UnitAffectingCombat("player") or UnitAffectingCombat("pet")))
+end
+
+    -- Check for "Larger Nameplates"
+
+function nPlates:IsUsingLargerNamePlateStyle()
+    local namePlateVerticalScale = tonumber(GetCVar("NamePlateVerticalScale"))
+    return namePlateVerticalScale > 1.0
 end
 
     -- Set Name Size
@@ -194,14 +235,12 @@ end
 
     -- Abbreviate Long Strings
 
-function nPlates:Abbrev(text, length)
+function nPlates:Abbreviate(text)
     if ( not text ) then
         return UNKNOWN
     end
 
-    length = length or 20
-
-    text = (len(text) > length) and gsub(text, "%s?(.[\128-\191]*)%S+%s", "%1. ") or text
+    text = (len(text) > 20) and gsub(text, "%s?(.[\128-\191]*)%S+%s", "%1. ") or text
     return text
 end
 
@@ -218,18 +257,6 @@ function nPlates:PvPIcon(unit)
     return icon
 end
 
-    -- Raid Marker Coloring Update
-
-function nPlates:UpdateRaidMarkerColoring()
-    if ( not nPlatesDB.RaidMarkerColoring ) then return end
-
-    for _, frame in pairs(C_NamePlate.GetNamePlates(issecure())) do
-        if ( not frame:IsForbidden() ) then
-            CompactUnitFrame_UpdateHealthColor(frame.UnitFrame)
-        end
-    end
-end
-
     -- Check if class colors should be used.
 
 function nPlates:UseClassColors(playerFaction, unit)
@@ -241,13 +268,6 @@ function nPlates:UseClassColors(playerFaction, unit)
 
     local targetFaction, _ = UnitFactionGroup(unit)
     return ( playerFaction == targetFaction and nPlatesDB.ShowFriendlyClassColors) or ( playerFaction ~= targetFaction and nPlatesDB.ShowEnemyClassColors )
-end
-
-    -- Check for "Larger Nameplates"
-
-function nPlates:IsUsingLargerNamePlateStyle()
-    local namePlateVerticalScale = tonumber(GetCVar("NamePlateVerticalScale"))
-    return namePlateVerticalScale > 1.0
 end
 
     -- Check for threat.
@@ -305,28 +325,6 @@ function nPlates:IsPriority(unit)
     end
 
     return moblist[UnitName(unit)] == true
-end
-
-    -- Update BuffFrame Anchors
-
-function nPlates:UpdateBuffFrameAnchorsByFrame(self)
-    if ( not self or self:IsForbidden() ) then
-        return
-    end
-
-    if ( self.BuffFrame ) then
-        if ( self.displayedUnit and UnitShouldDisplayName(self.displayedUnit) ) then
-            if ( not nPlates:IsUsingLargerNamePlateStyle() ) then
-                self.BuffFrame.baseYOffset = self.name:GetHeight()-7
-            else
-                self.BuffFrame.baseYOffset = self.name:GetHeight()-28
-            end
-        elseif ( self.displayedUnit ) then
-            self.BuffFrame.baseYOffset = 0
-        end
-
-        self.BuffFrame:UpdateAnchor()
-    end
 end
 
     -- Fixes the border when using the Personal Resource Display.
@@ -453,6 +451,34 @@ function nPlates:SetBorder(self)
     self.beautyShadow[8]:SetPoint("BOTTOMRIGHT", self.beautyShadow[4], "TOPRIGHT")
 end
 
+    -- Set Healthbar Border Color
+
+function nPlates:SetHealthBorderColor(self, r, g, b)
+    if ( not self ) then
+        return
+    end
+
+    local border = self.healthBar.beautyBorder
+
+    if ( border ) then
+        if ( not r ) then
+            r, g, b = self.healthBar:GetStatusBarColor()
+        end
+
+        for _, texture in ipairs(border) do
+            if ( UnitIsUnit(self.displayedUnit, "target") ) then
+                if ( nPlatesDB.WhiteSelectionColor ) then
+                    texture:SetVertexColor(1, 1, 1, 1)
+                else
+                    texture:SetVertexColor(r, g, b, 1)
+                end
+            else
+                texture:SetVertexColor(nPlates.defaultBorderColor:GetRGB())
+            end
+        end
+    end
+end
+
     -- Set Castbar Border Colors
 
 function nPlates:SetCastbarBorderColor(self, color)
@@ -495,30 +521,21 @@ function nPlates:UpdateInterruptibleState(self, notInterruptible)
     end
 end
 
-    -- Set Healthbar Border Color
+function nPlates:COMBAT_LOG_EVENT_UNFILTERED()
+	local _, event, _, sourceGUID, sourceName, _, _, targetGUID = CombatLogGetCurrentEventInfo()
+	if ( event == "SPELL_INTERRUPT" or event == "SPELL_PERIODIC_INTERRUPT") and targetGUID and (sourceName and sourceName ~= "" ) then
+        local unit, classColor = nPlates.plateGUIDS[targetGUID]
+        local frame = C_NamePlate.GetNamePlateForUnit(unit, issecure())
 
-function nPlates:SetHealthBorderColor(self, r, g, b)
-    if ( not self ) then
-        return
-    end
+		if frame then
+            local name = strmatch(sourceName, "([^%-]+).*")
+            local class = select(2, GetPlayerInfoByGUID(sourceGUID))
 
-    local border = self.healthBar.beautyBorder
-
-    if ( border ) then
-        if ( not r ) then
-            r, g, b = self.healthBar:GetStatusBarColor()
-        end
-
-        for _, texture in ipairs(border) do
-            if ( UnitIsUnit(self.displayedUnit, "target") ) then
-                if ( nPlatesDB.WhiteSelectionColor ) then
-                    texture:SetVertexColor(1, 1, 1, 1)
-                else
-                    texture:SetVertexColor(r, g, b, 1)
-                end
-            else
-                texture:SetVertexColor(nPlates.defaultBorderColor:GetRGB())
+            if ( class )  then
+                classColor = select(4, GetClassColor(class))
             end
-        end
-    end
+
+            frame.UnitFrame.castBar.Text:SetFormattedText("%s - %s", INTERRUPTED, classColor and strjoin("", "|c", classColor, name) or name)
+		end
+	end
 end

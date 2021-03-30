@@ -5,7 +5,11 @@ local _, playerClass = UnitClass("player")
 
 nPlatesMixin = {}
 
+nPlates.plateGUIDS = {}
+
 function nPlatesMixin:OnLoad()
+    self.plateGUIDS = {}
+
     local events = {
         "ADDON_LOADED",
         "NAME_PLATE_CREATED",
@@ -13,6 +17,7 @@ function nPlatesMixin:OnLoad()
         "PLAYER_REGEN_DISABLED",
         "PLAYER_REGEN_ENABLED",
         "RAID_TARGET_UPDATE",
+        -- "COMBAT_LOG_EVENT_UNFILTERED",
     }
 
     FrameUtil.RegisterFrameForEvents(self, events)
@@ -37,6 +42,8 @@ function nPlatesMixin:OnEvent(event, ...)
 
         local namePlateFrameBase = C_NamePlate.GetNamePlateForUnit(unit, issecure())
         nPlates:UpdateNameplate(namePlateFrameBase)
+        -- nPlates.plateGUIDS[UnitGUID(unit)] = unit
+
     elseif ( event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" ) then
         if ( not nPlatesDB.CombatPlates ) then
             return
@@ -44,6 +51,8 @@ function nPlatesMixin:OnEvent(event, ...)
         C_CVar.SetCVar("nameplateShowEnemies", event == "PLAYER_REGEN_DISABLED" and 1 or 0)
     elseif ( event == "RAID_TARGET_UPDATE" ) then
         nPlates:UpdateRaidMarkerColoring()
+    elseif ( event == "COMBAT_LOG_EVENT_UNFILTERED" ) then
+        nPlates:COMBAT_LOG_EVENT_UNFILTERED()
     end
 end
 
@@ -69,6 +78,8 @@ end
     -- Update Castbar Time
 
 local function UpdateCastbarTimer(self)
+    if ( self:IsForbidden() ) then return end
+
     if ( self.unit ) then
         if ( self.castBar.casting ) then
             local current = self.castBar.maxValue - self.castBar.value
@@ -86,16 +97,17 @@ end
     --- Skin Castbar
 
 local function UpdateCastbar(self)
+    if ( self:IsForbidden() ) then return end
 
         -- Castbar Overlay Coloring
 
-    local name, texture, isTradeSkill, notInterruptible
+    local name, text, texture, isTradeSkill, notInterruptible
 
     if ( self.unit ) then
         if ( self.castBar.casting ) then
-            name, _, texture, _, _, isTradeSkill, _, notInterruptible = UnitCastingInfo(self.unit)
+            name, text, texture, _, _, isTradeSkill, _, notInterruptible = UnitCastingInfo(self.unit)
         else
-            name, _, texture, _, _, isTradeSkill, notInterruptible = UnitChannelInfo(self.unit)
+            name, text, texture, _, _, isTradeSkill, notInterruptible = UnitChannelInfo(self.unit)
         end
 
         if ( isTradeSkill or not UnitCanAttack("player", self.unit) ) then
@@ -112,11 +124,7 @@ local function UpdateCastbar(self)
         -- Abbreviate Long Spell Names
 
     if ( not nPlates:IsUsingLargerNamePlateStyle() ) then
-        local name = self.castBar.Text:GetText()
-        if ( name ) then
-            name = nPlates:Abbrev(name, 20)
-            self.castBar.Text:SetText(name)
-        end
+        self.castBar.Text:SetText(nPlates:Abbreviate(text))
     end
 end
 
@@ -134,30 +142,40 @@ local function UpdateStatusText(self)
 
     local option = nPlatesDB.CurrentHealthOption
 
-    if ( option ~= "HealthDisabled" ) then
+    if ( option == "HealthDisabled" ) then
+        self.healthBar.value:Hide()
+    else
         local health = UnitHealth(self.displayedUnit)
         local maxHealth = UnitHealthMax(self.displayedUnit)
-        local perc = math.floor(100 * (health/maxHealth))
 
-        if ( health > 0 ) then
-            if ( option == "HealthBoth" and perc >= 100 ) then
+        if ( option == "HealthBoth" ) then
+            local perc = math.floor((health/maxHealth) * 100)
+            if ( perc >= 100 ) then
                 self.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
-            elseif ( option == "HealthBoth" ) then
-                self.healthBar.value:SetFormattedText("%s - %s%%", nPlates:FormatValue(health), perc)
-            elseif ( option == "HealthValueOnly" ) then
-                self.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
-            elseif ( option == "HealthPercOnly" ) then
-                self.healthBar.value:SetFormattedText("%s%%", perc)
+                self.healthBar.value:Show()
             else
-                self.healthBar.value:SetText("")
+                self.healthBar.value:SetFormattedText("%s - %s%%", nPlates:FormatValue(health), perc)
+                self.healthBar.value:Show()
             end
+        elseif ( option == "PercentHealth" ) then
+            local perc = math.floor((health/maxHealth) * 100)
+            if ( perc >= 100 ) then
+                self.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
+                self.healthBar.value:Show()
+            else
+                self.healthBar.value:SetFormattedText("%s%% - %s", perc, nPlates:FormatValue(health))
+                self.healthBar.value:Show()
+            end
+        elseif ( option == "HealthValueOnly" ) then
+            self.healthBar.value:SetFormattedText("%s", nPlates:FormatValue(health))
+            self.healthBar.value:Show()
+        elseif ( option == "HealthPercOnly" ) then
+            local perc = math.floor((health/maxHealth) * 100)
+            self.healthBar.value:SetFormattedText("%s%%", perc)
+            self.healthBar.value:Show()
         else
-            self.healthBar.value:SetText("")
+            self.healthBar.value:Hide()
         end
-
-        self.healthBar.value:Show()
-    else
-        self.healthBar.value:Hide()
     end
 end
 
@@ -184,7 +202,7 @@ local function UpdateHealthColor(self)
             elseif ( CompactUnitFrame_IsTapDenied(self) ) then
                 r, g, b = 0.1, 0.1, 0.1
             elseif ( nPlatesDB.RaidMarkerColoring and raidMarker ) then
-                local markerColor = nPlates.markerColors[tostring(raidMarker)]
+                local markerColor = nPlates.markerColors[raidMarker]
                 r, g, b = markerColor.r, markerColor.g, markerColor.b
             elseif ( nPlatesDB.FelExplosives and nPlates:IsPriority(self.displayedUnit) ) then
                 r, g, b = nPlatesDB.FelExplosivesColor.r, nPlatesDB.FelExplosivesColor.g, nPlatesDB.FelExplosivesColor.b
@@ -280,7 +298,7 @@ function nPlates.UpdateName(self)
             -- Shorten Long Names
 
         if ( nPlatesDB.AbrrevLongNames ) then
-            name = nPlates:Abbrev(name, 20)
+            name = nPlates:Abbreviate(name)
         end
 
             -- Server Name
@@ -295,13 +313,12 @@ function nPlates.UpdateName(self)
 
         if ( nPlatesDB.ShowLevel ) then
             local targetLevel = UnitLevel(self.displayedUnit)
-            local difficultyColor = GetCreatureDifficultyColor(targetLevel)
-            local levelColor = nPlates:RGBToHex(difficultyColor.r, difficultyColor.g, difficultyColor.b)
 
             if ( targetLevel == -1 ) then
                 self.name:SetFormattedText("%s%s", pvpIcon, name)
             else
-                self.name:SetFormattedText("%s%s%d|r %s", pvpIcon, levelColor, targetLevel, name)
+                local difficultyColor = GetDifficultyColor(C_PlayerInfo.GetContentDifficultyCreatureForPlayer(self.displayedUnit))
+                self.name:SetFormattedText("%s%s%d|r %s", pvpIcon, ConvertRGBtoColorString(difficultyColor), targetLevel, name)
             end
         else
             self.name:SetFormattedText("%s%s", pvpIcon, name)

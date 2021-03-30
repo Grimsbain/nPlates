@@ -261,10 +261,11 @@ function nPlatesConfigMixin:Init()
             offsetX = -20,
             updateAll = true,
             optionsTable = {
-                ["HealthDisabled"] = L.HealthDisabled,
                 ["HealthBoth"] = L.HealthBoth,
-                ["HealthValueOnly"] = L.HealthValueOnly,
+                ["HealthDisabled"] = L.HealthDisabled,
                 ["HealthPercOnly"] = L.HealthPercOnly,
+                ["HealthValueOnly"] = L.HealthValueOnly,
+                ["PercentHealth"] = L.PercentHealth,
             },
         },
         {
