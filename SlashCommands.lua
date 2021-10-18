@@ -16,11 +16,12 @@ local function nPlatesSlash(msg)
         for _, setting in pairs({
             "nameplateGlobalScale",
             "nameplateMinAlpha",
-            "namePlateMinScale",
-            "namePlateMaxScale",
+            "nameplateMinScale",
+            "nameplateMaxScale",
+            "nameplateOccludedAlphaMult",
             "nameplateOtherTopInset",
             "nameplateOtherBottomInset",
-            "nameplateShowEnemies"
+            "nameplateShowEnemies",
         })
         do
             C_CVar.SetCVar(setting, GetCVarDefault(setting))

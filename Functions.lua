@@ -525,9 +525,14 @@ function nPlates:COMBAT_LOG_EVENT_UNFILTERED()
 	local _, event, _, sourceGUID, sourceName, _, _, targetGUID = CombatLogGetCurrentEventInfo()
 	if ( event == "SPELL_INTERRUPT" or event == "SPELL_PERIODIC_INTERRUPT") and targetGUID and (sourceName and sourceName ~= "" ) then
         local unit, classColor = nPlates.plateGUIDS[targetGUID]
+
+        if ( not unit ) then
+            return
+        end
+
         local frame = C_NamePlate.GetNamePlateForUnit(unit, issecure())
 
-		if frame then
+		if ( frame ) then
             local name = strmatch(sourceName, "([^%-]+).*")
             local class = select(2, GetPlayerInfoByGUID(sourceGUID))
 

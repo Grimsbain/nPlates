@@ -430,6 +430,7 @@ local function SetupAnchors(self, setupOptions)
     self.castBar.Icon:SetSize(26, 26)
     self.castBar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     self.castBar.Icon:ClearAllPoints()
+    self.castBar.Icon:SetIgnoreParentAlpha(false)
     self.castBar.Icon:SetPoint("BOTTOMLEFT", self.castBar, "BOTTOMRIGHT", 4.9, 0)
 
         -- Hide Border Shield
