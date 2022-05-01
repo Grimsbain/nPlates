@@ -121,7 +121,7 @@ function nPlates:CVarCheck()
         end
 
         -- Set min and max scale.
-        C_CVar.SetCVar("namePlateMinScale", 1)
+        C_CVar.SetCVar("namePlateMinScale", 0.8)
         C_CVar.SetCVar("namePlateMaxScale", 1)
 
         -- Set sticky nameplates.
