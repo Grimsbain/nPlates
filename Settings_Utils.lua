@@ -2,6 +2,8 @@
 local _, nPlates = ...
 local L = nPlates.L
 
+local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
+
 nPlatesCheckboxMixin = {}
 
 function nPlatesCheckboxMixin:OnLoad()
@@ -463,7 +465,7 @@ function nPlates:CreateDropdown(cfg)
     local updateAll = cfg.updateAll
     local optionsTable = cfg.optionsTable
 
-    local dropdown = L_Create_UIDropDownMenu(cfg.name, cfg.parent)
+    local dropdown = LibDD:Create_UIDropDownMenu(cfg.name, cfg.parent)
     dropdown:SetPoint(initialPoint, relativeTo, relativePoint, offsetX, offsetY)
 
     dropdown.Label = dropdown:CreateFontString("$parentLabel", "BACKGROUND", "OptionsFontSmall")
@@ -471,7 +473,7 @@ function nPlates:CreateDropdown(cfg)
     dropdown.Label:SetText(label)
 
     local function Dropdown_OnClick(self)
-        L_UIDropDownMenu_SetSelectedValue(dropdown, self.value)
+        LibDD:UIDropDownMenu_SetSelectedValue(dropdown, self.value)
         nPlatesDB[optionName] = self.value
 
         if ( func ) then
@@ -492,15 +494,15 @@ function nPlates:CreateDropdown(cfg)
     end
 
     local function Initialize()
-        local selectedValue = L_UIDropDownMenu_GetSelectedValue(dropdown)
-        local info = L_UIDropDownMenu_CreateInfo()
+        local selectedValue = LibDD:UIDropDownMenu_GetSelectedValue(dropdown)
+        local info = LibDD:UIDropDownMenu_CreateInfo()
         info.func = Dropdown_OnClick
 
         for value, text in pairs(optionsTable) do
             info.text = text
             info.value = value
             info.checked = value == selectedValue
-            L_UIDropDownMenu_AddButton(info)
+            LibDD:UIDropDownMenu_AddButton(info)
         end
     end
 
@@ -511,17 +513,17 @@ function nPlates:CreateDropdown(cfg)
             self.value = nPlatesDB[optionName]
             self.oldValue = value
 
-            L_UIDropDownMenu_SetWidth(self, 180)
-            L_UIDropDownMenu_Initialize(self, Initialize, "DROPDOWN")
-            L_UIDropDownMenu_SetSelectedValue(self, self.value)
+            LibDD:UIDropDownMenu_SetWidth(self, 180)
+            LibDD:UIDropDownMenu_Initialize(self, Initialize, "DROPDOWN")
+            LibDD:UIDropDownMenu_SetSelectedValue(self, self.value)
 
-            self.GetValue = GenerateClosure(L_UIDropDownMenu_GetSelectedValue, self)
+            self.GetValue = GenerateClosure(LibDD.UIDropDownMenu_GetSelectedValue, self)
 
             self.SetControl = function(self, value)
                 self.value = nPlatesDB[optionName]
 
-                L_UIDropDownMenu_SetSelectedValue(self, self.value)
-                L_UIDropDownMenu_SetText(self, optionsTable[self.value])
+                LibDD:UIDropDownMenu_SetSelectedValue(self, self.value)
+                LibDD:UIDropDownMenu_SetText(self, optionsTable[self.value])
             end
 
             self.Update = function(self)
