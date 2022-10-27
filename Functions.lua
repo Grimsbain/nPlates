@@ -90,22 +90,9 @@ function nPlates:RegisterDefaultSetting(key, value)
     end
 end
 
-local oldHealthOptions = {
-    [1] = "HealthDisable",
-    [2] = "HealthBoth",
-    [3] = "HealthValueOnly",
-    [4] = "HealthPercOnly",
-}
-
 function nPlates:SetDefaultOptions()
     for setting, value in pairs(nPlates.defaultOptions) do
         nPlates:RegisterDefaultSetting(setting, value)
-    end
-
-    local currentHealthOption = nPlatesDB["CurrentHealthOption"]
-
-    if ( type(currentHealthOption) == "number" ) then
-        nPlatesDB["CurrentHealthOption"] = oldHealthOptions[currentHealthOption]
     end
 end
 

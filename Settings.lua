@@ -29,7 +29,6 @@ nPlates.defaultOptions = {
     ["OffTankColor"] =  { r = 0.60, g = 0.20, b = 1.0},
 }
 
-
 nPlatesConfigMixin = {}
 
 function nPlatesConfigMixin:OnLoad()

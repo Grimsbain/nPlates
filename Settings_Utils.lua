@@ -117,7 +117,7 @@ function nPlatesSliderMixin:GetCurrentValue()
     local value
 
     if ( self.config.isCvar ) then
-        value = BlizzardOptionsPanel_GetCVarSafe(self.optionName)
+        value = GetCVar(self.optionName)
     else
         value = nPlatesDB[self.optionName]
     end
@@ -130,7 +130,7 @@ function nPlatesSliderMixin:OnValueChanged(value)
     self:SetText(value)
 
     if ( self.config.isCvar ) then
-        BlizzardOptionsPanel_SetCVarSafe(self.optionName, value)
+        SetCVar(self.optionName, value)
     else
         nPlatesDB[self.optionName] = value
     end
@@ -340,7 +340,7 @@ function nPlates:CreateSlider(config)
     local value
 
     if ( isCvar ) then
-        value = BlizzardOptionsPanel_GetCVarSafe(optionName)
+        value = GetCVar(optionName)
     else
         value = nPlatesDB[optionName]
     end

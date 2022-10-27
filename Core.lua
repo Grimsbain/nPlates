@@ -117,8 +117,8 @@ local function UpdateCastbar(self)
         end
     end
 
-    if ( self.castBar.Background ) then
-        self.castBar.Background:SetShown(not self.castBar.Icon:IsVisible())
+    if ( self.castBar.IconBackground ) then
+        self.castBar.IconBackground:SetShown(not self.castBar.Icon:IsVisible())
     end
 
         -- Abbreviate Long Spell Names
@@ -395,11 +395,11 @@ local function FrameSetup(self, options)
 
         -- Castbar Icon Background
 
-    if ( not self.castBar.Background ) then
-        self.castBar.Background = self.castBar:CreateTexture("$parent_Background", "BACKGROUND")
-        self.castBar.Background:SetAllPoints(self.castBar.Icon)
-        self.castBar.Background:SetTexture([[Interface\Icons\Ability_DualWield]])
-        self.castBar.Background:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    if ( not self.castBar.IconBackground ) then
+        self.castBar.IconBackground = self.castBar:CreateTexture("$parent_Background", "BACKGROUND")
+        self.castBar.IconBackground:SetAllPoints(self.castBar.Icon)
+        self.castBar.IconBackground:SetTexture([[Interface\Icons\Ability_DualWield]])
+        self.castBar.IconBackground:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     end
 
         -- Update Castbar
