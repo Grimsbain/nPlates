@@ -1,15 +1,12 @@
 local _, nPlates = ...
 
 local englishFaction, localizedFaction = UnitFactionGroup("player")
-local _, playerClass = UnitClass("player")
 
 nPlatesMixin = {}
 
 nPlates.plateGUIDS = {}
 
 function nPlatesMixin:OnLoad()
-    self.plateGUIDS = {}
-
     local events = {
         "ADDON_LOADED",
         "NAME_PLATE_CREATED",
@@ -43,7 +40,6 @@ function nPlatesMixin:OnEvent(event, ...)
         local namePlateFrameBase = C_NamePlate.GetNamePlateForUnit(unit, issecure())
         nPlates:UpdateNameplate(namePlateFrameBase)
         -- nPlates.plateGUIDS[UnitGUID(unit)] = unit
-
     elseif ( event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" ) then
         if ( not nPlatesDB.CombatPlates ) then
             return
@@ -66,12 +62,6 @@ local function CUF_OnEvents(self, event, ...)
 
     if ( event == "PLAYER_TARGET_CHANGED" ) then
         nPlates:UpdateBuffFrameAnchorsByFrame(self)
-    else
-        -- local unitMatches = unit == self.unit or unit == self.displayedUnit
-		-- if ( unitMatches ) then
-            -- if ( event == "UNIT_AURA") then
-            -- end
-        -- end
     end
 end
 
@@ -188,6 +178,9 @@ local function UpdateHealthColor(self)
     local r, g, b
     if ( not UnitIsConnected(self.unit) ) then
         r, g, b = 0.5, 0.5, 0.5
+    elseif ( UnitIsDead(self.unit) ) then
+		--Color it gray
+		r, g, b = 0.5, 0.5, 0.5
     else
         if ( self.optionTable.healthBarColorOverride ) then
             local healthBarColorOverride = self.optionTable.healthBarColorOverride
@@ -350,7 +343,6 @@ local function FrameSetup(self, options)
     if ( self:IsForbidden() ) then return end
 
         -- Healthbar
-
     self.healthBar:SetStatusBarTexture(nPlates.statusBar)
     self.healthBar.barTexture:SetTexture(nPlates.statusBar)
 
@@ -417,7 +409,6 @@ local function SetupAnchors(self, setupOptions)
     if ( self:IsForbidden() ) then return end
 
         -- Healthbar
-
     self.healthBar:SetHeight(11)
 
     if ( setupOptions.healthBarAlpha ~= 1 ) then
@@ -436,6 +427,10 @@ local function SetupAnchors(self, setupOptions)
         -- Hide Border Shield
 
     self.castBar.BorderShield:ClearAllPoints()
+
+    self.castBar.Background:ClearAllPoints()
+    self.castBar.Background:SetPoint("TOPRIGHT", self.castBar, "TOPRIGHT", 2, 2)
+    self.castBar.Background:SetPoint("BOTTOMLEFT", self.castBar, "BOTTOMLEFT", -2, -2)
 end
 
     -- Setup Hooks

@@ -404,7 +404,7 @@ function nPlates:CreateColorPicker(cfg, relativeTo)
     colorPicker.bg = colorPicker:CreateTexture(nil, "BACKGROUND", nil, -7)
     colorPicker.bg:SetAllPoints(colorPicker)
     colorPicker.bg:SetColorTexture(1, 1, 1, 1)
-    colorPicker.bg:SetVertexColor(nPlatesDB[cfg.optionName].r,nPlatesDB[cfg.optionName].g, nPlatesDB[cfg.optionName].b)
+    colorPicker.bg:SetVertexColor(nPlatesDB[cfg.optionName].r, nPlatesDB[cfg.optionName].g, nPlatesDB[cfg.optionName].b)
     colorPicker.recolor = function(color)
         local r, g, b
         if ( color ) then
@@ -451,36 +451,28 @@ function nPlates:CreateDropdown(cfg)
         },
     ]]
 
-    local name = cfg.name
-    local label = cfg.label
-    local optionName = cfg.optionName
-    local parent = cfg.parent
-    local initialPoint = cfg.initialPoint or "TOPLEFT"
-    local relativeTo = cfg.relativeTo or parent.prevControl
-    local relativePoint = cfg.relativePoint or "BOTTOMLEFT"
-    local offsetX = cfg.offsetX or 0
-    local offsetY = cfg.offsetY or -26
-    local func = cfg.func
-    local needsRestart = cfg.needsRestart
-    local updateAll = cfg.updateAll
-    local optionsTable = cfg.optionsTable
+    cfg.initialPoint = cfg.initialPoint or "TOPLEFT"
+    cfg.relativePoint = cfg.relativePoint or "BOTTOMLEFT"
+    cfg.relativeTo = cfg.relativeTo or cfg.parent.prevControl or cfg.parent
+    cfg.offsetX = cfg.offsetX or 0
+    cfg.offsetY = cfg.offsetY or -15
 
     local dropdown = LibDD:Create_UIDropDownMenu(cfg.name, cfg.parent)
-    dropdown:SetPoint(initialPoint, relativeTo, relativePoint, offsetX, offsetY)
+    dropdown:SetPoint(cfg.initialPoint, cfg.relativeTo, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
 
     dropdown.Label = dropdown:CreateFontString("$parentLabel", "BACKGROUND", "OptionsFontSmall")
     dropdown.Label:SetPoint("BOTTOMLEFT", dropdown, "TOPLEFT", 20, 5)
-    dropdown.Label:SetText(label)
+    dropdown.Label:SetText(cfg.label)
 
     local function Dropdown_OnClick(self)
         LibDD:UIDropDownMenu_SetSelectedValue(dropdown, self.value)
-        nPlatesDB[optionName] = self.value
+        nPlatesDB[cfg.optionName] = self.value
 
-        if ( func ) then
-            func(dropdown)
+        if ( cfg.func ) then
+            cfg.func(dropdown)
         end
 
-        if ( needsRestart ) then
+        if ( cfg.needsRestart ) then
             if self.value ~= dropdown.oldValue then
                 dropdown.restart = true
             else
@@ -488,7 +480,7 @@ function nPlates:CreateDropdown(cfg)
             end
         end
 
-        if ( updateAll ) then
+        if ( cfg.updateAll ) then
             nPlates:UpdateAllNameplates()
         end
     end
@@ -498,7 +490,7 @@ function nPlates:CreateDropdown(cfg)
         local info = LibDD:UIDropDownMenu_CreateInfo()
         info.func = Dropdown_OnClick
 
-        for value, text in pairs(optionsTable) do
+        for value, text in pairs(cfg.optionsTable) do
             info.text = text
             info.value = value
             info.checked = value == selectedValue
@@ -509,9 +501,9 @@ function nPlates:CreateDropdown(cfg)
     dropdown:RegisterEvent("PLAYER_ENTERING_WORLD")
     dropdown:SetScript("OnEvent", function(self, event, ...)
         if ( event == "PLAYER_ENTERING_WORLD" ) then
-            self.optionName = optionName
-            self.value = nPlatesDB[optionName]
-            self.oldValue = value
+            self.optionName = cfg.optionName
+            self.value = nPlatesDB[cfg.optionName]
+            self.oldValue = self.value
 
             LibDD:UIDropDownMenu_SetWidth(self, 180)
             LibDD:UIDropDownMenu_Initialize(self, Initialize, "DROPDOWN")
@@ -520,22 +512,22 @@ function nPlates:CreateDropdown(cfg)
             self.GetValue = GenerateClosure(LibDD.UIDropDownMenu_GetSelectedValue, self)
 
             self.SetControl = function(self, value)
-                self.value = nPlatesDB[optionName]
+                self.value = nPlatesDB[cfg.optionName]
 
                 LibDD:UIDropDownMenu_SetSelectedValue(self, self.value)
-                LibDD:UIDropDownMenu_SetText(self, optionsTable[self.value])
+                LibDD:UIDropDownMenu_SetText(self, cfg.optionsTable[self.value])
             end
 
             self.Update = function(self)
                 self:SetControl()
 
-                if ( updateAll ) then
+                if ( cfg.updateAll ) then
                     nPlates:UpdateAllNameplates()
                 end
             end
         end
     end)
 
-    RegisterControl(parent, dropdown)
+    RegisterControl(cfg.parent, dropdown)
     return dropdown
 end
