@@ -1,11 +1,11 @@
 local _, nPlates = ...
 
 local function ShowConfig()
-    if ( InterfaceOptionsFrame:IsShown() ) then
-        InterfaceOptionsFrame:Hide()
+    if ( SettingsPanel:IsShown() ) then
+        HideUIPanel(SettingsPanel)
+		HideUIPanel(GameMenuFrame)
     else
-        InterfaceOptionsFrame_OpenToCategory(nPlatesOptions)
-        InterfaceOptionsFrame_OpenToCategory(nPlatesOptions)
+        Settings.OpenToCategory(nPlatesOptions.name)
     end
 end
 

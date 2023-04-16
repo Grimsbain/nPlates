@@ -258,6 +258,7 @@ function nPlatesConfigMixin:Init()
             label = L.HealthOptions,
             optionName = "CurrentHealthOption",
             offsetX = -20,
+            offsetY = -20,
             updateAll = true,
             optionsTable = {
                 ["HealthBoth"] = L.HealthBoth,
