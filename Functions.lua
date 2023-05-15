@@ -3,7 +3,6 @@ local L = nPlates.L
 
 local len = string.len
 local gsub = string.gsub
-local lower = string.lower
 local format = string.format
 local floor = math.floor
 local ceil = math.ceil

@@ -13,8 +13,6 @@ nPlates.defaultOptions = {
     ["ShowEnemyClassColors"] =  true,
     ["WhiteSelectionColor"] =  false,
     ["RaidMarkerColoring"] =  false,
-    ["FelExplosives"] =  true,
-    ["FelExplosivesColor"] =  { r = 197/255, g = 1, b = 0},
     ["ShowExecuteRange"] =  false,
     ["ExecuteValue"] =  35,
     ["ExecuteColor"] =  { r = 0, g = 71/255, b = 126/255},
@@ -38,8 +36,8 @@ function nPlatesConfigMixin:OnLoad()
     self.controls = {}
     self.profileBackup = {}
 
-    self.name = GetAddOnMetadata(addon, "Title")
-    self.version = GetAddOnMetadata(addon, "Version")
+    self.name = C_AddOns.GetAddOnMetadata(addon, "Title")
+    self.version = C_AddOns.GetAddOnMetadata(addon, "Version")
     self.okay = self.SaveChanges
     self.cancel = self.CancelChanges
     self.default = self.RestoreDefaults
@@ -194,19 +192,6 @@ function nPlatesConfigMixin:Init()
             text = L.RaidMarkerColoring,
             optionName = "RaidMarkerColoring",
             updateAll = true,
-        },
-        {
-            type = "CheckBox",
-            name = "FelExplosives",
-            parent = self,
-            text = L.FelExplosivesColor,
-            optionName = "FelExplosives",
-            updateAll = true,
-            colorPicker = {
-                name = "FelExplosivesColorPicker",
-                parent = self,
-                optionName = "FelExplosivesColor",
-            }
         },
         {
             type = "CheckBox",

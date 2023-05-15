@@ -4,8 +4,6 @@ local englishFaction, localizedFaction = UnitFactionGroup("player")
 
 nPlatesMixin = {}
 
-nPlates.plateGUIDS = {}
-
 function nPlatesMixin:OnLoad()
     local events = {
         "ADDON_LOADED",
