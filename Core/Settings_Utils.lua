@@ -69,7 +69,7 @@ end
 
 function nPlatesCheckboxMixin:OnLeave()
     if ( GameTooltip:GetOwner() == self ) then
-        GameTooltip:Hide();
+        GameTooltip:Hide()
     end
 end
 
@@ -383,7 +383,7 @@ function nPlates:CreateSlider(config)
     return slider
 end
 
-function nPlates:showColorPicker(r, g, b, callback)
+function nPlates:ShowColorPicker(r, g, b, callback)
     ColorPickerFrame.previousValues = {r, g, b}
     ColorPickerFrame.func = callback
     ColorPickerFrame.opacityFunc = callback
@@ -398,32 +398,38 @@ function nPlates:CreateColorPicker(cfg, relativeTo)
     cfg.offsetX = cfg.offsetX or 10
     cfg.offsetY = cfg.offsetY or 0
 
-    local colorPicker = CreateFrame("Frame", cfg.name, cfg.parent)
+    local colorPicker = CreateFrame("Button", cfg.name, cfg.parent)
     colorPicker:SetSize(15, 15)
+    colorPicker:EnableMouse(true)
     colorPicker:SetPoint(cfg.initialPoint, relativeTo, cfg.relativePoint, cfg.offsetX, cfg.offsetY)
-    colorPicker.bg = colorPicker:CreateTexture(nil, "BACKGROUND", nil, -7)
-    colorPicker.bg:SetAllPoints(colorPicker)
-    colorPicker.bg:SetColorTexture(1, 1, 1, 1)
-    colorPicker.bg:SetVertexColor(nPlatesDB[cfg.optionName].r, nPlatesDB[cfg.optionName].g, nPlatesDB[cfg.optionName].b)
-    colorPicker.recolor = function(color)
+
+    local color = nPlatesDB[cfg.optionName]
+    colorPicker.Background = colorPicker:CreateTexture("$parent_Swatch", "BACKGROUND")
+    colorPicker.Background:SetAllPoints(colorPicker)
+    colorPicker.Background:SetColorTexture(1, 1, 1, 1)
+    colorPicker.Background:SetVertexColor(color.r, color.g, color.b)
+
+    colorPicker.SetColor = function(color)
         local r, g, b
         if ( color ) then
             r, g, b = unpack(color)
         else
             r, g, b = ColorPickerFrame:GetColorRGB()
         end
-        nPlatesDB[cfg.optionName].r = r
-        nPlatesDB[cfg.optionName].g = g
-        nPlatesDB[cfg.optionName].b = b
-        colorPicker.bg:SetVertexColor(r, g, b)
-        nPlates:UpdateAllNameplates()
+
+        nPlatesDB[cfg.optionName] = { r = r, g = g, b = b}
+        colorPicker.Background:SetVertexColor(r, g, b)
+        self:UpdateAllNameplates()
     end
-    colorPicker:EnableMouse(true)
-    colorPicker:SetScript("OnMouseDown", function(self, button, ...)
-        if ( not relativeTo:GetParent():GetChecked() ) then return end
-        if button == "LeftButton" then
-            local r, g, b = colorPicker.bg:GetVertexColor()
-            nPlates:showColorPicker(r, g, b, colorPicker.recolor)
+
+    colorPicker:SetScript("OnClick", function(frame, button, ...)
+        if ( not relativeTo:GetParent():GetChecked() ) then
+            return
+        end
+
+        if ( button == "LeftButton" ) then
+            local r, g, b = frame.Background:GetVertexColor()
+            self:ShowColorPicker(r, g, b, frame.SetColor)
         end
     end)
 

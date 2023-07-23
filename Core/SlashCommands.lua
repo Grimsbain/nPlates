@@ -9,6 +9,8 @@ local function ShowConfig()
     end
 end
 
+nPlates_OnAddonCompartmentClick = ShowConfig
+
 local function nPlatesSlash(msg)
     if ( msg == "config") then
         ShowConfig()
@@ -18,6 +20,7 @@ local function nPlatesSlash(msg)
             "nameplateMinAlpha",
             "nameplateMinScale",
             "nameplateMaxScale",
+            "nameplateMaxDistance",
             "nameplateOccludedAlphaMult",
             "nameplateOtherTopInset",
             "nameplateOtherBottomInset",

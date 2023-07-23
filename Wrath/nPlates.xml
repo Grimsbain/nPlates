@@ -1,11 +1,6 @@
 <Ui>
-    <Script file="Localization.lua"/>
-
-    <Include file="Fonts.xml"/>
-    <Include file="Settings.xml"/>
-    <Script file="Functions.lua"/>
+	<Include file="Buffs.xml"/>
     <Script file="Core.lua"/>
-    <Script file="SlashCommands.lua"/>
 
     <Frame name="nPlatesDriver" mixin="nPlatesMixin">
         <Scripts>

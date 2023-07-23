@@ -9,9 +9,7 @@ setmetatable(L, { __index = function(t, k)
     return v
 end })
 
-------------------------------------------------------------------------
 -- English
-------------------------------------------------------------------------
 
 L.AbbrevName = "Abbreviate Long Names"
 L.ColoringOptionsLabel = "Coloring Options"
@@ -21,8 +19,6 @@ L.DisplayLevel = "Display Level"
 L.DisplayServerName = "Display Server Name"
 L.EnemyClassColors = "Display Enemy Class Colors"
 L.ExecuteRange = "Show Execute Color"
-L.FelExplosivesColor = "Explosive Color"
-L.FelExplosivesMobName = "Explosives"
 L.FrameOptionsLabel = "Frame Options"
 L.FriendlyClassColors = "Display Friendly Class Colors"
 L.HealthOptions = "Health Options"
@@ -52,9 +48,7 @@ L.WhiteSelectionColor = "White Selection Color"
 local CURRENT_LOCALE = GetLocale()
 if CURRENT_LOCALE == "enUS" then return end
 
-------------------------------------------------------------------------
 -- German
-------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "deDE" then
 
@@ -84,25 +78,19 @@ L.TankOptionsLabel = "Tankoptionen"
 
 return end
 
-------------------------------------------------------------------------
 -- Spanish
-------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "esES" then
 
 return end
 
-------------------------------------------------------------------------
 -- Latin American Spanish
-------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "esMX" then
 
 return end
 
-------------------------------------------------------------------------
 -- French
-------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "frFR" then
 
@@ -114,8 +102,6 @@ L.DisplayLevel = "Afficher le niveau"
 L.DisplayServerName = "Afficher le nom du serveur"
 L.EnemyClassColors = "Afficher la couleur des classes de la faction opposée"
 L.ExecuteRange = "Changer la couleur en phase d'exécution"
-L.FelExplosivesColor = "Changer la couleur lors d'explosion gangrenée (donjons mythiques)"
-L.FelExplosivesMobName = "Explosifs gangrenés"
 L.FrameOptionsLabel = "Options de la barre"
 L.FriendlyClassColors = "Afficher la couleur des classes de la faction alliée"
 L.HealthBoth = "Vie - Pourcentage"
@@ -141,25 +127,19 @@ L.WhiteSelectionColor = "Couleur blanche pour la cible sélectionnée"
 
 return end
 
-------------------------------------------------------------------------
 -- Italian
-------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "itIT" then
 
 return end
 
-------------------------------------------------------------------------
 -- Brazilian Portuguese
-------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "ptBR" then
 
 return end
 
-------------------------------------------------------------------------
 -- Russian
-------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "ruRU" then
 
@@ -186,9 +166,7 @@ L.TankOptionsLabel = "Варианты танка этикетки"
 
 return end
 
-------------------------------------------------------------------------
 -- Korean
-------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "koKR" then
 
@@ -200,8 +178,6 @@ L.DisplayLevel = "레벨 표시"
 L.DisplayServerName = "서버명 표시"
 L.EnemyClassColors = "적 직업 색상 표시"
 L.ExecuteRange = "사거리 색상 표시"
-L.FelExplosivesColor = "지옥 폭발물 색상"
-L.FelExplosivesMobName = "지옥 폭발물"
 L.FrameOptionsLabel = "창 옵션"
 L.FriendlyClassColors = "아군 직업 색상 표시"
 L.HealthBoth = "생명력 - 백분율"
@@ -227,9 +203,7 @@ L.WhiteSelectionColor = "선택된 대상 흰색 테두리"
 
 return end
 
-------------------------------------------------------------------------
 -- Simplified Chinese
-------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "zhCN" then
 
@@ -241,8 +215,6 @@ L.DisplayLevel = "显示等级"
 L.DisplayServerName = "显示服务器"
 L.EnemyClassColors = "敌方职业染色"
 L.ExecuteRange = "斩杀阶段染色"
-L.FelExplosivesColor = "易爆小球染色"
-L.FelExplosivesMobName = "爆炸物"
 L.FrameOptionsLabel = "框体选项"
 L.FriendlyClassColors = "友方职业染色"
 L.HealthOptions = "生命值选项"
@@ -269,12 +241,9 @@ L.TankMode = "坦克模式"
 L.TankOptionsLabel = "坦克选项"
 L.WhiteSelectionColor = "高亮当前目标"
 
-
 return end
 
-------------------------------------------------------------------------
 -- Traditional Chinese
-------------------------------------------------------------------------
 
 if CURRENT_LOCALE == "zhTW" then
 
@@ -286,8 +255,6 @@ L.DisplayLevel = "顯示等級"
 L.DisplayServerName = "顯示伺服器名稱"
 L.EnemyClassColors = "敵方職業著色"
 L.ExecuteRange = "顯示斬殺顏色"
-L.FelExplosivesColor = "炸藥小球變色"
-L.FelExplosivesMobName = "炸藥"
 L.FrameOptionsLabel = "框架選項"
 L.FriendlyClassColors = "友方職業著色"
 L.HealthOptions = "生命值選項"
@@ -313,6 +280,5 @@ L.StickyNameplates = "使名條保持在畫面內"
 L.TankMode = "坦克模式"
 L.TankOptionsLabel = "坦克選項"
 L.WhiteSelectionColor = "高亮當前目標"
-
 
 return end

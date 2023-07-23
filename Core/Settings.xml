@@ -1,6 +1,6 @@
 <Ui>
-    <Script file="Settings_Utils.lua"/>
     <Script file="Settings.lua"/>
+    <Script file="Settings_Utils.lua"/>
 
     <CheckButton name="nPlatesCheckButtonTemplate" virtual="true" mixin="nPlatesCheckboxMixin">
         <Size x="26" y="26"/>

@@ -1,0 +1,7 @@
+<Ui>
+    <Include file="Fonts.xml"/>
+    <Script file="Localization.lua"/>
+    <Script file="Functions.lua"/>
+    <Script file="SlashCommands.lua"/>
+    <Include file="Settings.xml"/>
+</Ui>
