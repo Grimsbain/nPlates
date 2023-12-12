@@ -401,15 +401,15 @@ function nPlates:SetSelectionColor(frame)
         return
     end
 
-    local r, g, b = frame.healthBar:GetStatusBarColor()
-    self.borderColor:SetRGB(r, g, b)
-
     if ( UnitIsUnit(frame.displayedUnit, "target") ) then
         if ( self:GetOption("WhiteSelectionColor") ) then
             self.borderColor:SetRGB(1, 1, 1)
+            self:SetBeautyBorderColor(frame.healthBar, self.borderColor)
+        else
+            local r, g, b = frame.healthBar:GetStatusBarColor()
+            self.borderColor:SetRGB(r, g, b)
+            self:SetBeautyBorderColor(frame.healthBar, self.borderColor)
         end
-
-        self:SetBeautyBorderColor(frame.healthBar, self.borderColor)
     else
         self:SetBeautyBorderColor(frame.healthBar, self.defaultBorderColor)
     end
