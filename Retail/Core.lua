@@ -236,9 +236,9 @@ function nPlates:UpdateHealthColor(frame)
         else
             frame.selectionHighlight:SetVertexColor(1.0, 1.0, 1.0)
         end
-
-        self:SetSelectionColor(frame)
     end
+
+    self:SetSelectionColor(frame)
 end
 
 function nPlates:UpdateSelectionHighlight(frame)
