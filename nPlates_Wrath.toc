@@ -9,6 +9,7 @@
 
 ## X-Curse-Project-ID: 101700
 ## X-WoWI-ID: 24129
+## X-Flavor: Wrath
 
 Libs\LibStub\LibStub.lua
 Libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
