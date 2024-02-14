@@ -36,10 +36,6 @@ function nPlatesConfigMixin:OnLoad()
 
     self.name = C_AddOns.GetAddOnMetadata(addon, "Title")
     self.version = C_AddOns.GetAddOnMetadata(addon, "Version")
-    self.okay = self.SaveChanges
-    self.cancel = self.CancelChanges
-    self.default = self.RestoreDefaults
-    self.refresh = self.UpdatePanel
 
     local category, layout = Settings.RegisterCanvasLayoutCategory(self, self.name)
     category.ID = self.name
@@ -58,7 +54,7 @@ function nPlatesConfigMixin:SaveProfileBackup()
     self.profileBackup = CopyTable(nPlatesDB)
 end
 
-function nPlatesConfigMixin:SaveChanges()
+function nPlatesConfigMixin:OnCommit()
     for _, control in pairs(self.controls) do
         if ( self:ShouldUpdate(control) ) then
             self.profileBackup[control.optionName] = control:GetValue()
@@ -82,7 +78,7 @@ function nPlatesConfigMixin:CancelChanges()
     end
 end
 
-function nPlatesConfigMixin:RestoreDefaults()
+function nPlatesConfigMixin:OnDefault()
     for _, control in pairs(self.controls) do
         nPlatesDB[control.optionName] = nPlates.defaultOptions[control.optionName]
         control:Update()
@@ -90,7 +86,7 @@ function nPlatesConfigMixin:RestoreDefaults()
     ReloadUI()
 end
 
-function nPlatesConfigMixin:UpdatePanel()
+function nPlatesConfigMixin:OnRefresh()
     for _, control in pairs(self.controls) do
         if ( control.SetControl ) then
             control:SetControl()
@@ -700,5 +696,5 @@ function nPlatesConfigMixin:Init()
         end
     end
 
-    self:UpdatePanel()
+    self:OnRefresh()
 end
