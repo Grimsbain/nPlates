@@ -1,15 +1,15 @@
-## Interface: 30403
+## Interface: 40400
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates for NeavUI.
 ## Author: Grimsbain
-## Version: 2.87
+## Version: 2.89
 ## SavedVariablesPerCharacter: nPlatesDB
 ## RequiredDeps: Blizzard_NamePlates
 ## LoadWith: Blizzard_NamePlates
 
 ## X-Curse-Project-ID: 101700
 ## X-WoWI-ID: 24129
-## X-Flavor: Wrath
+## X-Flavor: Cata
 
 Libs\LibStub\LibStub.lua
 Libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
