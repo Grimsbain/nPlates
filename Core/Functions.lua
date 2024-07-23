@@ -178,7 +178,8 @@ function nPlates:UpdateNameColor(frame)
     end
 
     if ( UnitIsPlayer(frame.unit) ) then
-        local r, g, b = frame.healthBar:GetStatusBarColor()
+        local healthBar = frame.HealthBarsContainer and frame.HealthBarsContainer.healthBar or frame.healthBar
+        local r, g, b = healthBar:GetStatusBarColor()
         frame.name:SetTextColor(r, g, b)
         return
     else
@@ -401,17 +402,19 @@ function nPlates:SetSelectionColor(frame)
         return
     end
 
+    local healthBar = frame.HealthBarsContainer and frame.HealthBarsContainer.healthBar or frame.healthBar
+
     if ( UnitIsUnit(frame.displayedUnit, "target") ) then
         if ( self:GetOption("WhiteSelectionColor") ) then
             self.borderColor:SetRGB(1, 1, 1)
-            self:SetBeautyBorderColor(frame.healthBar, self.borderColor)
+            self:SetBeautyBorderColor(healthBar, self.borderColor)
         else
             local r, g, b = frame.healthBar:GetStatusBarColor()
             self.borderColor:SetRGB(r, g, b)
-            self:SetBeautyBorderColor(frame.healthBar, self.borderColor)
+            self:SetBeautyBorderColor(healthBar, self.borderColor)
         end
     else
-        self:SetBeautyBorderColor(frame.healthBar, self.defaultBorderColor)
+        self:SetBeautyBorderColor(healthBar, self.defaultBorderColor)
     end
 end
 
@@ -466,7 +469,8 @@ function nPlates:FixPersonalResourceDisplay(unit)
     local namePlateFrameBase = C_NamePlate.GetNamePlateForUnit("player", issecure())
 
     if ( namePlateFrameBase ) then
-        local healthBar = namePlateFrameBase.UnitFrame.healthBar
+        local healthContainer = namePlateFrameBase.UnitFrame.HealthBarsContainer
+        local healthBar = healthContainer.healthBar
 
         if ( self:HasBeautyBorder(healthBar) ) then
             for i = 1, 8 do
@@ -474,7 +478,7 @@ function nPlates:FixPersonalResourceDisplay(unit)
                 healthBar.beautyShadow[i]:Hide()
             end
 
-            healthBar.border:Show()
+            healthContainer.border:Show()
             healthBar.beautyBorder = nil
             healthBar.beautyShadow = nil
         end

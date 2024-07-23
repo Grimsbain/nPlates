@@ -10,6 +10,8 @@ local function ShowConfig()
 end
 
 nPlates_OnAddonCompartmentClick = ShowConfig
+nPlates_OnAddonCompartmentOnEnter = function() end
+nPlates_OnAddonCompartmentOnLeave = function() end
 
 local function nPlatesSlash(msg)
     if ( msg == "config") then

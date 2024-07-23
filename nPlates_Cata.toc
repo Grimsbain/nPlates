@@ -2,10 +2,12 @@
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates for NeavUI.
 ## Author: Grimsbain
-## Version: 2.89
+## Version: 2.90
 ## SavedVariablesPerCharacter: nPlatesDB
 ## RequiredDeps: Blizzard_NamePlates
 ## LoadWith: Blizzard_NamePlates
+## AllowLoad: Game
+## AllowLoadGameType: cata
 
 ## X-Curse-Project-ID: 101700
 ## X-WoWI-ID: 24129

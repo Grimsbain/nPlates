@@ -12,6 +12,7 @@ function nPlatesMixin:OnLoad()
         "PLAYER_REGEN_DISABLED",
         "PLAYER_REGEN_ENABLED",
         "RAID_TARGET_UPDATE",
+        "VARIABLES_LOADED",
     }
 
     FrameUtil.RegisterFrameForEvents(self, events)
@@ -23,10 +24,10 @@ function nPlatesMixin:OnEvent(event, ...)
 
         if ( name == "nPlates" ) then
             nPlates:SetDefaultOptions()
-            nPlates:CVarCheck()
-
             self:UnregisterEvent(event)
         end
+    elseif ( event == "VARIABLES_LOADED" ) then
+        nPlates:CVarCheck()
     elseif ( event == "NAME_PLATE_CREATED" ) then
         self:OnNamePlateCreated(...)
     elseif ( event == "NAME_PLATE_UNIT_ADDED" ) then
@@ -119,7 +120,8 @@ function nPlates:UpdateStatusText(frame)
         return
     end
 
-    local healthBar = frame.healthBar
+    local healthContainer = frame.HealthBarsContainer
+    local healthBar = healthContainer.healthBar
 
     if ( not healthBar.value ) then
         healthBar.value = healthBar:CreateFontString("$parentHeathValue", "OVERLAY")
@@ -226,10 +228,12 @@ function nPlates:UpdateHealthColor(frame)
         r, g, b = color.r, color.g, color.b
     end
 
-    local currentR, currentG, currentB = frame.healthBar:GetStatusBarColor()
+    local healthContainer = frame.HealthBarsContainer
+    local healthBar = healthContainer.healthBar
+    local currentR, currentG, currentB = healthBar:GetStatusBarColor()
 
     if ( r ~= currentR or g ~= currentG or b ~= currentB ) then
-        frame.healthBar:SetStatusBarColor(r, g, b)
+        healthBar:SetStatusBarColor(r, g, b)
 
         if ( frame.optionTable.colorHealthWithExtendedColors ) then
             frame.selectionHighlight:SetVertexColor(r, g, b)
@@ -293,7 +297,8 @@ end
 function nPlates:FrameSetup(frame)
     if ( frame:IsForbidden() ) then return end
 
-    local healthBar = frame.healthBar
+    local healthContainer = frame.HealthBarsContainer
+    local healthBar = healthContainer.healthBar
     local castBar = frame.castBar
 
     self:SetBorder(healthBar)
@@ -302,7 +307,7 @@ function nPlates:FrameSetup(frame)
 
     healthBar:SetStatusBarTexture(self.statusBar)
     healthBar.barTexture:SetTexture(self.statusBar)
-    healthBar.border:Hide()
+    healthContainer.border:Hide()
 
     castBar:SetHeight(10)
     castBar:SetStatusBarTexture(self.statusBar)
@@ -336,11 +341,13 @@ end
 function nPlates:SetupAnchors(frame, setupOptions)
     if ( frame:IsForbidden() ) then return end
 
-    local healthBar = frame.healthBar
+    local healthContainer = frame.HealthBarsContainer
+    local healthBar = healthContainer.healthBar
     local castBar = frame.castBar
 
-    healthBar:SetHeight(11)
+    healthContainer:SetHeight(14)
 
+    -- The alpha setting is used to detect the player resource frame.
     if ( setupOptions.healthBarAlpha ~= 1 ) then
         healthBar:SetPoint("BOTTOMLEFT", castBar, "TOPLEFT", 0, 5)
         healthBar:SetPoint("BOTTOMRIGHT", castBar, "TOPRIGHT", 0, 5)
