@@ -178,7 +178,8 @@ function nPlates:UpdateNameColor(frame)
     end
 
     if ( UnitIsPlayer(frame.unit) ) then
-        local healthBar = frame.HealthBarsContainer and frame.HealthBarsContainer.healthBar or frame.healthBar
+        local healthContainer = frame.HealthBarsContainer or frame
+        local healthBar = healthContainer.healthBar
         local r, g, b = healthBar:GetStatusBarColor()
         frame.name:SetTextColor(r, g, b)
         return
@@ -402,7 +403,8 @@ function nPlates:SetSelectionColor(frame)
         return
     end
 
-    local healthBar = frame.HealthBarsContainer and frame.HealthBarsContainer.healthBar or frame.healthBar
+    local healthContainer = frame.HealthBarsContainer or frame
+    local healthBar = healthContainer.healthBar
 
     if ( UnitIsUnit(frame.displayedUnit, "target") ) then
         if ( self:GetOption("WhiteSelectionColor") ) then
@@ -485,7 +487,7 @@ function nPlates:FixPersonalResourceDisplay(unit)
     end
 end
 
--- Wrath Only --
+-- Cata Only --
 
 function nPlates:UpdateClassification(frame)
     if ( self:IsFrameBlocked(frame) ) then

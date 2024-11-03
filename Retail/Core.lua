@@ -55,7 +55,6 @@ function nPlatesMixin:OnNamePlateAdded(unit)
     nPlates:UpdateStatusText(unitFrame)
     nPlates:UpdateHealthColor(unitFrame)
     nPlates:UpdateName(unitFrame)
-
     nPlates:FixPersonalResourceDisplay(unit)
 end
 
@@ -346,9 +345,9 @@ function nPlates:SetupAnchors(frame, setupOptions)
     local castBar = frame.castBar
 
     healthContainer:SetHeight(14)
-
-    -- The alpha setting is used to detect the player resource frame.
-    if ( setupOptions.healthBarAlpha ~= 1 ) then
+    
+    -- Used to detect the player resource frame.
+    if ( frame.unit ~= nil ) then
         healthBar:SetPoint("BOTTOMLEFT", castBar, "TOPLEFT", 0, 5)
         healthBar:SetPoint("BOTTOMRIGHT", castBar, "TOPRIGHT", 0, 5)
     end
