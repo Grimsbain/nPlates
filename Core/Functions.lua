@@ -54,17 +54,65 @@ function nPlates:RGBToHex(r, g, b)
     return RGBToColorCode(r, g, b)
 end
 
+local AbbreviateNumbers = AbbreviateNumbers
+local gameLocale = GetLocale()
+if gameLocale == "koKR" or gameLocale == "zhCN" or gameLocale == "zhTW" then
+  -- Work around https://github.com/Stanzilla/WoWUIBugs/issues/515
+
+local NUMBER_ABBREVIATION_DATA_FIXED={
+    [1]={
+        breakpoint = 10000 * 10000,
+        significandDivisor = 10000 * 10000,
+        abbreviation = SECOND_NUMBER_CAP_NO_SPACE,
+        fractionDivisor = 1
+    },
+    [2]={
+        breakpoint = 1000 * 10000,
+        significandDivisor = 1000 * 10000,
+        abbreviation = SECOND_NUMBER_CAP_NO_SPACE,
+        fractionDivisor = 10
+    },
+    [3]={
+        breakpoint = 10000,
+        significandDivisor = 1000,
+        abbreviation = FIRST_NUMBER_CAP_NO_SPACE,
+        fractionDivisor = 10
+    }
+  }
+
+    AbbreviateNumbers = function(value)
+        for i, data in ipairs(NUMBER_ABBREVIATION_DATA_FIXED) do
+            if value >= data.breakpoint then
+                    local finalValue = math.floor(value / data.significandDivisor) / data.fractionDivisor;
+                    return finalValue .. data.abbreviation;
+            end
+        end
+
+        return tostring(value);
+    end
+end
+
+    -- if ( number < 1e3 ) then
+    --     return math.floor(number)
+    -- elseif ( number >= 1e12 ) then
+    --     return string.format("%.3ft", number / 1e12)
+    -- elseif ( number >= 1e9 ) then
+    --     return string.format("%.3fb", number / 1e9)
+    -- elseif ( number >= 1e6 ) then
+    --     return string.format("%.2fm", number / 1e6)
+    -- elseif ( number >= 1e3 ) then
+    --     return string.format("%.1fk", number / 1e3)
+    -- end
+    
 function nPlates:FormatValue(number)
-    if ( number < 1e3 ) then
-        return math.floor(number)
-    elseif ( number >= 1e12 ) then
-        return string.format("%.3ft", number / 1e12)
-    elseif ( number >= 1e9 ) then
-        return string.format("%.3fb", number / 1e9)
-    elseif ( number >= 1e6 ) then
-        return string.format("%.2fm", number / 1e6)
-    elseif ( number >= 1e3 ) then
-        return string.format("%.1fk", number / 1e3)
+    if type(number) == "string" then number = tonumber(number) end
+
+    local style = self:GetOption("FormattingStyle")
+
+    if ( style == "Short" ) then
+        return AbbreviateLargeNumbers(Round(number))
+    else
+        return AbbreviateNumbers(number)
     end
 end
 
