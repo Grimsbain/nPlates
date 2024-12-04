@@ -15,6 +15,7 @@ nPlates.defaultOptions = {
     ["ExecuteValue"] =  35,
     ["ExecuteColor"] =  { r = 0, g = 71/255, b = 126/255},
     ["CurrentHealthOption"] =  "HealthDisabled",
+    ["FormattingStyle"] = "Short",
     ["HideFriendly"] =  false,
     ["SmallStacking"] =  false,
     ["DontClamp"] =  false,
@@ -32,7 +33,7 @@ function nPlatesConfigMixin:OnLoad()
 
     self.prevControl = nil
     self.controls = {}
-    self.profileBackup = {}
+    -- self.profileBackup = {}
 
     self.name = C_AddOns.GetAddOnMetadata(addon, "Title")
     self.version = C_AddOns.GetAddOnMetadata(addon, "Version")
@@ -43,40 +44,40 @@ function nPlatesConfigMixin:OnLoad()
 end
 
 function nPlatesConfigMixin:OnEvent(event, ...)
-    if ( event == "VARIABLES_LOADED") then
+    if ( event == "VARIABLES_LOADED" ) then
         self:Init()
-        self:SaveProfileBackup()
+        -- self:SaveProfileBackup()
         self:UnregisterEvent(event)
     end
 end
 
-function nPlatesConfigMixin:SaveProfileBackup()
-    self.profileBackup = CopyTable(nPlatesDB)
-end
+-- function nPlatesConfigMixin:SaveProfileBackup()
+--     self.profileBackup = CopyTable(nPlatesDB)
+-- end
 
-function nPlatesConfigMixin:OnCommit()
-    for _, control in pairs(self.controls) do
-        if ( self:ShouldUpdate(control) ) then
-            self.profileBackup[control.optionName] = control:GetValue()
-        end
-    end
-end
+-- function nPlatesConfigMixin:OnCommit()
+--     for _, control in pairs(self.controls) do
+--         if ( self:ShouldUpdate(control) ) then
+--             self.profileBackup[control.optionName] = control:GetValue()
+--         end
+--     end
+-- end
 
-function nPlatesConfigMixin:ShouldUpdate(control)
-    local oldValue = self.profileBackup[control.optionName]
-    local value = control:GetValue()
+-- function nPlatesConfigMixin:ShouldUpdate(control)
+--     local oldValue = self.profileBackup[control.optionName]
+--     local value = control:GetValue()
 
-    return oldValue ~= value
-end
+--     return oldValue ~= value
+-- end
 
-function nPlatesConfigMixin:CancelChanges()
-    for _, control in pairs(self.controls) do
-        if ( self:ShouldUpdate(control) ) then
-            nPlatesDB[control.optionName] = self.profileBackup[control.optionName]
-            control:Update()
-        end
-    end
-end
+-- function nPlatesConfigMixin:CancelChanges()
+--     for _, control in pairs(self.controls) do
+--         if ( self:ShouldUpdate(control) ) then
+--             nPlatesDB[control.optionName] = self.profileBackup[control.optionName]
+--             control:Update()
+--         end
+--     end
+-- end
 
 function nPlatesConfigMixin:OnDefault()
     for _, control in pairs(self.controls) do
@@ -250,6 +251,18 @@ function nPlatesConfigMixin:Init()
             },
         },
         {
+            type = "Dropdown",
+            name = "FormattingStyle",
+            parent = self,
+            label = L.FormattingStyle,
+            optionName = "FormattingStyle",
+            updateAll = true,
+            optionsTable = {
+                ["Short"] = L.AbbreviateNumbers,
+                ["Long"] =  L.AbbreviateLargeNumbers,
+            },
+        },
+        {
             type = "CheckBox",
             name = "SmallStacking",
             parent = self,
@@ -389,7 +402,7 @@ function nPlatesConfigMixin:Init()
         },
     }
 
-    local Wrath_UIControls = {
+    local Classic_UIControls = {
         {
             type = "Label",
             name = "NameOptions",
@@ -544,6 +557,18 @@ function nPlatesConfigMixin:Init()
             },
         },
         {
+            type = "Dropdown",
+            name = "FormattingStyle",
+            parent = self,
+            label = L.FormattingStyle,
+            optionName = "FormattingStyle",
+            updateAll = true,
+            optionsTable = {
+                ["Short"] = L.AbbreviateNumbers,
+                ["Long"] =  L.AbbreviateLargeNumbers,
+            },
+        },
+        {
             type = "CheckBox",
             name = "SmallStacking",
             parent = self,
@@ -682,7 +707,7 @@ function nPlatesConfigMixin:Init()
         },
     }
 
-    local UIControls = nPlates:IsRetail() and Retail_UIControls or Wrath_UIControls
+    local UIControls = nPlates:IsRetail() and Retail_UIControls or Classic_UIControls
 
     for _, control in pairs(UIControls) do
         if ( control.type == "Label" ) then

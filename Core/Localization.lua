@@ -45,6 +45,10 @@ L.TankMode = "Tank Mode"
 L.TankOptionsLabel = "Tank Options"
 L.WhiteSelectionColor = "White Selection Color"
 
+L.FormattingStyle = "Formatting Style"
+L.AbbreviateNumbers = "Abbreviate Numbers"
+L.AbbreviateLargeNumbers = "Abbreviate Large Numbers"
+
 local CURRENT_LOCALE = GetLocale()
 if CURRENT_LOCALE == "enUS" then return end
 
