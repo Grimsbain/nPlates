@@ -99,8 +99,6 @@ if gameLocale == "koKR" or gameLocale == "zhCN" or gameLocale == "zhTW" then
     AbbreviateNumbers = function(value)
         for i, data in ipairs(NUMBER_ABBREVIATION_DATA_FIXED) do
             if ( value >= data.breakpoint ) then
-                -- local finalValue = math.floor(value / data.significandDivisor) / data.fractionDivisor;
-                -- return finalValue .. data.abbreviation;
                 local finalValue = (value / data.significandDivisor) / data.fractionDivisor;
                 return string.format("%.2f %s", finalValue, data.abbreviation)
             end
@@ -115,11 +113,13 @@ function nPlates:FormatValue(value)
 
     local style = self:GetOption("FormattingStyle")
 
-    if ( style == "Short" ) then
-        return AbbreviateLargeNumbers(value)
-    else
+    if ( style == "AbbreviateNumbers" ) then
         return AbbreviateNumbers(value)
+    elseif ( style == "AbbreviateLargeNumbers" ) then
+        return AbbreviateLargeNumbers(value)
     end
+
+    return AbbreviateNumbers(value)
 end
 
 function nPlates:FormatTime(seconds)

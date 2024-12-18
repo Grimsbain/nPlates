@@ -15,7 +15,7 @@ nPlates.defaultOptions = {
     ["ExecuteValue"] =  35,
     ["ExecuteColor"] =  { r = 0, g = 71/255, b = 126/255},
     ["CurrentHealthOption"] =  "HealthDisabled",
-    ["FormattingStyle"] = "Short",
+    ["FormattingStyle"] = "AbbreviateNumbers",
     ["HideFriendly"] =  false,
     ["SmallStacking"] =  false,
     ["DontClamp"] =  false,
@@ -258,8 +258,8 @@ function nPlatesConfigMixin:Init()
             optionName = "FormattingStyle",
             updateAll = true,
             optionsTable = {
-                ["Short"] = L.AbbreviateNumbers,
-                ["Long"] =  L.AbbreviateLargeNumbers,
+                ["AbbreviateNumbers"] = L.AbbreviateNumbers,
+                ["AbbreviateLargeNumbers"] =  L.AbbreviateLargeNumbers,
             },
         },
         {
@@ -564,8 +564,8 @@ function nPlatesConfigMixin:Init()
             optionName = "FormattingStyle",
             updateAll = true,
             optionsTable = {
-                ["Short"] = L.AbbreviateNumbers,
-                ["Long"] =  L.AbbreviateLargeNumbers,
+                ["AbbreviateNumbers"] = L.AbbreviateNumbers,
+                ["AbbreviateLargeNumbers"] =  L.AbbreviateLargeNumbers,
             },
         },
         {
