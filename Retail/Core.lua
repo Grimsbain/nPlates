@@ -6,29 +6,23 @@ nPlatesMixin = {}
 
 function nPlatesMixin:OnLoad()
     local events = {
-        "ADDON_LOADED",
         "NAME_PLATE_CREATED",
         "NAME_PLATE_UNIT_ADDED",
         "PLAYER_REGEN_DISABLED",
         "PLAYER_REGEN_ENABLED",
         "RAID_TARGET_UPDATE",
-        "VARIABLES_LOADED",
     }
 
     FrameUtil.RegisterFrameForEvents(self, events)
+
+    EventRegistry:RegisterFrameEventAndCallback("VARIABLES_LOADED", function()
+        nPlates:SetDefaultOptions()
+        nPlates:CVarCheck()
+    end)
 end
 
 function nPlatesMixin:OnEvent(event, ...)
-    if ( event == "ADDON_LOADED" ) then
-        local name = ...
-
-        if ( name == "nPlates" ) then
-            nPlates:SetDefaultOptions()
-            self:UnregisterEvent(event)
-        end
-    elseif ( event == "VARIABLES_LOADED" ) then
-        nPlates:CVarCheck()
-    elseif ( event == "NAME_PLATE_CREATED" ) then
+    if ( event == "NAME_PLATE_CREATED" ) then
         self:OnNamePlateCreated(...)
     elseif ( event == "NAME_PLATE_UNIT_ADDED" ) then
         self:OnNamePlateAdded(...)
