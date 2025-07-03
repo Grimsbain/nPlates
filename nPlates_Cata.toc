@@ -1,8 +1,8 @@
-## Interface: 40401, 40402
+## Interface: 40402
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates for NeavUI.
 ## Author: Grimsbain
-## Version: 2.93
+## Version: 2.933
 ## SavedVariablesPerCharacter: nPlatesDB
 ## RequiredDeps: Blizzard_NamePlates
 ## LoadWith: Blizzard_NamePlates
@@ -17,4 +17,4 @@ Libs\LibStub\LibStub.lua
 Libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
 
 Core\Core.xml
-Wrath\nPlates.xml
+Classic\nPlates.xml
