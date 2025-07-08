@@ -169,8 +169,6 @@ function nPlates:CVarCheck()
     -- Combat Plates
     if ( self:GetOption("CombatPlates") ) then
         C_CVar.SetCVar("nameplateShowEnemies", UnitAffectingCombat("player") and 1 or 0)
-    else
-        self:ResetCVars("nameplateShowEnemies")
     end
 
     C_CVar.SetCVar("namePlateMinScale", 0.8)
