@@ -1,0 +1,10 @@
+package-as: nPlates
+
+enable-nolib-creation: no
+
+license-output: LICENSE
+
+externals:
+    Libs/LibStub:
+        url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+        tag: latest
