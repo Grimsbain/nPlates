@@ -2,7 +2,7 @@
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates addon.
 ## Author: Grimsbain
-## Version: 3.0.0
+## Version: 3.0.1
 ## IconTexture: Interface\AddOns\nPlates\Media\Addon_Icon.png
 ## SavedVariablesPerCharacter: nPlatesDB
 ## AllowLoad: Game
