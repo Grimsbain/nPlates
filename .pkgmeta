@@ -6,7 +6,7 @@ license-output: LICENSE
 
 externals:
     Libs/oUF:
-        url: git://github.com/oUF-wow/oUF.git
+        url: https://github.com/oUF-wow/oUF.git
         tag: latest
 
 tools-used:
