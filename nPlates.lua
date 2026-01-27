@@ -119,6 +119,10 @@ local function Layout(self, unit)
     self.Buffs.PostCreateButton = nPlates.PostCreateButton
     self.Buffs.PostUpdateButton = nPlates.PostUpdateButton
     self.Buffs:SetCollapsesLayout(true)
+    self.Buffs.PreUpdate = function(auras, unit)
+        local isPlayer = UnitIsPlayer(unit)
+        auras:SetShown(not isPlayer)
+    end
 
     self.ComboPoints = nPlates:CreateComboPointsElement(self)
 	self.ComboPoints:SetPoint("BOTTOM", self.Debuffs, "TOP", 0, 4)
