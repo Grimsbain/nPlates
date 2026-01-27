@@ -17,4 +17,5 @@
 ## X-Flavor: Mainline
 ## X-oUF: nPlates3
 
+Libs\oUF\oUF.xml
 nPlates.xml

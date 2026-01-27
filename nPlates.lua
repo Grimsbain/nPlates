@@ -1,5 +1,5 @@
 local _, nPlates = ...
-local oUF = nPlates.oUF or oUF
+local oUF = nPlates.oUF
 
 local function Layout(self, unit)
     self.Health = CreateFrame("StatusBar", "$parentHealthBar", self)

@@ -1,5 +1,5 @@
 local _, nPlates = ...
-local oUF = nPlates.oUF or oUF
+local oUF = nPlates.oUF
 
 nPlates.Media = {
     StatusBarTexture = [[Interface\AddOns\nPlates\Media\UI-StatusBar]],
