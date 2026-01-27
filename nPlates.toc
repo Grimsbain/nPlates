@@ -1,4 +1,4 @@
-## Interface: 120000
+## Interface: 120000, 120001
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates addon.
 ## Author: Grimsbain
