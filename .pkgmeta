@@ -5,6 +5,9 @@ enable-nolib-creation: no
 license-output: LICENSE
 
 externals:
-    Libs/LibStub:
-        url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+    Libs/oUF:
+        url: git://github.com/oUF-wow/oUF.git
         tag: latest
+
+tools-used:
+  - ouf

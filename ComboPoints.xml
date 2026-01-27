@@ -1,0 +1,46 @@
+<Ui>
+    <Script file="ComboPoints.lua"/>
+
+    <Frame name="nPlatesComboPower" parentArray="Points" virtual="true" hidden="true">
+        <Size x="20" y="20"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Shadow" atlas="uf-roguecp-bg-shadow" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="-4"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="1">
+				<Texture parentKey="Background" atlas="uf-roguecp-bg-dis" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" textureSubLevel="1">
+				<Texture parentKey="Point" atlas="uf-roguecp-bg-dis" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Overlay" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+    </Frame>
+
+    <Frame name="nPlatesComboPoints" virtual="true" mixin="nPlatesComboPointsMixin">
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEvent method="OnEvent"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+        </Scripts>
+    </Frame>
+</Ui>

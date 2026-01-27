@@ -1,25 +1,20 @@
-## Interface: 110200
+## Interface: 120000
 ## Title: |cffCC3333 n|rPlates
-## Notes: Nameplates for NeavUI.
+## Notes: Nameplates addon.
 ## Author: Grimsbain
-## Version: 2.935
+## Version: 3.0.0
 ## IconTexture: Interface\AddOns\nPlates\Media\Addon_Icon.png
-## Category-enUS: NeavUI
 ## SavedVariablesPerCharacter: nPlatesDB
-## RequiredDeps: Blizzard_NamePlates
-## LoadWith: Blizzard_NamePlates
+## AllowLoad: Game
+## AllowLoadGameType: mainline
+
 ## AddonCompartmentFunc: nPlates_OnAddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: nPlates_OnAddonCompartmentOnEnter
 ## AddonCompartmentFuncOnLeave: nPlates_OnAddonCompartmentOnLeave
-## AllowLoad: Game
-## AllowLoadGameType: mainline
 
 ## X-Curse-Project-ID: 101700
 ## X-WoWI-ID: 24129
 ## X-Flavor: Mainline
+## X-oUF: nPlates3
 
-Libs\LibStub\LibStub.lua
-Libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
-
-Core\Core.xml
-Retail\nPlates.xml
+nPlates.xml
