@@ -1,5 +1,5 @@
 # nPlates
-nPlates 2.0
+nPlates 3.0
 
 Known Issues:
 
