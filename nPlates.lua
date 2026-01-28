@@ -65,7 +65,7 @@ local function Layout(self, unit)
     self.QuestIndicator:SetAtlas("QuestNormal", false)
     self.QuestIndicator.Override = function(self, event, unit)
         local element = self.QuestIndicator
-        local shouldShow = nPlates:GetSetting("NPLATES_SHOWQUEST") and C_QuestLog.UnitIsRelatedToActiveQuest(unit)
+        local shouldShow = Settings.GetValue("NPLATES_SHOWQUEST") and C_QuestLog.UnitIsRelatedToActiveQuest(unit)
         element:SetShown(shouldShow)
     end
 
@@ -80,7 +80,7 @@ local function Layout(self, unit)
     self.RaidTargetIndicator:SetCollapsesLayout(true)
 
     self.Debuffs = CreateFrame("Frame", "$parentAuras", self)
-    self.Debuffs:SetScale(nPlates:GetSetting("NPLATES_AURA_SCALE"))
+    self.Debuffs:SetScale(Settings.GetValue("NPLATES_AURA_SCALE"))
     self.Debuffs:SetIgnoreParentScale(true)
     self.Debuffs.size = 20
     self.Debuffs.width = 20
@@ -145,7 +145,7 @@ local function Layout(self, unit)
     end, true)
 
     self:RegisterEvent("PLAYER_FOCUS_CHANGED", function(self, event)
-        nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
+        nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
             nPlates:SetSelectionColor(plate)
         end)
     end, true)
@@ -164,9 +164,9 @@ function nPlatesMixin:OnLoad()
 end
 
 function nPlatesMixin:Initialize()
-    nPlates.Media.OffTankColorHex = CreateColorFromHexString(nPlates:GetSetting("NPLATES_OFF_TANK_COLOR_HEX"));
-    nPlates.Media.SelectionColorHex = CreateColorFromHexString(nPlates:GetSetting("NPLATES_SELECTION_COLOR_HEX"));
-    nPlates.Media.FocusColorHex = CreateColorFromHexString(nPlates:GetSetting("NPLATES_FOCUS_COLOR_HEX"));
+    nPlates.Media.OffTankColor = CreateColorFromHexString(Settings.GetValue("NPLATES_OFF_TANK_COLOR_HEX"))
+    nPlates.Media.SelectionColor = CreateColorFromHexString(Settings.GetValue("NPLATES_SELECTION_COLOR_HEX"))
+    nPlates.Media.FocusColor = CreateColorFromHexString(Settings.GetValue("NPLATES_FOCUS_COLOR_HEX"))
 
     oUF:RegisterStyle("nPlate3", Layout)
     oUF:Factory(function(self)
@@ -186,12 +186,12 @@ end
 
 function nPlates:OnNamePlateRemoved(nameplate, event, unit)
     nameplate.unit = nil
+    nameplate.widgetsOnlyMode = nil
     nameplate:Hide()
 end
 
 function nPlates:OnNamePlateAdded(nameplate, event, unit)
     nameplate.unit = unit
-    nameplate.ComboPoints:UpdateVisibility()
 
     nPlates:UpdateWidgetsOnlyMode(nameplate, unit)
     nPlates:UpdateClassification(nameplate, event, unit)
@@ -199,13 +199,13 @@ function nPlates:OnNamePlateAdded(nameplate, event, unit)
     nPlates:UpdateName(nameplate, event, unit)
     nPlates:UpdateNameLocation(nameplate, event, unit)
     nPlates:UpdateDebuffAnchors(nameplate)
-    nameplate.Debuffs:SetScale(nPlates:GetSetting("NPLATES_AURA_SCALE"))
+    nameplate.Debuffs:SetScale(Settings.GetValue("NPLATES_AURA_SCALE"))
 
     nameplate:Show()
 end
 
 function nPlates:OnTargetChanged(nameplate, event, unit)
-    nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
+    nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
         nPlates:SetSelectionColor(plate)
     end)
 
@@ -231,4 +231,23 @@ function nPlates:UpdateWidgetsOnlyMode(nameplate, unit)
     else
         PixelUtil.SetPoint(nameplate.WidgetContainer, "TOP", nameplate.Castbar, "BOTTOM", 0, 0);
     end
+end
+
+function nPlates:IsFriendlyPlayer(unit)
+    return UnitIsPlayer(unit) and nPlates:IsFriend(unit)
+end
+
+function nPlates:IsFriend(unit)
+    local isFriend = false
+
+    if unit ~= nil then
+		isFriend = UnitIsFriend("player", unit)
+
+		-- Cross faction players who are in the local players party but not in an instance are attackable and should appear as enemies.
+		if isFriend and UnitIsPlayer(unit) and UnitInParty(unit) and UnitCanAttack("player", unit) then
+			isFriend = false
+		end
+	end
+
+    return isFriend
 end

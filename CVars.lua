@@ -29,10 +29,10 @@ function nPlates:CVarCheck()
         return
     end
 
-    SetCVar("nameplateOccludedAlphaMult", nPlates:GetSetting("NPLATES_ALPHA"))
-    SetCVar("nameplateMaxDistance", nPlates:GetSetting("NPLATES_DISTANCE_NPC"))
-    SetCVar("nameplatePlayerMaxDistance", nPlates:GetSetting("NPLATES_DISTANCE_PLAYER"))
-    SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", nPlates:GetSetting("NPLATES_ONLYNAME") and 1 or 0)
+    SetCVar("nameplateOccludedAlphaMult", Settings.GetValue("NPLATES_ALPHA"))
+    SetCVar("nameplateMaxDistance", Settings.GetValue("NPLATES_DISTANCE_NPC"))
+    SetCVar("nameplatePlayerMaxDistance", Settings.GetValue("NPLATES_DISTANCE_PLAYER"))
+    SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", Settings.GetValue("NPLATES_ONLYNAME") and 1 or 0)
 end
 
 function nPlates:RestoreCVars()

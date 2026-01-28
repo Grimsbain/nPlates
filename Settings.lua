@@ -1,41 +1,17 @@
 local _, nPlates = ...
 local L = nPlates.L
 
-local categoryID
-
-nPlates.Defaults = {
-    ShowLevel = true,
-    AlwaysShowName = false,
-    ThreatColoring = false,
-    SelectionColor = false,
-    ShowCooldownNumbers = true,
-    ShowCooldownEdge = true,
-    ShowCooldownSwipe = false,
-    AuraScale = 1,
-    ShowQuest = true,
-    OnlyName = true,
-    HealthStyle = "cur",
-    nameplateOccludedAlphaMult = GetCVar("nameplateOccludedAlphaMult"),
-    nameplateMaxDistance = GetCVar("nameplateMaxDistance"),
-    nameplatePlayerMaxDistance = GetCVar("nameplatePlayerMaxDistance"),
-    OffTankColorHex = "FF7328FF",
-}
-
 local function Percentage(percentage)
     local value = Round(percentage * 100)
 	return _G.PERCENTAGE_STRING:format(value)
 end
 
-function nPlates:GetSetting(variable)
-    return Settings.GetValue(variable)
-end
-
 function nPlates:RegisterSettings()
-    nPlatesDB = nPlatesDB or CopyTable(nPlates.Defaults)
+    nPlatesDB = nPlatesDB or {}
 
     local category, layout = Settings.RegisterVerticalLayoutCategory(L.AddonTitle)
     Settings.RegisterAddOnCategory(category)
-    categoryID = category.ID
+    nPlates.categoryID = category.ID
 
     local options = {
         {
@@ -51,7 +27,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     nPlates:UpdateName(plate, event, unitToken)
                 end)
             end,
@@ -65,7 +41,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     nPlates:UpdateName(plate, event, unitToken)
                 end)
             end,
@@ -83,22 +59,21 @@ function nPlates:RegisterSettings()
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateNameplateElement("Health")
+                nPlates:UpdateElement("Health")
             end,
         },
         {
             type = "Swatch",
             name = "NPLATES_OFF_TANK_COLOR",
             variable = "OffTankColor",
-            hexVariable = "OffTankColorHex",
             default = Settings.Default.False,
             label = L.OffTankColor,
             varType = Settings.VarType.Boolean,
             color = "ff7328ff",
             indent = true,
             callback = function(setting, value)
-                nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:UpdateNameplateElement("Health")
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    nPlates:UpdateElement("Health")
                 end)
             end,
         },
@@ -106,14 +81,13 @@ function nPlates:RegisterSettings()
             type = "Swatch",
             name = "NPLATES_SELECTION_COLOR",
             variable = "SelectionColor",
-            hexVariable = "SelectionColorHex",
             label = L.SelectionColor,
             tooltip = L.SelectionColorTooltip,
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
             color = "ffffffff",
             callback = function(...)
-                nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     nPlates:SetSelectionColor(plate)
                 end)
             end,
@@ -122,14 +96,13 @@ function nPlates:RegisterSettings()
             type = "Swatch",
             name = "NPLATES_FOCUS_COLOR",
             variable = "FocusColor",
-            hexVariable = "FocusColorHex",
             default = Settings.Default.False,
             label = "Focus Color",
             varType = Settings.VarType.Boolean,
             color = "FFFF7B00",
             callback = function(setting, value)
-                nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:UpdateNameplateElement("Health")
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    nPlates:UpdateElement("Health")
                 end)
             end,
         },
@@ -146,7 +119,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateNameplateElement("Debuffs")
+                nPlates:UpdateElement("Debuffs")
             end,
         },
         {
@@ -158,7 +131,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateNameplateElement("Debuffs")
+                nPlates:UpdateElement("Debuffs")
             end,
         },
         {
@@ -170,7 +143,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateNameplateElement("Debuffs")
+                nPlates:UpdateElement("Debuffs")
             end,
         },
         {
@@ -186,7 +159,7 @@ function nPlates:RegisterSettings()
             max = 1.5,
             step = 0.05,
             callback = function(setting, value)
-                nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate.Debuffs:SetScale(value)
                 end)
             end,
@@ -205,7 +178,7 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(...)
                 local _, value = ...
-                nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate.ComboPoints:Toggle(value)
                 end)
             end,
@@ -219,7 +192,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateNameplateElement("QuestIndicator")
+                nPlates:UpdateElement("QuestIndicator")
             end,
         },
         {
@@ -231,7 +204,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     nPlates:UpdateNameLocation(plate, event, unitToken)
                 end)
 
@@ -256,8 +229,8 @@ function nPlates:RegisterSettings()
                 return container:GetData()
             end,
             callback = function(setting, value)
-                nPlates:UpdateAllNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:UpdateNameplateElement("Health")
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    nPlates:UpdateElement("Health")
                 end)
             end,
         },
@@ -344,9 +317,9 @@ function nPlates:RegisterSettings()
             setting:SetValueChangedCallback(control.callback)
             Settings.CreateSlider(category, setting, options, control.tooltip)
         elseif control.type == "Swatch" then
-            local hex = Settings.RegisterAddOnSetting(category, control.name.."_HEX", control.hexVariable, nPlatesDB, Settings.VarType.String, nil, control.color)
+            local hex = Settings.RegisterAddOnSetting(category, control.name.."_HEX", control.variable.."Hex", nPlatesDB, Settings.VarType.String, nil, control.color)
             hex:SetValueChangedCallback(function(s, value)
-                nPlates.Media[control.hexVariable] = CreateColorFromHexString(value)
+                nPlates.Media[control.variable] = CreateColorFromHexString(value)
                 if control.callback then
                     control.callback(s, value)
                 end
@@ -356,7 +329,7 @@ function nPlates:RegisterSettings()
             setting:SetValueChangedCallback(control.callback)
 
             local function GetColor()
-                local healthColorString = nPlates:GetSetting(control.name.."_HEX")
+                local healthColorString = Settings.GetValue(control.name.."_HEX")
                 local color = CreateColorFromHexString(healthColorString)
                 return color or COMPACT_UNIT_FRAME_FRIENDLY_HEALTH_COLOR
             end
@@ -425,7 +398,7 @@ local function ToggleSettings()
         HideUIPanel(SettingsPanel)
 		HideUIPanel(GameMenuFrame)
     else
-        Settings.OpenToCategory(categoryID)
+        Settings.OpenToCategory(nPlates.categoryID)
     end
 end
 
@@ -450,7 +423,3 @@ local function nPlatesSlash(msg)
 end
 
 RegisterNewSlashCommand(nPlatesSlash, "nplates", "np3")
-
--- EventRegistry:RegisterFrameEventAndCallback("VARIABLES_LOADED", function()
---     nPlates:RegisterSettings()
--- end)

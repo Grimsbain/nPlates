@@ -5,6 +5,7 @@
     <Script file="CVars.lua"/>
     <Script file="Utils.lua"/>
     <Script file="Settings.lua"/>
+    <Script file="Border.lua"/>
     <Script file="nPlates.lua"/>
     <Include file="ComboPoints.xml"/>
 

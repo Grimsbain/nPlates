@@ -47,7 +47,7 @@ function nPlatesComboPointsMixin:Update(unit)
 		return
 	end
 
-    if ( not nPlates:GetSetting("NPLATES_COMBO_POINTS") or not self:ShouldShowComboPoints(unit) ) then
+    if ( not Settings.GetValue("NPLATES_COMBO_POINTS") or not self:ShouldShowComboPoints(unit) ) then
 		self:Hide()
 		return
 	end
