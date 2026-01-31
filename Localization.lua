@@ -31,8 +31,12 @@ L.OffTankColor = "Off Tank Color"
 L.OffTankColorTooltip = "Color shown if another tank is being targeted."
 L.SelectionColor = "Target Selection Color"
 L.SelectionColorTooltip = "Displays a custom selection border."
+-- Buff Options
+L.BuffOptions = "Buff Options"
+L.ShowBuffs = "Show Buffs"
+L.ShowBuffsTooltip = "Display buffs to the left of the nameplate. NPCs Only."
 -- Aura Options
-L.AuraOptions = "Debuff Options"
+L.DebuffOptions = "Debuff Options"
 L.CooldownNumbers = "Show Cooldown Numbers"
 L.CooldownNumbersTooltip = "Shows or hides cooldown text."
 L.CooldownEdge = "Show Cooldown Edge"

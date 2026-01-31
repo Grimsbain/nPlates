@@ -30,26 +30,21 @@ function nPlates:SetBeautyBorderColor(frame, color)
 end
 
 function nPlates:SetSelectionColor(frame)
-    if ( not frame) then
+    if ( not frame or not frame.unit ) then
         return
     end
 
     local healthBar = frame.Health
     local unit = frame.unit
 
-    if ( not unit ) then
-        self:SetBeautyBorderColor(healthBar, self.Media.DefaultBorderColor)
-        return
-    end
-
     if ( Settings.GetValue("NPLATES_FOCUS_COLOR") ) then
-        if ( UnitIsUnit(unit, "focus") ) then
+        if ( frame:IsFocus() ) then
             self:SetBeautyBorderColor(healthBar, self.Media.FocusColor)
             return
         end
     end
 
-    if ( UnitIsUnit(unit, "target") ) then
+    if ( frame:IsTarget() ) then
         if ( Settings.GetValue("NPLATES_SELECTION_COLOR") ) then
             self:SetBeautyBorderColor(healthBar, self.Media.SelectionColor)
         else

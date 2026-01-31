@@ -28,7 +28,7 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(...)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:UpdateName(plate, event, unitToken)
+                    plate:UpdateName()
                 end)
             end,
         },
@@ -42,7 +42,7 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(...)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:UpdateName(plate, event, unitToken)
+                    plate:UpdateName()
                 end)
             end,
         },
@@ -108,7 +108,25 @@ function nPlates:RegisterSettings()
         },
         {
             type = "Label",
-            label = L.AuraOptions,
+            label = L.BuffOptions,
+        },
+        {
+            type = "CheckBox",
+            name = "NPLATES_SHOW_BUFFS",
+            variable = "ShowBuffs",
+            label = L.ShowBuffs,
+            tooltip = L.ShowBuffsTooltip,
+            default = Settings.Default.True,
+            varType = Settings.VarType.Boolean,
+            callback = function(...)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate:UpdateBuffs()
+                end)
+            end,
+        },
+        {
+            type = "Label",
+            label = L.DebuffOptions,
         },
         {
             type = "CheckBox",
@@ -205,7 +223,7 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(...)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:UpdateNameLocation(plate, event, unitToken)
+                    plate:UpdateNameLocation()
                 end)
 
                 SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", value and 1 or 0)

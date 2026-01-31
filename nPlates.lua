@@ -1,7 +1,183 @@
 local _, nPlates = ...
 local oUF = nPlates.oUF
 
+local PlateMixin = {}
+
+function PlateMixin:UpdateIsPlayer()
+    self.isPlayer = self.unit and UnitIsPlayer(self.unit) or false
+end
+
+function PlateMixin:IsPlayer()
+    return self.isPlayer
+end
+
+function PlateMixin:IsFriendlyPlayer()
+    return self:IsPlayer() and self:IsFriend()
+end
+
+function PlateMixin:IsFriend()
+    local isFriend = false
+
+    if self.unit ~= nil then
+		isFriend = UnitIsFriend("player", self.unit)
+
+		-- Cross faction players who are in the local players party but not in an instance are attackable and should appear as enemies.
+		if isFriend and self:IsPlayer() and UnitInParty(self.unit) and UnitCanAttack("player", self.unit) then
+			isFriend = false
+		end
+	end
+
+    return isFriend
+end
+
+function PlateMixin:UpdateIsTarget()
+    self.isTarget = self.unit and UnitIsUnit(self.unit, "target") or false
+end
+
+function PlateMixin:IsTarget()
+    return self.isTarget == true
+end
+
+function PlateMixin:UpdateIsFocus()
+    self.isFocus = self.unit and UnitIsUnit(self.unit, "focus") or false
+end
+
+function PlateMixin:IsFocus()
+    return self.isFocus == true
+end
+
+function PlateMixin:UpdateClassPower()
+    self.ComboPoints:UpdateVisibility()
+end
+
+function PlateMixin:IsWidgetMode()
+    return self.widgetsOnlyMode
+end
+
+function PlateMixin:UpdateWidgetsOnlyMode()
+    self.widgetsOnlyMode = self.unit ~= nil and UnitNameplateShowsWidgetsOnly(self.unit)
+    self.Health:SetShown(not self.widgetsOnlyMode)
+
+    self.WidgetContainer:ClearAllPoints()
+
+    if self.widgetsOnlyMode then
+        PixelUtil.SetPoint(self.WidgetContainer, "BOTTOM", self, "BOTTOM", 0, 0)
+        PixelUtil.SetPoint(self.WidgetContainer, "CENTER", self, "CENTER", 0, 0)
+    else
+        PixelUtil.SetPoint(self.WidgetContainer, "TOP", self.Castbar, "BOTTOM", 0, 0)
+    end
+end
+
+function PlateMixin:UpdateBuffs()
+    self.showBuffs = Settings.GetValue("NPLATES_SHOW_BUFFS")
+    nPlates:UpdateElement("Buffs")
+end
+
+function PlateMixin:ShouldShowBuffs()
+    return self.showBuffs == true
+end
+
+function PlateMixin:UpdateDebuffs()
+    self.Debuffs:SetScale(Settings.GetValue("NPLATES_AURA_SCALE"))
+end
+
+function PlateMixin:UpdateDebuffLocation()
+    local offset = self:ShouldShowName() and 17 or 5
+    PixelUtil.SetPoint(self.Debuffs, "BOTTOMLEFT", self.Health, "TOPLEFT", 0, offset)
+end
+
+function PlateMixin:ShouldShowName()
+    if ( self:IsWidgetMode() ) then
+        return false
+    end
+
+    if ( Settings.GetValue("NPLATES_FORCE_NAME") ) then
+        return true
+    end
+
+    if ( self:IsPlayer() or self:IsTarget() ) then
+        return true
+    end
+
+    if ( UnitIsEnemy("player", self.unit) ) then
+        return true
+    end
+
+    return false
+end
+
+function PlateMixin:UpdateNameLocation()
+    if ( self:IsWidgetMode() ) then
+        self.Name:Hide()
+        return
+    end
+
+    self.Name:ClearAllPoints()
+
+    if ( Settings.GetValue("NPLATES_ONLYNAME") and self:IsFriendlyPlayer() ) then
+        self.Name:SetPoint("BOTTOM", self, "TOP", 0, 5)
+        self.Health:ClearAllPoints()
+    else
+        self.Name:SetPoint("BOTTOM", self.Health, "TOP", 0, 5)
+
+        self.Health:ClearAllPoints()
+        self.Health:SetPoint("TOP")
+    end
+end
+
+function PlateMixin:UpdateName()
+    if ( not self:ShouldShowName() ) then
+        self.Name:Hide()
+        return
+    else
+        local unitName = UnitName(self.unit) or UNKOWN
+
+        if ( Settings.GetValue("NPLATES_SHOWLEVEL") and not self:IsPlayer() ) then
+            local targetLevel = UnitLevel(self.unit)
+
+            if ( targetLevel == -1 ) then
+                self.Name:SetText(unitName)
+            else
+                local difficulty = C_PlayerInfo.GetContentDifficultyCreatureForPlayer(self.unit)
+                local color = GetDifficultyColor(difficulty)
+                self.Name:SetFormattedText("%s%d|r %s", ConvertRGBtoColorString(color), targetLevel, unitName)
+            end
+        else
+            if ( self:IsPlayer() ) then
+                self.Name:SetText(GetClassColoredTextForUnit(self.unit, unitName))
+            else
+                self.Name:SetText(unitName)
+            end
+        end
+
+        self.Name:Show()
+    end
+end
+
+function PlateMixin:UpdateClassification()
+    local element = self.classificationIndicator
+
+    if ( not self.unit or self:IsWidgetMode() ) then
+        element:Hide()
+        return
+    end
+
+    local classification = UnitClassification(self.unit)
+
+    if ( classification == "elite" or classification == "worldboss" ) then
+        element:SetAtlas("nameplates-icon-elite-gold")
+        element:Show()
+    elseif ( classification == "rareelite" or classification == "rare" ) then
+        element:SetAtlas("nameplates-icon-elite-silver")
+        element:Show()
+    else
+        element:Hide()
+    end
+end
+
 local function Layout(self, unit)
+    Mixin(self, PlateMixin)
+
     self.Health = CreateFrame("StatusBar", "$parentHealthBar", self)
     self.Health:SetPoint("TOP")
     self.Health:SetWidth(175)
@@ -63,11 +239,7 @@ local function Layout(self, unit)
     self.QuestIndicator:SetSize(25, 25)
     self.QuestIndicator:SetPoint("LEFT", self.Health, "RIGHT", 0, 0)
     self.QuestIndicator:SetAtlas("QuestNormal", false)
-    self.QuestIndicator.Override = function(self, event, unit)
-        local element = self.QuestIndicator
-        local shouldShow = Settings.GetValue("NPLATES_SHOWQUEST") and C_QuestLog.UnitIsRelatedToActiveQuest(unit)
-        element:SetShown(shouldShow)
-    end
+    self.QuestIndicator.Override = nPlates.QuestIndicator
 
     self.classificationIndicator = self:CreateTexture("$parentClassificationIndicator", "OVERLAY", nil, 7)
     self.classificationIndicator:SetSize(20, 20)
@@ -78,6 +250,11 @@ local function Layout(self, unit)
     self.RaidTargetIndicator:SetPoint("RIGHT", self.classificationIndicator, "LEFT", -4, 0)
     self.RaidTargetIndicator:SetSize(22, 22)
     self.RaidTargetIndicator:SetCollapsesLayout(true)
+    self.RaidTargetIndicator.PostUpdate = function(element, index)
+        if self:IsWidgetMode() then
+            element:Hide()
+        end
+    end
 
     self.Debuffs = CreateFrame("Frame", "$parentAuras", self)
     self.Debuffs:SetScale(Settings.GetValue("NPLATES_AURA_SCALE"))
@@ -99,9 +276,15 @@ local function Layout(self, unit)
     self.Debuffs.PostCreateButton = nPlates.PostCreateButton
     self.Debuffs.PostUpdateButton = nPlates.PostUpdateButton
     self.Debuffs.PostUpdate = nPlates.DebuffPostUpdate
-    nPlates:UpdateDebuffAnchors(self)
+    self.Debuffs.PreUpdate = function(auras, unit)
+        if self:IsWidgetMode() then
+            auras:Hide()
+            return
+        end
+    end
+    self:UpdateDebuffLocation()
 
-    self.Buffs = CreateFrame("Frame", "$parenBuffs", self)
+    self.Buffs = CreateFrame("Frame", "$parentBuffs", self)
     self.Buffs:SetIgnoreParentScale(true)
     self.Buffs.size = 20
     self.Buffs.width = 20
@@ -120,11 +303,23 @@ local function Layout(self, unit)
     self.Buffs.PostUpdateButton = nPlates.PostUpdateButton
     self.Buffs:SetCollapsesLayout(true)
     self.Buffs.PreUpdate = function(auras, unit)
-        local isPlayer = UnitIsPlayer(unit)
-        auras:SetShown(not isPlayer)
+        if self:IsWidgetMode() or not self:ShouldShowBuffs() then
+            auras:Hide()
+            return
+        end
+
+        auras:SetShown(not self:IsPlayer())
     end
 
-    self.ComboPoints = nPlates:CreateComboPointsElement(self)
+    local softTarget = self:GetParent().UnitFrame.SoftTargetFrame
+    if softTarget then
+        softTarget:ClearAllPoints()
+        softTarget:SetPoint("LEFT", self.Buffs, "RIGHT", 4, 0)
+        softTarget:SetCollapsesLayout(true)
+    end
+
+
+    self.ComboPoints = nPlates:CreateComboPoints(self)
 	self.ComboPoints:SetPoint("BOTTOM", self.Debuffs, "TOP", 0, 4)
     self.ComboPoints:SetPoint("CENTER", self)
 
@@ -134,8 +329,8 @@ local function Layout(self, unit)
     self:RegisterEvent("UNIT_FLAGS", nPlates.UpdateHealth)
 
     self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", function(self, event, unit)
-        nPlates:UpdateClassification(self, event, self.unit)
-        nPlates:UpdateName(self, event, self.unit)
+        self:UpdateClassification()
+        self:UpdateName()
     end)
 
     -- We use a custom "PLAYER_TARGET_CHANGED" because the oUF verion
@@ -145,6 +340,7 @@ local function Layout(self, unit)
     end, true)
 
     self:RegisterEvent("PLAYER_FOCUS_CHANGED", function(self, event)
+        self:UpdateIsFocus()
         nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
             nPlates:SetSelectionColor(plate)
         end)
@@ -193,61 +389,30 @@ end
 function nPlates:OnNamePlateAdded(nameplate, event, unit)
     nameplate.unit = unit
 
-    nPlates:UpdateWidgetsOnlyMode(nameplate, unit)
-    nPlates:UpdateClassification(nameplate, event, unit)
+    nameplate:UpdateIsPlayer()
+    nameplate:UpdateIsTarget()
+    nameplate:UpdateIsFocus()
+
+    nameplate:UpdateWidgetsOnlyMode()
+    nameplate:UpdateClassification()
+    nameplate:UpdateName()
+    nameplate:UpdateNameLocation()
+    nameplate:UpdateBuffs()
+    nameplate:UpdateDebuffs()
+    nameplate:UpdateDebuffLocation()
     nPlates.UpdateHealth(nameplate, event, unit)
-    nPlates:UpdateName(nameplate, event, unit)
-    nPlates:UpdateNameLocation(nameplate, event, unit)
-    nPlates:UpdateDebuffAnchors(nameplate)
-    nameplate.Debuffs:SetScale(Settings.GetValue("NPLATES_AURA_SCALE"))
 
     nameplate:Show()
 end
 
 function nPlates:OnTargetChanged(nameplate, event, unit)
+    nameplate:UpdateIsTarget()
+
     nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
         nPlates:SetSelectionColor(plate)
     end)
 
-    nPlates:UpdateName(nameplate, event, unit)
-    nPlates:UpdateDebuffAnchors(nameplate)
-    nameplate.ComboPoints:UpdateVisibility()
-end
-
-function nPlates:UpdateWidgetsOnlyMode(nameplate, unit)
-    local widgetsOnlyMode = unit ~= nil and UnitNameplateShowsWidgetsOnly(unit);
-    nameplate.Health:SetShown(not widgetsOnlyMode)
-    nameplate.classificationIndicator:SetShown(not widgetsOnlyMode)
-    nameplate.Debuffs:SetShown(not widgetsOnlyMode)
-    nameplate.Buffs:SetShown(not widgetsOnlyMode)
-    nameplate.Name:SetShown(not widgetsOnlyMode)
-    nameplate.isWidget = widgetsOnlyMode
-
-    nameplate.WidgetContainer:ClearAllPoints();
-
-    if widgetsOnlyMode then
-        PixelUtil.SetPoint(nameplate.WidgetContainer, "BOTTOM", nameplate, "BOTTOM", 0, 0);
-        PixelUtil.SetPoint(nameplate.WidgetContainer, "CENTER", nameplate, "CENTER", 0, 0);
-    else
-        PixelUtil.SetPoint(nameplate.WidgetContainer, "TOP", nameplate.Castbar, "BOTTOM", 0, 0);
-    end
-end
-
-function nPlates:IsFriendlyPlayer(unit)
-    return UnitIsPlayer(unit) and nPlates:IsFriend(unit)
-end
-
-function nPlates:IsFriend(unit)
-    local isFriend = false
-
-    if unit ~= nil then
-		isFriend = UnitIsFriend("player", unit)
-
-		-- Cross faction players who are in the local players party but not in an instance are attackable and should appear as enemies.
-		if isFriend and UnitIsPlayer(unit) and UnitInParty(unit) and UnitCanAttack("player", unit) then
-			isFriend = false
-		end
-	end
-
-    return isFriend
+    nameplate:UpdateName()
+    nameplate:UpdateDebuffLocation()
+    nameplate:UpdateClassPower()
 end

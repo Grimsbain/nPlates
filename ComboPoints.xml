@@ -26,7 +26,7 @@
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY">
-				<Texture parentKey="Overlay" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
+				<Texture parentKey="Overlay" atlas="uf-roguecp-bg-anima" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
 					<Anchors>
 						<Anchor point="CENTER"/>
 					</Anchors>
@@ -36,6 +36,58 @@
     </Frame>
 
     <Frame name="nPlatesComboPoints" virtual="true" mixin="nPlatesComboPointsMixin">
+        <Size x="180" y="20"/>
+        <KeyValues>
+            <KeyValue key="spacing" type="number" value="2"/>
+            <KeyValue key="indicatorSize" type="number" value="20"/>
+        </KeyValues>
+        <Frames>
+            <Frame parentKey="Point1" inherits="nPlatesComboPower">
+                <Anchors>
+                    <Anchor point="LEFT"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="Point2" inherits="nPlatesComboPower">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.Point1" relativePoint="RIGHT" x="2" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="Point3" inherits="nPlatesComboPower">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.Point2" relativePoint="RIGHT" x="2" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="Point4" inherits="nPlatesComboPower">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.Point3" relativePoint="RIGHT" x="2" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="Point5" inherits="nPlatesComboPower">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.Point4" relativePoint="RIGHT" x="2" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="Point6" inherits="nPlatesComboPower">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.Point5" relativePoint="RIGHT" x="2" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="Point7" inherits="nPlatesComboPower">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.Point6" relativePoint="RIGHT" x="2" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="Point8" inherits="nPlatesComboPower">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.Point7" relativePoint="RIGHT" x="2" y="0"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="Point9" inherits="nPlatesComboPower">
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.Point8" relativePoint="RIGHT" x="2" y="0"/>
+                </Anchors>
+            </Frame>
+        </Frames>
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnEvent method="OnEvent"/>

@@ -64,8 +64,6 @@ function nPlatesComboPointsMixin:Update(unit)
 
             if ( isCharged ) then
                 power.Point:SetAtlas("uf-roguecp-icon-blue", true)
-                power.Overlay:SetAtlas("uf-roguecp-bg-anima", true)
-                power.Overlay:SetBlendMode("BLEND")
                 power.Overlay:Show()
             else
                 power.Point:SetAtlas("uf-roguecp-icon-red", true)
@@ -106,25 +104,10 @@ function nPlatesComboPointsMixin:VehicleHasComboPoints()
     return UnitHasVehicleUI("player") and PlayerVehicleHasComboPoints()
 end
 
-function nPlates:CreateComboPointsElement(nameplate)
+function nPlates:CreateComboPoints(nameplate)
 	local frame = CreateFrame("Frame", "$parentComboPoints", nameplate, "nPlatesComboPoints")
-	frame:SetHeight(20)
-
-	frame.spacing = 2
-	frame.indicatorSize = 20
 	frame.comboPoints = GetComboPoints("player", "target")
 	frame.maxPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
-
-	for i = 1, 9 do
-		local container = CreateFrame("Frame", "$parentContainer"..i, frame, "nPlatesComboPower")
-
-		if ( i == 1 ) then
-			container:SetPoint("LEFT", frame, "LEFT", 0, 0)
-		else
-			container:SetPoint("LEFT", frame.Points[i - 1], "RIGHT", frame.spacing, 0)
-		end
-	end
-
     frame:UpdateSize()
 
 	return frame
