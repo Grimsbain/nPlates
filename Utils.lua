@@ -164,8 +164,7 @@ end
 
 nPlates.PostCastStart = function(castbar, unit)
     local isImportant = C_Spell.IsSpellImportant(castbar.spellID)
-    local statusBarColor = C_CurveUtil.EvaluateColorFromBoolean(isImportant, nPlates.Media.ImportantCastColor, nPlates.Media.StatusBarColor)
-    castbar:GetStatusBarTexture():SetVertexColor(statusBarColor:GetRGB())
+    castbar:GetStatusBarTexture():SetVertexColorFromBoolean(isImportant, nPlates.Media.ImportantCastColor, nPlates.Media.StatusBarColor)
 
     local borderColor = C_CurveUtil.EvaluateColorFromBoolean(castbar.notInterruptible, nPlates.Media.InteruptibleColor, nPlates.Media.DefaultBorderColor)
     nPlates:SetCastbarBorderColor(castbar, borderColor)

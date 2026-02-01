@@ -11,10 +11,6 @@ function PlateMixin:IsPlayer()
     return self.isPlayer
 end
 
-function PlateMixin:IsFriendlyPlayer()
-    return self:IsPlayer() and self:IsFriend()
-end
-
 function PlateMixin:IsFriend()
     local isFriend = false
 
@@ -28,6 +24,10 @@ function PlateMixin:IsFriend()
 	end
 
     return isFriend
+end
+
+function PlateMixin:IsFriendlyPlayer()
+    return self:IsPlayer() and self:IsFriend()
 end
 
 function PlateMixin:UpdateIsTarget()
@@ -277,12 +277,8 @@ local function Layout(self, unit)
     self.Debuffs.PostUpdateButton = nPlates.PostUpdateButton
     self.Debuffs.PostUpdate = nPlates.DebuffPostUpdate
     self.Debuffs.PreUpdate = function(auras, unit)
-        if self:IsWidgetMode() then
-            auras:Hide()
-            return
-        end
+        auras:SetShown(not self:IsWidgetMode())
     end
-    self:UpdateDebuffLocation()
 
     self.Buffs = CreateFrame("Frame", "$parentBuffs", self)
     self.Buffs:SetIgnoreParentScale(true)
@@ -303,12 +299,32 @@ local function Layout(self, unit)
     self.Buffs.PostUpdateButton = nPlates.PostUpdateButton
     self.Buffs:SetCollapsesLayout(true)
     self.Buffs.PreUpdate = function(auras, unit)
-        if self:IsWidgetMode() or not self:ShouldShowBuffs() then
-            auras:Hide()
-            return
-        end
+        local shouldShow = not self:IsWidgetMode() and self:ShouldShowBuffs()
+        auras:SetShown(shouldShow)
+    end
+    self.Buffs.SetPosition = function(element, from, to)
+        local lastButton = nil
+        for i = from, to do
+            local button = element[i]
+            if(not button) then break end
 
-        auras:SetShown(not self:IsPlayer())
+            local data = element.all[button.auraInstanceID]
+            local spellID = (data and data.spellId) or 0
+            local isImportant = C_Spell.IsSpellImportant(spellID)
+
+            button:SetAlphaFromBoolean(isImportant, 1, 0)
+            button:ClearAllPoints()
+            
+            if button:IsVisible() then
+                if lastButton == nil then
+                    lastButton = button
+                    button:SetPoint("RIGHT", element, "RIGHT", 0, 0)
+                else
+                    button:SetPoint("RIGHT", lastButton, "LEFT", -element.spacing, 0)
+                    lastButton = button
+                end
+            end
+        end
     end
 
     local softTarget = self:GetParent().UnitFrame.SoftTargetFrame
@@ -317,7 +333,6 @@ local function Layout(self, unit)
         softTarget:SetPoint("LEFT", self.Buffs, "RIGHT", 4, 0)
         softTarget:SetCollapsesLayout(true)
     end
-
 
     self.ComboPoints = nPlates:CreateComboPoints(self)
 	self.ComboPoints:SetPoint("BOTTOM", self.Debuffs, "TOP", 0, 4)

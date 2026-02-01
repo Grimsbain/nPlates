@@ -34,7 +34,7 @@ L.SelectionColorTooltip = "Displays a custom selection border."
 -- Buff Options
 L.BuffOptions = "Buff Options"
 L.ShowBuffs = "Show Buffs"
-L.ShowBuffsTooltip = "Display buffs to the left of the nameplate. NPCs Only."
+L.ShowBuffsTooltip = "Display important buffs to the left of the nameplate."
 -- Aura Options
 L.DebuffOptions = "Debuff Options"
 L.CooldownNumbers = "Show Cooldown Numbers"
