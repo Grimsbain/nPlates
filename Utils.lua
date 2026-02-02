@@ -158,6 +158,16 @@ nPlates.DebuffPostUpdate = function(auras, unit)
         parent.ComboPoints:SetPoint("BOTTOM", parent.Name, "TOP", 0, 4)
         parent.ComboPoints:SetPoint("CENTER", parent)
     end
+
+    parent.Chi:ClearAllPoints()
+
+    if auras.visibleButtons > 0 then
+        parent.Chi:SetPoint("BOTTOM", parent.Debuffs, "TOP", 0, 5)
+        parent.Chi:SetPoint("CENTER", parent)
+    else
+        parent.Chi:SetPoint("BOTTOM", parent.Name, "TOP", 0, 5)
+        parent.Chi:SetPoint("CENTER", parent)
+    end
 end
 
     -- Castbar Functions

@@ -8,6 +8,7 @@
     <Script file="Border.lua"/>
     <Script file="nPlates.lua"/>
     <Include file="ComboPoints.xml"/>
+    <Include file="Chi.xml"/>
 
     <Frame name="nPlatesDriverFrame" mixin="nPlatesMixin">
         <Scripts>

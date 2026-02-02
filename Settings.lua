@@ -200,16 +200,17 @@ function nPlates:RegisterSettings()
         },
         {
             type = "CheckBox",
-            name = "NPLATES_COMBO_POINTS",
-            variable = "ShowComboPoints",
-            label = L.ComboPoints,
-            tooltip = L.ComboPointsTooltip,
+            name = "NPLATES_SHOW_RESOURCE",
+            variable = "ShowResource",
+            label = L.ClassResource,
+            tooltip = L.ClassResourceTooltip,
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
             callback = function(...)
                 local _, value = ...
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate.ComboPoints:Toggle(value)
+                    plate.Chi:Toggle(value)
                 end)
             end,
         },
