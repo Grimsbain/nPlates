@@ -170,6 +170,31 @@ nPlates.DebuffPostUpdate = function(auras, unit)
     end
 end
 
+nPlates.BuffsLayout = function(element, from, to)
+    local lastButton = nil
+    for i = from, to do
+        local button = element[i]
+        if(not button) then break end
+
+        local data = element.all[button.auraInstanceID]
+        local spellID = (data and data.spellId) or 0
+        local isImportant = C_Spell.IsSpellImportant(spellID)
+
+        button:SetAlphaFromBoolean(isImportant, 1, 0)
+        button:ClearAllPoints()
+
+        if button:IsVisible() then
+            if lastButton == nil then
+                lastButton = button
+                button:SetPoint("RIGHT", element, "RIGHT", 0, 0)
+            else
+                button:SetPoint("RIGHT", lastButton, "LEFT", -element.spacing, 0)
+                lastButton = button
+            end
+        end
+    end
+end
+
     -- Castbar Functions
 
 nPlates.PostCastStart = function(castbar, unit)

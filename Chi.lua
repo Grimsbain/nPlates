@@ -6,17 +6,17 @@ function nPlatesChiMixin:OnLoad()
     self.requiredClass = "MONK"
     self.requiredSpec = _G.SPEC_MONK_WINDWALKER
 
+    self.PowerEvents = {
+        "UNIT_POWER_FREQUENT",
+        "UNIT_MAXPOWER"
+    }
+
     local _, class = UnitClass("player")
     if class ~= self.requiredClass then
         self:Hide()
         self:UnregisterAllEvents()
         return
     end
-
-    self.PowerEvents = {
-        "UNIT_POWER_FREQUENT",
-        "UNIT_MAXPOWER"
-    }
 
     self:RegisterUnitEvent("UNIT_DISPLAYPOWER", "player")
     self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
