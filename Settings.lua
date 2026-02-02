@@ -130,6 +130,18 @@ function nPlates:RegisterSettings()
         },
         {
             type = "CheckBox",
+            name = "NPLATES_CROWD_CONTROL",
+            variable = "ShowCrowdControl",
+            label = L.CrowdControl,
+            tooltip = L.CrowdControlTooltip,
+            default = Settings.Default.True,
+            varType = Settings.VarType.Boolean,
+            callback = function(...)
+                nPlates:UpdateElement("CCIcon")
+            end,
+        },
+        {
+            type = "CheckBox",
             name = "NPLATES_COOLDOWN",
             variable = "ShowCooldownNumbers",
             label = L.CooldownNumbers,

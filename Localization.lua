@@ -37,6 +37,8 @@ L.ShowBuffs = "Show Buffs"
 L.ShowBuffsTooltip = "Display important buffs to the left of the nameplate."
 -- Aura Options
 L.DebuffOptions = "Debuff Options"
+L.CrowdControl = "Show Crowd Control Icon"
+L.CrowdControlTooltip = "Displays icon for crowd control spells to the right of the health bar."
 L.CooldownNumbers = "Show Cooldown Numbers"
 L.CooldownNumbersTooltip = "Shows or hides cooldown text."
 L.CooldownEdge = "Show Cooldown Edge"
