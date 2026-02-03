@@ -9,6 +9,7 @@
     <Script file="nPlates.lua"/>
     <Include file="ComboPoints.xml"/>
     <Include file="Chi.xml"/>
+    <Include file="Essence.xml"/>
 
     <Frame name="nPlatesDriverFrame" mixin="nPlatesMixin">
         <Scripts>

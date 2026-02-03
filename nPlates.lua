@@ -49,6 +49,7 @@ end
 function PlateMixin:UpdateClassPower()
     self.ComboPoints:UpdateVisibility()
     self.Chi:UpdateVisibility()
+    self.Essence:UpdateVisibility()
 end
 
 function PlateMixin:IsWidgetMode()
@@ -58,8 +59,9 @@ end
 function PlateMixin:UpdateWidgetsOnlyMode()
     self.widgetsOnlyMode = self.unit ~= nil and UnitNameplateShowsWidgetsOnly(self.unit)
     self.Health:SetShown(not self.widgetsOnlyMode)
-    self.Chi:SetWidgetMode(self.widgetsOnlyMode)
     self.ComboPoints:SetWidgetMode(self.widgetsOnlyMode)
+    self.Chi:SetWidgetMode(self.widgetsOnlyMode)
+    self.Essence:SetWidgetMode(self.widgetsOnlyMode)
 
     self.WidgetContainer:ClearAllPoints()
 
@@ -346,6 +348,10 @@ local function Layout(self, unit)
     self.Chi = nPlates:CreateChi(self)
     self.Chi:SetPoint("BOTTOM", self.Debuffs, "TOP", 0, 4)
     self.Chi:SetPoint("CENTER", self)
+
+    self.Essence = nPlates:CreateEssence(self)
+    self.Essence:SetPoint("BOTTOM", self.Debuffs, "TOP", 0, 4)
+    self.Essence:SetPoint("CENTER", self)
 
     self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", nPlates.UpdateHealth)
     self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", nPlates.UpdateHealth)

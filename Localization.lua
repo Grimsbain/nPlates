@@ -50,7 +50,7 @@ L.AuraScaleTooltip = "Adjusts the size of debuff icons."
 -- Frame Options
 L.FrameOptionsLabel = "Frame Options"
 L.ClassResource = "Show Class Resource"
-L.ClassResourceTooltip = "Displays your class resource above the nameplate. Currently supports combo points and chi. More coming in the future."
+L.ClassResourceTooltip = "Displays your class resource above the nameplate. Currently supports combo points, chi, and essence. More coming in the future."
 L.ShowQuest = "Show Quest Marker"
 L.ShowQuestTooltip = "Displays a quest marker next to the nameplate of quest mobs."
 L.OnlyName = "Hide Friendly Nameplates"

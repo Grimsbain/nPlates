@@ -1,32 +1,18 @@
 <Ui>
-    <Script file="Chi.lua"/>
+    <Script file="Essence.lua"/>
 
-    <Frame name="nPlatesChi" parentArray="Points" virtual="true" hidden="true">
+    <Frame name="nPlatesEssence" parentArray="Points" virtual="true" hidden="true">
         <Size x="20" y="20"/>
 		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture parentKey="Shadow" atlas="uf-roguecp-bg-shadow" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
-					<Anchors>
-						<Anchor point="CENTER" x="0" y="-3"/>
-					</Anchors>
-				</Texture>
-			</Layer>
 			<Layer level="BACKGROUND" textureSubLevel="1">
-				<Texture parentKey="Background" atlas="uf-chi-bg" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
-					<Anchors>
-						<Anchor point="CENTER" x="0" y="-2.5"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-			<Layer level="ARTWORK" textureSubLevel="1">
-				<Texture parentKey="Point" atlas="uf-chi-icon" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
+				<Texture parentKey="Background" atlas="UF-Essence-BG" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND" hidden="false">
 					<Anchors>
 						<Anchor point="CENTER"/>
 					</Anchors>
 				</Texture>
 			</Layer>
-			<Layer level="OVERLAY">
-				<Texture parentKey="Overlay" atlas="uf-chi-orbgleam" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
+			<Layer level="ARTWORK" textureSubLevel="1">
+				<Texture parentKey="Point" atlas="UF-Essence-Icon-Active" useAtlasSize="true" texelSnappingBias="0.0" snapToPixelGrid="false" alphaMode="BLEND">
 					<Anchors>
 						<Anchor point="CENTER"/>
 					</Anchors>
@@ -35,39 +21,39 @@
 		</Layers>
     </Frame>
 
-    <Frame name="nPlatesChiFrame" virtual="true" mixin="nPlatesChiMixin">
+    <Frame name="nPlatesEssenceFrame" virtual="true" mixin="nPlatesEssenceMixin">
         <Size x="180" y="20"/>
         <KeyValues>
             <KeyValue key="spacing" type="number" value="2"/>
             <KeyValue key="indicatorSize" type="number" value="20"/>
         </KeyValues>
         <Frames>
-            <Frame parentKey="Point1" inherits="nPlatesChi">
+            <Frame parentKey="Point1" inherits="nPlatesEssence">
                 <Anchors>
                     <Anchor point="LEFT"/>
                 </Anchors>
             </Frame>
-            <Frame parentKey="Point2" inherits="nPlatesChi">
+            <Frame parentKey="Point2" inherits="nPlatesEssence">
                 <Anchors>
                     <Anchor point="LEFT" relativeKey="$parent.Point1" relativePoint="RIGHT" x="2" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame parentKey="Point3" inherits="nPlatesChi">
+            <Frame parentKey="Point3" inherits="nPlatesEssence">
                 <Anchors>
                     <Anchor point="LEFT" relativeKey="$parent.Point2" relativePoint="RIGHT" x="2" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame parentKey="Point4" inherits="nPlatesChi">
+            <Frame parentKey="Point4" inherits="nPlatesEssence">
                 <Anchors>
                     <Anchor point="LEFT" relativeKey="$parent.Point3" relativePoint="RIGHT" x="2" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame parentKey="Point5" inherits="nPlatesChi">
+            <Frame parentKey="Point5" inherits="nPlatesEssence">
                 <Anchors>
                     <Anchor point="LEFT" relativeKey="$parent.Point4" relativePoint="RIGHT" x="2" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame parentKey="Point6" inherits="nPlatesChi">
+            <Frame parentKey="Point6" inherits="nPlatesEssence">
                 <Anchors>
                     <Anchor point="LEFT" relativeKey="$parent.Point5" relativePoint="RIGHT" x="2" y="0"/>
                 </Anchors>

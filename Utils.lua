@@ -149,25 +149,19 @@ nPlates.DebuffPostUpdate = function(auras, unit)
         return
     end
 
-    parent.ComboPoints:ClearAllPoints()
+    local relativeTo = auras.visibleButtons > 0 and parent.Debuffs or parent.Name
 
-    if auras.visibleButtons > 0 then
-        parent.ComboPoints:SetPoint("BOTTOM", parent.Debuffs, "TOP", 0, 4)
-        parent.ComboPoints:SetPoint("CENTER", parent)
-    else
-        parent.ComboPoints:SetPoint("BOTTOM", parent.Name, "TOP", 0, 4)
-        parent.ComboPoints:SetPoint("CENTER", parent)
-    end
+    parent.ComboPoints:ClearAllPoints()
+    parent.ComboPoints:SetPoint("BOTTOM", relativeTo, "TOP", 0, 4)
+    parent.ComboPoints:SetPoint("CENTER", parent)
 
     parent.Chi:ClearAllPoints()
+    parent.Chi:SetPoint("BOTTOM", relativeTo, "TOP", 0, 4)
+    parent.Chi:SetPoint("CENTER", parent)
 
-    if auras.visibleButtons > 0 then
-        parent.Chi:SetPoint("BOTTOM", parent.Debuffs, "TOP", 0, 5)
-        parent.Chi:SetPoint("CENTER", parent)
-    else
-        parent.Chi:SetPoint("BOTTOM", parent.Name, "TOP", 0, 5)
-        parent.Chi:SetPoint("CENTER", parent)
-    end
+    parent.Essence:ClearAllPoints()
+    parent.Essence:SetPoint("BOTTOM", relativeTo, "TOP", 0, 4)
+    parent.Essence:SetPoint("CENTER", parent)
 end
 
 nPlates.BuffsLayout = function(element, from, to)

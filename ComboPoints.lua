@@ -53,8 +53,8 @@ function nPlatesComboPointsMixin:Update(unit)
 	end
 
     local chargedPowerPoints = GetUnitChargedPowerPoints("player")
-	local currentPoints = GetComboPoints("player", "target") or 0
-    local maxPoints = self.maxPoints or UnitPowerMax("player", Enum.PowerType.ComboPoints)
+    local currentPoints = UnitPower("player", Enum.PowerType.ComboPoints)
+    local maxPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
 
     for index, power in ipairs(self.Points) do
         local isCharged = chargedPowerPoints and tContains(chargedPowerPoints, index) or false
@@ -84,15 +84,19 @@ function nPlatesComboPointsMixin:UpdateSize()
 end
 
 function nPlatesComboPointsMixin:ShouldShowComboPoints(unit)
-    if ( not unit or not UnitIsUnit(unit, "target") or not UnitCanAttack("player", unit) ) then
-        return false
-    end
-
     if ( self:IsWidgetMode() ) then
         return false
     end
 
-    return UnitPowerType("player") == Enum.PowerType.Energy or self:VehicleHasComboPoints()
+    if ( UnitHasVehicleUI("player") ) then
+        return false
+    end
+
+    if ( not unit or not UnitIsUnit(unit, "target") or not UnitCanAttack("player", unit) ) then
+        return false
+    end
+
+    return UnitPowerType("player") == Enum.PowerType.Energy
 end
 
 function nPlatesComboPointsMixin:UpdateVisibility()
@@ -103,10 +107,6 @@ end
 function nPlatesComboPointsMixin:Toggle(value)
     local shouldHide = self:IsShown() and value == false
     if shouldHide then self:Hide() else self:UpdateVisibility() end
-end
-
-function nPlatesComboPointsMixin:VehicleHasComboPoints()
-    return UnitHasVehicleUI("player") and PlayerVehicleHasComboPoints()
 end
 
 function nPlatesComboPointsMixin:SetWidgetMode(isWidgetMode)
