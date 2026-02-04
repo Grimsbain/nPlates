@@ -23,6 +23,12 @@ L.ShowLevel = "Display Unit Level"
 L.ShowLevelToolitp = "Displays the unit's level next to its name. Always hidden on player nameplates."
 L.AlwaysShowName = "Always Show Names"
 L.AlwaysShowNameTooltip = "Always display unit names, ignoring automatic visibility rules."
+L.PlayerThreatLevel = "Player Threat Level"
+L.PlayerThreatLevelTooltip = "Colors the name of enemy players depending on their relative level to the player."
+-- Castbar Options
+L.CastbarOptions = "Castbar Options"
+L.CastTarget = "Show Cast Target"
+L.CastTargetTooltip = "Shows the name of the spells current target."
 -- Coloring Options
 L.ColoringOptionsLabel = "Coloring Options"
 L.TankMode = "Threat Coloring"

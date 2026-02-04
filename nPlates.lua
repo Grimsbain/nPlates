@@ -145,13 +145,23 @@ function PlateMixin:UpdateName()
             else
                 local difficulty = C_PlayerInfo.GetContentDifficultyCreatureForPlayer(self.unit)
                 local color = GetDifficultyColor(difficulty)
+                self.Name:SetTextColor(WHITE_FONT_COLOR:GetRGB())
                 self.Name:SetFormattedText("%s%d|r %s", ConvertRGBtoColorString(color), targetLevel, unitName)
             end
         else
             if ( self:IsPlayer() ) then
+                if ( not self:IsFriend() and Settings.GetValue("NPLATES_PLAYER_THREAT") ) then
+                    local difficulty = C_PlayerInfo.GetContentDifficultyCreatureForPlayer(self.unit)
+                    local color = GetDifficultyColor(difficulty)
+
+                    self.Name:SetText(unitName)
+                    self.Name:SetTextColor(color.r, color.g, color.b)
+                else
                 self.Name:SetText(GetClassColoredTextForUnit(self.unit, unitName))
+                end
             else
                 self.Name:SetText(unitName)
+                self.Name:SetTextColor(WHITE_FONT_COLOR:GetRGB())
             end
         end
 
@@ -223,6 +233,14 @@ local function Layout(self, unit)
     self.Castbar.Text:SetJustifyH("LEFT")
     self.Castbar.Text:SetJustifyV("MIDDLE")
     self.Castbar.Text:SetTextColor(1, 1, 1)
+
+    self.Castbar.Target = self.Castbar:CreateFontString("$parentTarget", "OVERLAY", "nPlate_CountFont")
+    self.Castbar.Target:SetPoint("RIGHT", self.Castbar, -2, 1)
+    self.Castbar.Target:SetJustifyH("RIGHT")
+    self.Castbar.Target:SetJustifyV("MIDDLE")
+    self.Castbar.Target:SetTextColor(1, 1, 1)
+    self.Castbar.Target:SetWidth(55)
+    self.Castbar.Target:SetWordWrap(false)
 
     self.Castbar.Icon = self.Castbar:CreateTexture("$parentIcon", "OVERLAY")
     self.Castbar.Icon:SetSize(33, 33)

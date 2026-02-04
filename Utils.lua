@@ -76,8 +76,7 @@ function nPlates.UpdateHealth(self, event, unit)
     else
         if ( UnitIsPlayer(self.unit) or UnitInPartyIsAI(self.unit) ) then
             local _, class = UnitClass(self.unit)
-            local color = RAID_CLASS_COLORS[class]
-            r, g, b = color:GetRGB()
+            r, g, b = C_ClassColor.GetClassColor(class):GetRGB()
         else
             if ( IsOnThreatListWithPlayer(self.unit) ) then
                 if ( Settings.GetValue("NPLATES_TANKMODE") ) then
@@ -197,6 +196,17 @@ nPlates.PostCastStart = function(castbar, unit)
 
     local borderColor = C_CurveUtil.EvaluateColorFromBoolean(castbar.notInterruptible, nPlates.Media.InteruptibleColor, nPlates.Media.DefaultBorderColor)
     nPlates:SetCastbarBorderColor(castbar, borderColor)
+
+    if ( Settings.GetValue("NPLATES_CAST_TARGET") ) then
+        local targetName = UnitSpellTargetName(unit)
+        castbar.Target:SetText(targetName)
+        local class = unit and UnitSpellTargetClass(unit) or "PRIEST"
+        local classColor = C_ClassColor.GetClassColor(class)
+        castbar.Target:SetTextColor(classColor:GetRGB())
+        castbar.Target:Show()
+    else
+        castbar.Target:Hide()
+    end
 end
 
     -- QuestIndicator Functions

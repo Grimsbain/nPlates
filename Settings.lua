@@ -47,6 +47,36 @@ function nPlates:RegisterSettings()
             end,
         },
         {
+            type = "CheckBox",
+            name = "NPLATES_PLAYER_THREAT",
+            variable = "PlayerThreat",
+            label = L.PlayerThreatLevel,
+            tooltip = L.PlayerThreatLevelTooltip,
+            default = Settings.Default.False,
+            varType = Settings.VarType.Boolean,
+            callback = function(...)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate:UpdateName()
+                end)
+            end,
+        },
+        {
+            type = "Label",
+            label = L.CastbarOptions,
+        },
+        {
+            type = "CheckBox",
+            name = "NPLATES_CAST_TARGET",
+            variable = "CastTarget",
+            label = L.CastTarget,
+            tooltip = L.CastTargetTooltip,
+            default = Settings.Default.True,
+            varType = Settings.VarType.Boolean,
+            callback = function(...)
+                nPlates:UpdateElement("Castbar")
+            end,
+        },
+        {
             type = "Label",
             label = L.ColoringOptionsLabel,
         },
