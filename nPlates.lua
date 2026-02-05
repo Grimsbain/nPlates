@@ -3,6 +3,10 @@ local oUF = nPlates.oUF
 
 local PlateMixin = {}
 
+function PlateMixin:GetUnitFrame()
+	return self:GetParent().UnitFrame
+end
+
 function PlateMixin:UpdateIsPlayer()
     self.isPlayer = self.unit and UnitIsPlayer(self.unit) or false
 end
@@ -46,10 +50,9 @@ function PlateMixin:IsFocus()
     return self.isFocus == true
 end
 
-function PlateMixin:UpdateClassPower()
-    self.ComboPoints:UpdateVisibility()
-    self.Chi:UpdateVisibility()
-    self.Essence:UpdateVisibility()
+function PlateMixin:IsSimplified()
+    -- Get the status from Blizzard since they already did the work.
+	return self:GetUnitFrame().isSimplified == true
 end
 
 function PlateMixin:IsWidgetMode()
@@ -73,13 +76,51 @@ function PlateMixin:UpdateWidgetsOnlyMode()
     end
 end
 
-function PlateMixin:UpdateBuffs()
-    self.showBuffs = Settings.GetValue("NPLATES_SHOW_BUFFS")
-    nPlates:UpdateElement("Buffs")
+function PlateMixin:UpdateHealth()
+    nPlates.UpdateHealth(self, "FORCE", self.unit)
 end
 
-function PlateMixin:ShouldShowBuffs()
-    return self.showBuffs == true
+function PlateMixin:SetSelectionColor()
+    if ( not self.unit ) then
+        return
+    end
+
+    local healthBar = self.Health
+    local unit = self.unit
+
+    if ( Settings.GetValue("NPLATES_FOCUS_COLOR") ) then
+        if ( self:IsFocus() ) then
+            nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.FocusColor)
+            return
+        end
+    end
+
+    if ( self:IsTarget() ) then
+        if ( Settings.GetValue("NPLATES_SELECTION_COLOR") ) then
+            nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.SelectionColor)
+        else
+            local r, g, b = healthBar:GetStatusBarColor()
+            nPlates.Media.BorderColor:SetRGB(r, g, b)
+            nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.BorderColor)
+        end
+    else
+        nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.DefaultBorderColor)
+    end
+end
+
+-- function PlateMixin:ShouldShowBuffs()
+--     return self.showBuffs == true
+-- end
+
+-- function PlateMixin:UpdateBuffs()
+--     self.showBuffs = Settings.GetValue("NPLATES_SHOW_BUFFS")
+--     nPlates:UpdateElement("Buffs")
+-- end
+
+function PlateMixin:UpdateClassPower()
+    self.ComboPoints:UpdateVisibility()
+    self.Chi:UpdateVisibility()
+    self.Essence:UpdateVisibility()
 end
 
 function PlateMixin:UpdateDebuffs()
@@ -111,23 +152,8 @@ function PlateMixin:ShouldShowName()
     return false
 end
 
-function PlateMixin:UpdateNameLocation()
-    if ( self:IsWidgetMode() ) then
-        self.Name:Hide()
-        return
-    end
-
-    self.Name:ClearAllPoints()
-
-    if ( Settings.GetValue("NPLATES_ONLYNAME") and self:IsFriendlyPlayer() ) then
-        self.Name:SetPoint("BOTTOM", self, "TOP", 0, 5)
-        self.Health:ClearAllPoints()
-    else
-        self.Name:SetPoint("BOTTOM", self.Health, "TOP", 0, 5)
-
-        self.Health:ClearAllPoints()
-        self.Health:SetPoint("TOP")
-    end
+function PlateMixin:ToggleName(shouldShow)
+    self.Name:SetShown(shouldShow)
 end
 
 function PlateMixin:UpdateName()
@@ -169,6 +195,25 @@ function PlateMixin:UpdateName()
     end
 end
 
+function PlateMixin:UpdateNameLocation()
+    if ( self:IsWidgetMode() ) then
+        self.Name:Hide()
+        return
+    end
+
+    self.Name:ClearAllPoints()
+
+    if ( Settings.GetValue("NPLATES_ONLYNAME") and self:IsFriendlyPlayer() ) then
+        self.Name:SetPoint("BOTTOM", self, "TOP", 0, 5)
+        self.Health:ClearAllPoints()
+    else
+        self.Name:SetPoint("BOTTOM", self.Health, "TOP", 0, 5)
+
+        self.Health:ClearAllPoints()
+        self.Health:SetPoint("TOP")
+    end
+end
+
 function PlateMixin:UpdateClassification()
     local element = self.classificationIndicator
 
@@ -193,183 +238,26 @@ end
 local function Layout(self, unit)
     Mixin(self, PlateMixin)
 
-    self.Health = CreateFrame("StatusBar", "$parentHealthBar", self)
-    self.Health:SetPoint("TOP")
-    self.Health:SetWidth(175)
-    self.Health:SetHeight(18)
-    self.Health:SetStatusBarTexture(nPlates.Media.StatusBarTexture)
-    self.Health.Override = nPlates.UpdateHealth
-    self.Health.frequentUpdates = true
-    nPlates:SetBorder(self.Health)
-
-    self.Health.Background = self.Health:CreateTexture("$parentBackground", "BACKGROUND")
-    self.Health.Background:SetAllPoints(self.Health)
-    self.Health.Background:SetColorTexture(0.1, 0.1, 0.1, 0.8)
-
-    self.Health.Value = self.Health:CreateFontString("$parentHealthText", "OVERLAY", "nPlate_HealthFont")
-    self.Health.Value:SetShadowOffset(1, -1)
-    self.Health.Value:SetPoint("TOPLEFT", self.Health, 0, 0)
-    self.Health.Value:SetPoint("BOTTOMRIGHT", self.Health, 0, 0)
-    self.Health.Value:SetJustifyH("CENTER")
-    self.Health.Value:SetJustifyV("MIDDLE")
-    self.Health.Value:SetTextColor(1, 1, 1)
-
-    self.Castbar = CreateFrame("StatusBar", "$parentCastbar", self)
-    self.Castbar:SetPoint("TOPLEFT", self.Health, "BOTTOMLEFT", 0, -5)
-    self.Castbar:SetPoint("TOPRIGHT", self.Health, "BOTTOMRIGHT", 0, -5)
-    self.Castbar:SetHeight(18)
-    self.Castbar:SetStatusBarTexture(nPlates.Media.StatusBarTexture)
-    self.Castbar:GetStatusBarTexture():SetVertexColor(nPlates.Media.StatusBarColor:GetRGB())
-    self.Castbar.PostCastStart = nPlates.PostCastStart
-    nPlates:SetBorder(self.Castbar)
-
-    self.Castbar.Background = self.Castbar:CreateTexture("$parentBackground", "BACKGROUND")
-    self.Castbar.Background:SetAllPoints(self.Castbar)
-    self.Castbar.Background:SetColorTexture(0.1, 0.1, 0.1, 0.8)
-
-    self.Castbar.Text = self.Castbar:CreateFontString("$parentText", "OVERLAY", "nPlate_CastbarFont")
-    self.Castbar.Text:SetPoint("TOPLEFT", self.Castbar, 2, 1)
-    self.Castbar.Text:SetPoint("BOTTOMRIGHT")
-    self.Castbar.Text:SetJustifyH("LEFT")
-    self.Castbar.Text:SetJustifyV("MIDDLE")
-    self.Castbar.Text:SetTextColor(1, 1, 1)
-
-    self.Castbar.Target = self.Castbar:CreateFontString("$parentTarget", "OVERLAY", "nPlate_CountFont")
-    self.Castbar.Target:SetPoint("RIGHT", self.Castbar, -2, 1)
-    self.Castbar.Target:SetJustifyH("RIGHT")
-    self.Castbar.Target:SetJustifyV("MIDDLE")
-    self.Castbar.Target:SetTextColor(1, 1, 1)
-    self.Castbar.Target:SetWidth(55)
-    self.Castbar.Target:SetWordWrap(false)
-
-    self.Castbar.Icon = self.Castbar:CreateTexture("$parentIcon", "OVERLAY")
-    self.Castbar.Icon:SetSize(33, 33)
-    self.Castbar.Icon:SetPoint("BOTTOMLEFT", self.Castbar, "BOTTOMRIGHT", 4.9, 0)
-    self.Castbar.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-    nPlates:SetBorder(self.Castbar.Icon)
-
-    -- Waiting on Blizzard timer formatting function.
-    -- self.Castbar.Time = self.Castbar:CreateFontString("$parentTime", "OVERLAY", "nPlate_CastbarTimerFont")
-    -- self.Castbar.Time:SetPoint("BOTTOMRIGHT", self.Castbar.Icon, -1, 1)
-    -- self.Castbar.Time:SetJustifyH("RIGHT")
-    -- self.Castbar.Time:SetTextColor(1, 1, 1)
-
     self.Name = self:CreateFontString(nil, "OVERLAY", "nPlate_NameFont")
     self.Name:SetJustifyH("CENTER")
     self.Name:SetIgnoreParentScale(true)
 
-    self.CCIcon = CreateFrame("Frame", "$parentCCIcon", self)
-    self.CCIcon:SetSize(20, 14)
-    self.CCIcon:SetPoint("LEFT", self.Health, "RIGHT", 4, 0)
-    self.CCIcon:SetCollapsesLayout(true)
-    self.CCIcon:SetIgnoreParentScale(true)
-    self.CCIcon.PreUpdate = function(element)
-        local shouldShow = not self:IsWidgetMode() and Settings.GetValue("NPLATES_CROWD_CONTROL")
-        element:SetShown(shouldShow)
-    end
+    nPlates.CreateHealth(self)
+    nPlates.CreateCastbar(self)
 
-    self.CCIcon.Cooldown = CreateFrame("Cooldown", "$parentCooldown", self.CCIcon, "CooldownFrameTemplate")
-    self.CCIcon.Cooldown:SetAllPoints(self.CCIcon)
-    self.CCIcon.Cooldown:SetHideCountdownNumbers(false)
-    self.CCIcon.Cooldown:SetCountdownFont("nPlate_CooldownFont")
+    -- Right
+    nPlates.CreateCCIcon(self)
+    nPlates.CreateQuestIcon(self)
 
-    self.CCIcon.Icon = self.CCIcon:CreateTexture("$parentIcon", "ARTWORK")
-    self.CCIcon.Icon:SetPoint("CENTER")
-    self.CCIcon.Icon:SetSize(18, 12)
-    self.CCIcon.Icon:SetTexCoord(0.05, 0.95, 0.1, 0.6)
+    -- Left
+    nPlates.CreateClassificationIndicator(self)
+    nPlates.CreateRaidTargetIndicator(self)
+    -- nPlates.CreateBuffs(self)
+    nPlates.UpdateSoftTarget(self)
 
-    self.CCIcon.Background = self.CCIcon:CreateTexture("$parentBackground", "BACKGROUND")
-    self.CCIcon.Background:SetAllPoints(self.CCIcon)
-    self.CCIcon.Background:SetColorTexture(0, 0, 0)
-
-    self.QuestIndicator = self:CreateTexture("$parentQuestIcon", "OVERLAY")
-    self.QuestIndicator:SetSize(25, 25)
-    self.QuestIndicator:SetPoint("LEFT", self.CCIcon, "RIGHT", 0, 0)
-    self.QuestIndicator:SetAtlas("QuestNormal", false)
-    self.QuestIndicator:SetCollapsesLayout(true)
-    self.QuestIndicator.Override = nPlates.QuestIndicator
-
-    self.classificationIndicator = self:CreateTexture("$parentClassificationIndicator", "OVERLAY", nil, 7)
-    self.classificationIndicator:SetSize(20, 20)
-    self.classificationIndicator:SetPoint("RIGHT", self.Health, "LEFT", -4, 0)
-    self.classificationIndicator:SetCollapsesLayout(true)
-
-    self.RaidTargetIndicator = self:CreateTexture("$parentRaidTargetIcon", "OVERLAY")
-    self.RaidTargetIndicator:SetPoint("RIGHT", self.classificationIndicator, "LEFT", -4, 0)
-    self.RaidTargetIndicator:SetSize(22, 22)
-    self.RaidTargetIndicator:SetCollapsesLayout(true)
-    self.RaidTargetIndicator.PostUpdate = function(element, index)
-        if self:IsWidgetMode() then
-            element:Hide()
-        end
-    end
-
-    self.Debuffs = CreateFrame("Frame", "$parentAuras", self)
-    self.Debuffs:SetScale(Settings.GetValue("NPLATES_AURA_SCALE"))
-    self.Debuffs:SetIgnoreParentScale(true)
-    self.Debuffs.size = 20
-    self.Debuffs.width = 20
-    self.Debuffs.height = 14
-    self.Debuffs:SetHeight(14)
-    self.Debuffs:SetWidth(175)
-    self.Debuffs.initialAnchor = "BOTTOMLEFT"
-    self.Debuffs.growthX = "RIGHT"
-    self.Debuffs.growthY = "UP"
-    self.Debuffs.spacing = 2
-    self.Debuffs.showStealableBuffs = true
-    self.Debuffs.onlyShowPlayer = true
-    self.Debuffs.reanchorIfVisibleChanged = true
-    self.Debuffs.numTotal = 6
-    self.Debuffs.filter = "HARMFUL|INCLUDE_NAME_PLATE_ONLY"
-    self.Debuffs.PostCreateButton = nPlates.PostCreateButton
-    self.Debuffs.PostUpdateButton = nPlates.PostUpdateButton
-    self.Debuffs.PostUpdate = nPlates.DebuffPostUpdate
-    self.Debuffs.PreUpdate = function(auras, unit)
-        auras:SetShown(not self:IsWidgetMode())
-    end
-
-    self.Buffs = CreateFrame("Frame", "$parentBuffs", self)
-    self.Buffs:SetIgnoreParentScale(true)
-    self.Buffs:SetCollapsesLayout(true)
-    self.Buffs.size = 20
-    self.Buffs.width = 20
-    self.Buffs.height = 14
-    self.Buffs:SetHeight(20)
-    self.Buffs:SetWidth(50)
-    self.Buffs.initialAnchor = "RIGHT"
-    self.Buffs.growthX = "LEFT"
-    self.Buffs.growthY = "UP"
-    self.Buffs.spacing = 2
-    self.Buffs.reanchorIfVisibleChanged = true
-    self.Buffs.num = 2
-    self.Buffs.filter = "HELPFUL|INCLUDE_NAME_PLATE_ONLY"
-    self.Buffs:SetPoint("RIGHT", self.RaidTargetIndicator, "LEFT", -4, 0)
-    self.Buffs.PostCreateButton = nPlates.PostCreateButton
-    self.Buffs.PostUpdateButton = nPlates.PostUpdateButton
-    self.Buffs.SetPosition = nPlates.BuffsLayout
-    self.Buffs.PreUpdate = function(auras, unit)
-        local shouldShow = not self:IsWidgetMode() and self:ShouldShowBuffs()
-        auras:SetShown(shouldShow)
-    end
-
-    local softTarget = self:GetParent().UnitFrame.SoftTargetFrame
-    if softTarget then
-        softTarget:ClearAllPoints()
-        softTarget:SetPoint("LEFT", self.Buffs, "RIGHT", 4, 0)
-        softTarget:SetCollapsesLayout(true)
-    end
-
-    self.ComboPoints = nPlates:CreateComboPoints(self)
-	self.ComboPoints:SetPoint("BOTTOM", self.Debuffs, "TOP", 0, 4)
-    self.ComboPoints:SetPoint("CENTER", self)
-
-    self.Chi = nPlates:CreateChi(self)
-    self.Chi:SetPoint("BOTTOM", self.Debuffs, "TOP", 0, 4)
-    self.Chi:SetPoint("CENTER", self)
-
-    self.Essence = nPlates:CreateEssence(self)
-    self.Essence:SetPoint("BOTTOM", self.Debuffs, "TOP", 0, 4)
-    self.Essence:SetPoint("CENTER", self)
+    -- Top
+    nPlates.CreateDebuffs(self)
+    nPlates.CreateClassPowers(self)
 
     self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", nPlates.UpdateHealth)
     self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", nPlates.UpdateHealth)
@@ -381,7 +269,7 @@ local function Layout(self, unit)
         self:UpdateName()
     end)
 
-    -- We use a custom "PLAYER_TARGET_CHANGED" because the oUF verion
+    -- We use a custom "PLAYER_TARGET_CHANGED" because the oUF version
     -- doesn't fire when you lose target.
     self:RegisterEvent("PLAYER_TARGET_CHANGED", function(self, event)
         nPlates:OnTargetChanged(self, "PLAYER_TARGET_CHANGED", self.unit)
@@ -390,9 +278,16 @@ local function Layout(self, unit)
     self:RegisterEvent("PLAYER_FOCUS_CHANGED", function(self, event)
         self:UpdateIsFocus()
         nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-            nPlates:SetSelectionColor(plate)
+            plate:SetSelectionColor()
         end)
     end, true)
+
+    -- Waiting on Blizzard
+    -- self.HitTest = CreateFrame("Frame", "$parentHitTest", self)
+    -- self.HitTest:SetPoint("TOPLEFT", self.Health, "TOPLEFT", -10, 10)
+    -- self.HitTest:SetPoint("BOTTOMRIGHT", self.Health, "BOTTOMRIGHT", 10, -10)
+
+    -- C_NamePlateManager.SetNamePlateHitTestFrame(unit, self.HitTest);
 
     return self
 end
@@ -435,6 +330,10 @@ function nPlates:OnNamePlateRemoved(nameplate, event, unit)
 end
 
 function nPlates:OnNamePlateAdded(nameplate, event, unit)
+    if ( unit == "preview" ) then
+        return
+    end
+
     nameplate.unit = unit
 
     nameplate:UpdateIsPlayer()
@@ -445,23 +344,18 @@ function nPlates:OnNamePlateAdded(nameplate, event, unit)
     nameplate:UpdateClassification()
     nameplate:UpdateName()
     nameplate:UpdateNameLocation()
-    nameplate:UpdateBuffs()
+    -- nameplate:UpdateBuffs()
     nameplate:UpdateDebuffs()
     nameplate:UpdateDebuffLocation()
     nameplate:UpdateClassPower()
-    nPlates.UpdateHealth(nameplate, event, unit)
 
     nameplate:Show()
 end
 
 function nPlates:OnTargetChanged(nameplate, event, unit)
     nameplate:UpdateIsTarget()
-
-    nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-        nPlates:SetSelectionColor(plate)
-    end)
-
     nameplate:UpdateName()
     nameplate:UpdateDebuffLocation()
     nameplate:UpdateClassPower()
+    nameplate:SetSelectionColor()
 end

@@ -118,7 +118,7 @@ function nPlates:RegisterSettings()
             color = "ffffffff",
             callback = function(...)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:SetSelectionColor(plate)
+                    plate:SetSelectionColor()
                 end)
             end,
         },
@@ -132,28 +132,28 @@ function nPlates:RegisterSettings()
             color = "FFFF7B00",
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:UpdateElement("Health")
+                    plate:SetSelectionColor()
                 end)
             end,
         },
-        {
-            type = "Label",
-            label = L.BuffOptions,
-        },
-        {
-            type = "CheckBox",
-            name = "NPLATES_SHOW_BUFFS",
-            variable = "ShowBuffs",
-            label = L.ShowBuffs,
-            tooltip = L.ShowBuffsTooltip,
-            default = Settings.Default.True,
-            varType = Settings.VarType.Boolean,
-            callback = function(...)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateBuffs()
-                end)
-            end,
-        },
+        -- {
+        --     type = "Label",
+        --     label = L.BuffOptions,
+        -- },
+        -- {
+        --     type = "CheckBox",
+        --     name = "NPLATES_SHOW_BUFFS",
+        --     variable = "ShowBuffs",
+        --     label = L.ShowBuffs,
+        --     tooltip = L.ShowBuffsTooltip,
+        --     default = Settings.Default.True,
+        --     varType = Settings.VarType.Boolean,
+        --     callback = function(...)
+        --         nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+        --             plate:UpdateBuffs()
+        --         end)
+        --     end,
+        -- },
         {
             type = "Label",
             label = L.DebuffOptions,

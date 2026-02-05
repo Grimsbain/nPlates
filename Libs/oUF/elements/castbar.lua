@@ -98,80 +98,6 @@ local function resetAttributes(self)
 	self.notInterruptible = nil
 	self.spellID = nil
 	self.spellName = nil
-
-	for _, pip in next, self.Pips do
-		pip:Hide()
-	end
-end
-
-local function CreatePip(element)
-	return CreateFrame('Frame', nil, element, 'CastingBarFrameStagePipTemplate')
-end
-
-local function UpdatePips(element, stages)
-	local isHoriz = element:GetOrientation() == 'HORIZONTAL'
-	local elementSize = isHoriz and element:GetWidth() or element:GetHeight()
-
-	local lastOffset = 0
-	for stage, stageSection in next, stages do
-		local offset = lastOffset + (elementSize * stageSection)
-		lastOffset = offset
-
-			local pip = element.Pips[stage]
-			if(not pip) then
-				--[[ Override: Castbar:CreatePip(stage)
-				Creates a "pip" for the given stage, used for empowered casts.
-
-				* self - the Castbar widget
-			* stage - the empowered stage for which the pip should be created (number)
-
-				## Returns
-
-				* pip - a frame used to depict an empowered stage boundary, typically with a line texture (frame)
-				--]]
-				pip = (element.CreatePip or CreatePip) (element, stage)
-				element.Pips[stage] = pip
-			end
-
-			pip:ClearAllPoints()
-			pip:Show()
-
-			if(isHoriz) then
-				if(pip.RotateTextures) then
-					pip:RotateTextures(0)
-				end
-
-				if(element:GetReverseFill()) then
-					pip:SetPoint('TOP', element, 'TOPRIGHT', -offset, 0)
-					pip:SetPoint('BOTTOM', element, 'BOTTOMRIGHT', -offset, 0)
-				else
-					pip:SetPoint('TOP', element, 'TOPLEFT', offset, 0)
-					pip:SetPoint('BOTTOM', element, 'BOTTOMLEFT', offset, 0)
-				end
-			else
-				if(pip.RotateTextures) then
-					pip:RotateTextures(1.5708)
-				end
-
-				if(element:GetReverseFill()) then
-					pip:SetPoint('LEFT', element, 'TOPLEFT', 0, -offset)
-					pip:SetPoint('RIGHT', element, 'TOPRIGHT', 0, -offset)
-				else
-					pip:SetPoint('LEFT', element, 'BOTTOMLEFT', 0, offset)
-					pip:SetPoint('RIGHT', element, 'BOTTOMRIGHT', 0, offset)
-				end
-			end
-		end
-
-	--[[ Callback: Castbar:PostUpdatePips(stages)
-	Called after the element has updated stage separators (pips) in an empowered cast.
-
-	* self - the Castbar widget
-	* stages - stages with percentage of each stage (table)
-	--]]
-	if(element.PostUpdatePips) then
-		element:PostUpdatePips(stages)
-	end
 end
 
 --[[ Override: Castbar:ShouldShow(unit)
@@ -273,16 +199,6 @@ local function CastStart(self, event, unit)
 			safeZone[isHoriz and 'SetWidth' or 'SetHeight'](safeZone, element[isHoriz and 'GetWidth' or 'GetHeight'](element) * ratio)
 			safeZone:Show()
 		end
-	end
-
-	if(element.empowering) then
-		--[[ Override: Castbar:UpdatePips(stages)
-		Handles updates for stage separators (pips) in an empowered cast.
-
-		* self      - the Castbar widget
-		* stages - stages with percentage of each stage (table)
-		--]]
-		(element.UpdatePips or UpdatePips) (element, UnitEmpoweredStagePercentages(unit))
 	end
 
 	--[[ Callback: Castbar:PostCastStart(unit)
@@ -519,29 +435,6 @@ local function onUpdate(self, elapsed)
 			end
 		end
 
-		-- ISSUE: we have no way to get this information any more, Blizzard is aware
-		-- --[[ Callback: Castbar:PostUpdateStage(stage)
-		-- Called after the current stage changes.
-
-		-- * self - the Castbar widget
-		-- * stage - the stage of the empowered cast (number)
-		-- --]]
-		-- if(self.empowering and self.PostUpdateStage) then
-		-- 	local old = self.curStage
-		-- 	for i = old + 1, self.numStages do
-		-- 		if(self.stagePoints[i]) then
-		-- 			if(self.duration > self.stagePoints[i]) then
-		-- 				self.curStage = i
-
-		-- 				if(self.curStage ~= old) then
-		-- 					self:PostUpdateStage(i)
-		-- 				end
-		-- 			else
-		-- 				break
-		-- 			end
-		-- 		end
-		-- 	end
-		-- end
 	elseif(self.holdTime > 0) then
 		self.holdTime = self.holdTime - elapsed
 	else
@@ -583,7 +476,6 @@ local function Enable(self, unit)
 		self:RegisterEvent('UNIT_SPELLCAST_NOT_INTERRUPTIBLE', CastInterruptible)
 
 		element.holdTime = 0
-		element.Pips = element.Pips or {}
 
 		element:SetScript('OnUpdate', element.OnUpdate or onUpdate)
 

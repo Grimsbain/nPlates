@@ -2,11 +2,23 @@
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates addon.
 ## Author: Grimsbain
-## Version: 3.0.9
+## Version: 3.0.10
 ## IconTexture: Interface\AddOns\nPlates\Media\Addon_Icon.png
 ## SavedVariablesPerCharacter: nPlatesDB
 ## AllowLoad: Game
 ## AllowLoadGameType: mainline
+
+## Category: Unit Frames
+## Category-deDE: Einheitenfenster
+## Category-esES: Marcos de unidades
+## Category-esMX: Marcos de unidades
+## Category-frFR: Portraits d'unités
+## Category-itIT: Riquadri delle unità
+## Category-koKR: 개체창
+## Category-ptBR: Quadros de unidade
+## Category-ruRU: Рамки юнитов
+## Category-zhCN: 单位框体
+## Category-zhTW: 單位框架
 
 ## AddonCompartmentFunc: nPlates_OnAddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: nPlates_OnAddonCompartmentOnEnter

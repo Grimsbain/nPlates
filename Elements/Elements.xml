@@ -1,0 +1,16 @@
+<Ui>
+    <!-- <Script file="Buffs.lua"/> -->
+    <Script file="Castbar.lua"/>
+    <Script file="CCIcon.lua"/>
+    <Script file="ClassificationIndicator.lua"/>
+    <Script file="ClassPowers.lua"/>
+    <Script file="Debuffs.lua"/>
+    <Script file="Health.lua"/>
+    <Script file="QuestIndicator.lua"/>
+    <Script file="RaidTargetIndicator.lua"/>
+    <Script file="SoftTargetFrame.lua"/>
+
+    <Include file="Chi.xml"/>
+    <Include file="ComboPoints.xml"/>
+    <Include file="Essence.xml"/>
+</Ui>

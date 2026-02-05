@@ -5,11 +5,11 @@
     <Script file="CVars.lua"/>
     <Script file="Utils.lua"/>
     <Script file="Settings.lua"/>
+
+    <Include file="Elements\Elements.xml"/>
+
     <Script file="Border.lua"/>
     <Script file="nPlates.lua"/>
-    <Include file="ComboPoints.xml"/>
-    <Include file="Chi.xml"/>
-    <Include file="Essence.xml"/>
 
     <Frame name="nPlatesDriverFrame" mixin="nPlatesMixin">
         <Scripts>

@@ -881,7 +881,7 @@ do
 			nameplate.unitFrame:UpdateAllElements(event)
 		elseif(event == 'NAME_PLATE_UNIT_ADDED') then
 			local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
-			if(not nameplate or nameplate.explicitIsPlayer) then return end
+			if(not nameplate or nameplate.explicitIsPlayer or unit == "preview" ) then return end
 
 			oUF:DisableBlizzardNamePlate(nameplate)
 

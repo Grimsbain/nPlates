@@ -7,6 +7,7 @@ local function Update(self, event, unit, isFullUpdate, updatedAuraInfos)
     end
 
     local element = self.CCIcon
+    element.data = {}
 
     --[[ Callback: CCIcon:PreUpdate()
     Called before the element has been updated.
@@ -24,17 +25,17 @@ local function Update(self, event, unit, isFullUpdate, updatedAuraInfos)
     local foundCC = false
 
     for i = 1, 40 do
-        local data = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
+        element.data = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
 
-        if not data then
+        if not element.data then
             break
         end
 
-        local isCrowdControl = C_Spell.IsSpellCrowdControl(data.spellId)
+        local isCrowdControl = C_Spell.IsSpellCrowdControl(element.data.spellId)
         element:SetAlphaFromBoolean(isCrowdControl, 1, 0)
 
         if element:IsVisible() then
-            local duration = C_UnitAuras.GetAuraDuration(unit, data.auraInstanceID)
+            local duration = C_UnitAuras.GetAuraDuration(unit, element.data.auraInstanceID)
 
             if duration then
                 element.Cooldown:SetCooldownFromDurationObject(duration)
@@ -43,7 +44,7 @@ local function Update(self, event, unit, isFullUpdate, updatedAuraInfos)
                 element.Cooldown:Hide()
             end
 
-            element.Icon:SetTexture(data.icon)
+            element.Icon:SetTexture(element.data.icon)
             element:Show()
             foundCC = true
             break
