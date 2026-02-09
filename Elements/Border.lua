@@ -29,6 +29,18 @@ function nPlates:SetBeautyBorderColor(frame, color)
     end
 end
 
+function nPlates:SetBeautyBorderColorByRGB(frame, r, g, b)
+    if ( not frame or not r or not g or not b ) then
+        return
+    end
+
+    if ( self:HasBeautyBorder(frame) ) then
+        for _, texture in ipairs(frame.Border) do
+            texture:SetVertexColor(r, g, b)
+        end
+    end
+end
+
 function nPlates:SetBorder(frame)
     if ( self:HasBeautyBorder(frame) ) then
         return

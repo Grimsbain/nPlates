@@ -81,15 +81,45 @@ function nPlates:RegisterSettings()
             label = L.ColoringOptionsLabel,
         },
         {
-            type = "CheckBox",
-            name = "NPLATES_TANKMODE",
-            variable = "ThreatColoring",
-            label = L.TankMode,
-            tooltip = L.TankModeTooltip,
-            default = Settings.Default.False,
-            varType = Settings.VarType.Boolean,
-            callback = function(...)
+            type = "Dropdown",
+            name = "NPLATES_HEALTH_COLOR",
+            variable = "HealthColor",
+            label = L.ColorHealthBy,
+            tooltip = L.ColorHealthByTooltip,
+            default = "default",
+            varType = Settings.VarType.String,
+            options = function()
+                local container = Settings.CreateControlTextContainer()
+                container:Add("default", L.Default)
+                container:Add("threat", L.ThreatColoring)
+                container:Add("mobType", L.MobType)
+                return container:GetData()
+            end,
+            callback = function(setting, value)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                 nPlates:UpdateElement("Health")
+                end)
+            end,
+        },
+        {
+            type = "Dropdown",
+            name = "NPLATES_BORDER_COLOR",
+            variable = "BorderColor",
+            label = L.ColorBorderBy,
+            tooltip = L.ColorBorderByTooltip,
+            default = "default",
+            varType = Settings.VarType.String,
+            options = function()
+                local container = Settings.CreateControlTextContainer()
+                container:Add("default", L.Default)
+                container:Add("threat", L.ThreatColoring)
+                container:Add("mobType", L.MobType)
+                return container:GetData()
+            end,
+            callback = function(setting, value)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate:SetSelectionColor()
+                end)
             end,
         },
         {
@@ -100,7 +130,6 @@ function nPlates:RegisterSettings()
             label = L.OffTankColor,
             varType = Settings.VarType.Boolean,
             color = "ff7328ff",
-            indent = true,
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     nPlates:UpdateElement("Health")
@@ -357,7 +386,6 @@ function nPlates:RegisterSettings()
                 SetCVar("nameplatePlayerMaxDistance", value)
             end,
         },
-
     }
 
     for index, control in ipairs(options) do

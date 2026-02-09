@@ -3,7 +3,7 @@ local _, nPlates = ...
 function nPlates.CreateCCIcon(self)
     self.CCIcon = CreateFrame("Frame", "$parentCCIcon", self)
     self.CCIcon:SetSize(20, 14)
-    self.CCIcon:SetPoint("LEFT", self.Health, "RIGHT", 4, 0)
+    self.CCIcon:SetPoint("LEFT", self.QuestIndicator, "RIGHT", 4, 0)
     self.CCIcon:SetCollapsesLayout(true)
     self.CCIcon:SetIgnoreParentScale(true)
     self.CCIcon.PreUpdate = function(element)

@@ -1,4 +1,5 @@
 <Ui>
+    <Script file="Border.lua"/>
     <!-- <Script file="Buffs.lua"/> -->
     <Script file="Castbar.lua"/>
     <Script file="CCIcon.lua"/>

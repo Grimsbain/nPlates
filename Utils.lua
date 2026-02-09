@@ -20,6 +20,37 @@ nPlates.Media = {
     OffTankColor =  CreateColor(174/255, 0.0, 1.0),
 }
 
+nPlates.Colors = {
+    Boss = CreateColor(1, 215/255, 0),
+    MiniBoss = CreateColor(188/255, 198/255, 204/255),
+    Caster = C_ClassColor.GetClassColor("MAGE"),
+    Melee = C_ClassColor.GetClassColor("WARRIOR"),
+    Trivial = CreateColor(0.4, 0.4, 0.4),
+}
+
+    -- Threat Functions
+
+function nPlates.IsOnThreatListWithPlayer(unit)
+    local _, threatStatus = UnitDetailedThreatSituation("player", unit)
+    return threatStatus ~= nil
+end
+
+local function UseOffTankColor(unit)
+    if ( not Settings.GetValue("NPLATES_OFF_TANK_COLOR") or not PlayerUtil.IsPlayerEffectivelyTank() ) then
+        return false
+    end
+
+    return IsInRaid() and UnitGroupRolesAssignedEnum(unit.."target") == Enum.LFGRole.Tank
+end
+
+    -- Color
+
+nPlates.DifficultyColor = function(unit)
+    local difficulty = C_PlayerInfo.GetContentDifficultyCreatureForPlayer(unit)
+    local color = GetDifficultyColor(difficulty)
+    return ConvertRGBtoColorString(color)
+end
+
 -- Aura Functions
 
 nPlates.PostCreateButton = function(auras, button)
@@ -50,6 +81,49 @@ nPlates.PostUpdateButton = function(auras, button)
     button.Cooldown:SetHideCountdownNumbers(not Settings.GetValue("NPLATES_COOLDOWN"))
     button.Cooldown:SetDrawEdge(Settings.GetValue("NPLATES_COOLDOWN_EDGE"))
     button.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
+end
+
+nPlates.GetThreatColor = function(unit)
+    local isTanking, threatStatus = UnitDetailedThreatSituation("player", unit)
+    if ( isTanking and threatStatus ) then
+        if ( threatStatus >= 3 ) then
+            r, g, b = 0.0, 1.0, 0.0
+        else
+            r, g, b = GetThreatStatusColor(threatStatus)
+        end
+    elseif ( UseOffTankColor(unit) ) then
+        r, g, b = nPlates.Media.OffTankColor:GetRGB()
+    else
+        r, g, b = 1, 0, 0
+    end
+
+    nPlates.Media.BorderColor:SetRGB(r, g, b)
+
+    return nPlates.Media.BorderColor
+end
+
+nPlates.UpdateMobType = function(self)
+    if self:IsPlayer() then
+        return "Player"
+    end
+
+    local classification = UnitClassification(self.unit)
+
+    if ( classification == "elite" ) then
+        local level = UnitEffectiveLevel(self.unit)
+        local playerLevel = UnitLevel("player")
+
+        if level >= playerLevel + 2 or level == -1 then
+            return "Boss"
+        elseif level == playerLevel + 1 then
+            return "MiniBoss"
+        elseif level == playerLevel then
+            local class = UnitClassBase(self.unit)
+            return class == "PALADIN" and "Caster" or "Melee"
+        end
+    end
+
+    return "Trivial"
 end
 
 -- oUF Functions

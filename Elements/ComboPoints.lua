@@ -92,7 +92,7 @@ function nPlatesComboPointsMixin:ShouldShowComboPoints(unit)
         return false
     end
 
-    if ( not unit or not UnitIsUnit(unit, "target") or not UnitCanAttack("player", unit) ) then
+    if ( not unit or not self:GetParent():IsTarget() or self:GetParent():IsFriend() ) then
         return false
     end
 

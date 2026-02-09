@@ -18,11 +18,11 @@ end
 function PlateMixin:IsFriend()
     local isFriend = false
 
-    if self.unit ~= nil then
+    if ( self.unit ~= nil ) then
 		isFriend = UnitIsFriend("player", self.unit)
 
 		-- Cross faction players who are in the local players party but not in an instance are attackable and should appear as enemies.
-		if isFriend and self:IsPlayer() and UnitInParty(self.unit) and UnitCanAttack("player", self.unit) then
+		if ( isFriend and self:IsPlayer() and UnitInParty(self.unit) and UnitCanAttack("player", self.unit) ) then
 			isFriend = false
 		end
 	end
@@ -80,6 +80,10 @@ function PlateMixin:UpdateHealth()
     nPlates.UpdateHealth(self, "FORCE", self.unit)
 end
 
+function PlateMixin:ShouldShowMobType()
+    return self.mobType and self.mobType ~= "Player"
+end
+
 function PlateMixin:SetSelectionColor()
     if ( not self.unit ) then
         return
@@ -88,23 +92,31 @@ function PlateMixin:SetSelectionColor()
     local healthBar = self.Health
     local unit = self.unit
 
-    if ( Settings.GetValue("NPLATES_FOCUS_COLOR") ) then
-        if ( self:IsFocus() ) then
+    if ( self:IsTarget() and Settings.GetValue("NPLATES_SELECTION_COLOR") ) then
+        nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.SelectionColor)
+        return
+    elseif ( self:IsFocus() and Settings.GetValue("NPLATES_FOCUS_COLOR") ) then
             nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.FocusColor)
             return
-        end
-    end
+    else
+        local borderType = Settings.GetValue("NPLATES_BORDER_COLOR")
 
-    if ( self:IsTarget() ) then
-        if ( Settings.GetValue("NPLATES_SELECTION_COLOR") ) then
-            nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.SelectionColor)
+        if ( borderType == "mobType" and self:ShouldShowMobType() ) then
+            local color = nPlates.Colors[self.mobType]
+            nPlates:SetBeautyBorderColor(healthBar, color)
+            return
+        elseif borderType == "threat" and nPlates.IsOnThreatListWithPlayer(self.unit) then
+            local color = nPlates.GetThreatColor(self.unit)
+            nPlates:SetBeautyBorderColor(healthBar, color)
+            return
         else
+            if ( self:IsTarget() ) then
             local r, g, b = healthBar:GetStatusBarColor()
-            nPlates.Media.BorderColor:SetRGB(r, g, b)
-            nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.BorderColor)
-        end
+                nPlates:SetBeautyBorderColorByRGB(healthBar, r, g, b)
     else
         nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.DefaultBorderColor)
+    end
+end
     end
 end
 
@@ -161,33 +173,25 @@ function PlateMixin:UpdateName()
         self.Name:Hide()
         return
     else
-        local unitName = UnitName(self.unit) or UNKOWN
+        local name = UnitName(self.unit) or UNKOWN
 
-        if ( Settings.GetValue("NPLATES_SHOWLEVEL") and not self:IsPlayer() ) then
-            local targetLevel = UnitLevel(self.unit)
-
-            if ( targetLevel == -1 ) then
-                self.Name:SetText(unitName)
+        if ( self:IsPlayer() ) then
+            if ( not self:IsFriend() and Settings.GetValue("NPLATES_PLAYER_THREAT") ) then
+                self.Name:SetFormattedText("%s%s|r", nPlates.DifficultyColor(self.unit), name)
             else
-                local difficulty = C_PlayerInfo.GetContentDifficultyCreatureForPlayer(self.unit)
-                local color = GetDifficultyColor(difficulty)
-                self.Name:SetTextColor(WHITE_FONT_COLOR:GetRGB())
-                self.Name:SetFormattedText("%s%d|r %s", ConvertRGBtoColorString(color), targetLevel, unitName)
+                self.Name:SetText(GetClassColoredTextForUnit(self.unit, name))
             end
         else
-            if ( self:IsPlayer() ) then
-                if ( not self:IsFriend() and Settings.GetValue("NPLATES_PLAYER_THREAT") ) then
-                    local difficulty = C_PlayerInfo.GetContentDifficultyCreatureForPlayer(self.unit)
-                    local color = GetDifficultyColor(difficulty)
+            if ( Settings.GetValue("NPLATES_SHOWLEVEL") ) then
+                local level = UnitLevel(self.unit)
 
-                    self.Name:SetText(unitName)
-                    self.Name:SetTextColor(color.r, color.g, color.b)
+                if ( level == -1 ) then
+                    self.Name:SetText(name)
                 else
-                self.Name:SetText(GetClassColoredTextForUnit(self.unit, unitName))
+                    self.Name:SetFormattedText("%s%d|r %s", nPlates.DifficultyColor(self.unit), level, name)
                 end
             else
-                self.Name:SetText(unitName)
-                self.Name:SetTextColor(WHITE_FONT_COLOR:GetRGB())
+                self.Name:SetText(name)
             end
         end
 
@@ -203,7 +207,7 @@ function PlateMixin:UpdateNameLocation()
 
     self.Name:ClearAllPoints()
 
-    if ( Settings.GetValue("NPLATES_ONLYNAME") and self:IsFriendlyPlayer() ) then
+    if ( self:IsFriendlyPlayer() and Settings.GetValue("NPLATES_ONLYNAME") ) then
         self.Name:SetPoint("BOTTOM", self, "TOP", 0, 5)
         self.Health:ClearAllPoints()
     else
@@ -221,6 +225,8 @@ function PlateMixin:UpdateClassification()
         element:Hide()
         return
     end
+
+    self.mobType = nPlates.UpdateMobType(self)
 
     local classification = UnitClassification(self.unit)
 
@@ -246,8 +252,8 @@ local function Layout(self, unit)
     nPlates.CreateCastbar(self)
 
     -- Right
-    nPlates.CreateCCIcon(self)
     nPlates.CreateQuestIcon(self)
+    nPlates.CreateCCIcon(self)
 
     -- Left
     nPlates.CreateClassificationIndicator(self)

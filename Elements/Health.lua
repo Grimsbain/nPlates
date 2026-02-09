@@ -1,20 +1,5 @@
 local _, nPlates = ...
 
-    -- Threat Functions
-
-local function IsOnThreatListWithPlayer(unit)
-    local _, threatStatus = UnitDetailedThreatSituation("player", unit)
-    return threatStatus ~= nil
-end
-
-local function UseOffTankColor(unit)
-    if ( not Settings.GetValue("NPLATES_OFF_TANK_COLOR") or not PlayerUtil.IsPlayerEffectivelyTank() ) then
-        return false
-    end
-
-    return IsInRaid() and UnitGroupRolesAssignedEnum(unit.."target") == Enum.LFGRole.Tank
-end
-
     -- Health Functions
 
 local function UpdateStatusText(self, currentHealth)
@@ -58,20 +43,13 @@ function nPlates.UpdateHealth(self, event, unit)
             local _, class = UnitClass(self.unit)
             r, g, b = C_ClassColor.GetClassColor(class):GetRGB()
         else
-            if ( IsOnThreatListWithPlayer(self.unit) ) then
-                if ( Settings.GetValue("NPLATES_TANKMODE") ) then
-                    local isTanking, threatStatus = UnitDetailedThreatSituation("player", self.unit)
-                    if ( isTanking and threatStatus ) then
-                        if ( threatStatus >= 3 ) then
-                            r, g, b = 0.0, 1.0, 0.0
-                        else
-                            r, g, b = GetThreatStatusColor(threatStatus)
-                        end
-                    elseif ( UseOffTankColor(self.unit) ) then
-                        r, g, b = nPlates.Media.OffTankColor:GetRGB()
-                    else
-                        r, g, b = 1, 0, 0
-                    end
+            local healthStyle = Settings.GetValue("NPLATES_HEALTH_COLOR")
+
+            if ( self:ShouldShowMobType() and healthStyle == "mobType" ) then
+                r, g, b = nPlates.Colors[self.mobType]:GetRGB()
+            elseif ( nPlates.IsOnThreatListWithPlayer(self.unit) ) then
+                if ( healthStyle == "threat" ) then
+                    r, g, b = nPlates.GetThreatColor(self.unit):GetRGB()
                 else
                     r, g, b = 1, 0, 0
                 end

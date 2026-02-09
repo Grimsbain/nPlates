@@ -15,7 +15,7 @@ end
 function nPlates.CreateQuestIcon(self)
     self.QuestIndicator = self:CreateTexture("$parentQuestIcon", "OVERLAY")
     self.QuestIndicator:SetSize(25, 25)
-    self.QuestIndicator:SetPoint("LEFT", self.CCIcon, "RIGHT", 0, 0)
+    self.QuestIndicator:SetPoint("LEFT", self.Health, "RIGHT", 4, 0)
     self.QuestIndicator:SetAtlas("QuestNormal", false)
     self.QuestIndicator:SetCollapsesLayout(true)
     self.QuestIndicator.Override = Override

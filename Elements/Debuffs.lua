@@ -9,18 +9,9 @@ local function DebuffPostUpdate(auras, unit)
     end
 
     local relativeTo = auras.visibleButtons > 0 and parent.Debuffs or parent.Name
-
-    parent.ComboPoints:ClearAllPoints()
-    parent.ComboPoints:SetPoint("BOTTOM", relativeTo, "TOP", 0, 4)
-    parent.ComboPoints:SetPoint("CENTER", parent)
-
-    parent.Chi:ClearAllPoints()
-    parent.Chi:SetPoint("BOTTOM", relativeTo, "TOP", 0, 4)
-    parent.Chi:SetPoint("CENTER", parent)
-
-    parent.Essence:ClearAllPoints()
-    parent.Essence:SetPoint("BOTTOM", relativeTo, "TOP", 0, 4)
-    parent.Essence:SetPoint("CENTER", parent)
+    parent.ClassFrameContainer:ClearAllPoints()
+    parent.ClassFrameContainer:SetPoint("BOTTOM", relativeTo, "TOP", 0, 4)
+    parent.ClassFrameContainer:SetPoint("CENTER", parent)
 end
 
 function nPlates.CreateDebuffs(self)

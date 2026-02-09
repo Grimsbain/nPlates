@@ -8,7 +8,6 @@
 
     <Include file="Elements\Elements.xml"/>
 
-    <Script file="Border.lua"/>
     <Script file="nPlates.lua"/>
 
     <Frame name="nPlatesDriverFrame" mixin="nPlatesMixin">
