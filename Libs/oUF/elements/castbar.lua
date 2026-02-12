@@ -479,11 +479,11 @@ local function Enable(self, unit)
 
 		element:SetScript('OnUpdate', element.OnUpdate or onUpdate)
 
-		if(self.unit == 'player' and not (self.hasChildren or self.isChild or self.isNamePlate)) then
-			PlayerCastingBarFrame:SetUnit(nil)
-			PetCastingBarFrame:SetUnit(nil)
-			PetCastingBarFrame:UnregisterEvent('UNIT_PET')
-		end
+		-- if(self.unit == 'player' and not (self.hasChildren or self.isChild or self.isNamePlate)) then
+		-- 	PlayerCastingBarFrame:SetUnit(nil)
+		-- 	PetCastingBarFrame:SetUnit(nil)
+		-- 	PetCastingBarFrame:UnregisterEvent('UNIT_PET')
+		-- end
 
 		if(element:IsObjectType('StatusBar') and not element:GetStatusBarTexture()) then
 			element:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
@@ -531,10 +531,10 @@ local function Disable(self)
 
 		element:SetScript('OnUpdate', nil)
 
-		if(self.unit == 'player' and not (self.hasChildren or self.isChild or self.isNamePlate)) then
-			PlayerCastingBarFrame:OnLoad()
-			PetCastingBarFrame:OnLoad()
-		end
+		-- if(self.unit == 'player' and not (self.hasChildren or self.isChild or self.isNamePlate)) then
+		-- 	PlayerCastingBarFrame:OnLoad()
+		-- 	PetCastingBarFrame:OnLoad()
+		-- end
 	end
 end
 

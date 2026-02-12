@@ -20,6 +20,16 @@ local function PostCastStart(castbar, unit)
     end
 end
 
+local function PostCastInterrupted(castbar, unit, interruptedBy)
+    castbar:GetStatusBarTexture():SetVertexColor(1, 0, 0)
+    local name = select(6, GetPlayerInfoByGUID(interruptedBy))
+    if name then
+        castbar.Target:SetText(name)
+        castbar.Target:SetTextColor(WHITE_FONT_COLOR:GetRGB())
+        castbar.Target:Show()
+    end
+end
+
 function nPlates.CreateCastbar(self)
     self.Castbar = CreateFrame("StatusBar", "$parentCastbar", self)
     self.Castbar:SetPoint("TOPLEFT", self.Health, "BOTTOMLEFT", 0, -5)
@@ -28,7 +38,8 @@ function nPlates.CreateCastbar(self)
     self.Castbar:SetStatusBarTexture(nPlates.Media.StatusBarTexture)
     self.Castbar:GetStatusBarTexture():SetVertexColor(nPlates.Media.StatusBarColor:GetRGB())
     self.Castbar.PostCastStart = PostCastStart
-    self.Castbar.timeToHold = 0.75
+    self.Castbar.PostCastInterrupted = PostCastInterrupted
+    self.Castbar.timeToHold = 0.8
     nPlates:SetBorder(self.Castbar)
 
     self.Castbar.Background = self.Castbar:CreateTexture("$parentBackground", "BACKGROUND")

@@ -1,6 +1,9 @@
 <Ui>
+    <!-- Make our own tooltip to avoid GameTooltip secure taint. -->
+    <GameTooltip name="nPlatesTooltip" inherits="GameTooltipTemplate" parent="UIParent" frameStrata="TOOLTIP"/>
+
     <Script file="Border.lua"/>
-    <!-- <Script file="Buffs.lua"/> -->
+    <Script file="Buffs.lua"/>
     <Script file="Castbar.lua"/>
     <Script file="CCIcon.lua"/>
     <Script file="ClassificationIndicator.lua"/>

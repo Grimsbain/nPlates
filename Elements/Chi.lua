@@ -87,7 +87,7 @@ function nPlatesChiMixin:Update(unit)
 end
 
 function nPlatesChiMixin:UpdateSize()
-	local totalWidth = (self.maxPower * self.indicatorSize) + ((self.maxPower) * self.spacing)
+	local totalWidth = (self.maxPower * self.indicatorSize) + (self.maxPower * self.spacing)
 	self:SetWidth(totalWidth)
 end
 
@@ -100,7 +100,7 @@ function nPlatesChiMixin:ShouldShow(unit)
         return false
     end
 
-    if ( not unit or not UnitIsUnit(unit, "target") or not UnitCanAttack("player", unit) ) then
+    if ( not unit or not self:GetParent():IsTarget() or self:GetParent():IsFriend() ) then
         return false
     end
 

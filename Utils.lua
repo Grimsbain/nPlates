@@ -20,7 +20,7 @@ nPlates.Media = {
     OffTankColor =  CreateColor(174/255, 0.0, 1.0),
 }
 
-nPlates.Colors = {
+nPlates.MobColors = {
     Boss = CreateColor(1, 215/255, 0),
     MiniBoss = CreateColor(188/255, 198/255, 204/255),
     Caster = C_ClassColor.GetClassColor("MAGE"),
@@ -60,11 +60,15 @@ nPlates.PostCreateButton = function(auras, button)
     button.Cooldown:SetReverse(true)
     button.Cooldown:SetCountdownFont("nPlate_CooldownFont")
 
-    button.Overlay:ClearAllPoints()
-
     button.Background = button:CreateTexture("$parentBackground", "BACKGROUND")
     button.Background:SetAllPoints(button)
     button.Background:SetColorTexture(0, 0, 0)
+
+    if button.Overlay then
+        button.Overlay:ClearAllPoints()
+        button.Overlay:SetAllPoints(button.Background)
+        button.Overlay:SetTexture([[Interface\AddOns\nPlates\Media\borderTexture]])
+    end
 
     button.Count:SetFontObject("nPlate_CountFont")
     button.Count:ClearAllPoints()
@@ -100,30 +104,6 @@ nPlates.GetThreatColor = function(unit)
     nPlates.Media.BorderColor:SetRGB(r, g, b)
 
     return nPlates.Media.BorderColor
-end
-
-nPlates.UpdateMobType = function(self)
-    if self:IsPlayer() then
-        return "Player"
-    end
-
-    local classification = UnitClassification(self.unit)
-
-    if ( classification == "elite" ) then
-        local level = UnitEffectiveLevel(self.unit)
-        local playerLevel = UnitLevel("player")
-
-        if level >= playerLevel + 2 or level == -1 then
-            return "Boss"
-        elseif level == playerLevel + 1 then
-            return "MiniBoss"
-        elseif level == playerLevel then
-            local class = UnitClassBase(self.unit)
-            return class == "PALADIN" and "Caster" or "Melee"
-        end
-    end
-
-    return "Trivial"
 end
 
 -- oUF Functions

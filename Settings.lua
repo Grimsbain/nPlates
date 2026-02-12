@@ -93,6 +93,7 @@ function nPlates:RegisterSettings()
                 container:Add("default", L.Default)
                 container:Add("threat", L.ThreatColoring)
                 container:Add("mobType", L.MobType)
+                container:Add("mobTypeOrThreat", L.MobTypeOrHealth)
                 return container:GetData()
             end,
             callback = function(setting, value)
@@ -114,6 +115,7 @@ function nPlates:RegisterSettings()
                 container:Add("default", L.Default)
                 container:Add("threat", L.ThreatColoring)
                 container:Add("mobType", L.MobType)
+                container:Add("mobTypeOrThreat", L.MobTypeOrHealth)
                 return container:GetData()
             end,
             callback = function(setting, value)
@@ -128,6 +130,7 @@ function nPlates:RegisterSettings()
             variable = "OffTankColor",
             default = Settings.Default.False,
             label = L.OffTankColor,
+            tooltip = L.OffTankColorTooltip,
             varType = Settings.VarType.Boolean,
             color = "ff7328ff",
             callback = function(setting, value)
@@ -157,6 +160,7 @@ function nPlates:RegisterSettings()
             variable = "FocusColor",
             default = Settings.Default.False,
             label = "Focus Color",
+            tooltip = "Colors the border of your current focus target.",
             varType = Settings.VarType.Boolean,
             color = "FFFF7B00",
             callback = function(setting, value)
@@ -165,27 +169,87 @@ function nPlates:RegisterSettings()
                 end)
             end,
         },
-        -- {
-        --     type = "Label",
-        --     label = L.BuffOptions,
-        -- },
-        -- {
-        --     type = "CheckBox",
-        --     name = "NPLATES_SHOW_BUFFS",
-        --     variable = "ShowBuffs",
-        --     label = L.ShowBuffs,
-        --     tooltip = L.ShowBuffsTooltip,
-        --     default = Settings.Default.True,
-        --     varType = Settings.VarType.Boolean,
-        --     callback = function(...)
-        --         nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-        --             plate:UpdateBuffs()
-        --         end)
-        --     end,
-        -- },
+        {
+            type = "Label",
+            label = L.BuffOptions,
+        },
+        {
+            type = "CheckBox",
+            name = "NPLATES_SHOW_BUFFS",
+            variable = "ShowBuffs",
+            label = L.ShowBuffs,
+            tooltip = L.ShowBuffsTooltip,
+            default = Settings.Default.True,
+            varType = Settings.VarType.Boolean,
+            callback = function(...)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate:UpdateBuffs()
+                end)
+            end,
+        },
         {
             type = "Label",
             label = L.DebuffOptions,
+        },
+        {
+            type = "Dropdown",
+            name = "NPLATES_SORT_BY",
+            variable = "SortBy",
+            label = L.SortBy,
+            tooltip = L.SortByTooltip,
+            default = Enum.UnitAuraSortRule.Default,
+            varType = Settings.VarType.Number,
+            options = function()
+                local container = Settings.CreateControlTextContainer()
+                container:Add(Enum.UnitAuraSortRule.Default, L.Default)
+                container:Add(Enum.UnitAuraSortRule.NameOnly, L.Name)
+                container:Add(Enum.UnitAuraSortRule.ExpirationOnly, L.Time)
+                return container:GetData()
+            end,
+            callback = function(setting, value)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate.BetterDebuffs.sortRule = value
+                end)
+
+                nPlates:UpdateElement("BetterDebuffs")
+            end,
+        },
+        {
+            type = "Dropdown",
+            name = "NPLATES_SORT_DIRECTION",
+            variable = "SortDirection",
+            label = L.SortDirection,
+            tooltip = L.SortDirectionTooltip,
+            default = Enum.UnitAuraSortDirection.Normal,
+            varType = Settings.VarType.Number,
+            options = function()
+                local container = Settings.CreateControlTextContainer()
+                container:Add(Enum.UnitAuraSortDirection.Normal, L.Default)
+                container:Add(Enum.UnitAuraSortDirection.Reverse, L.Reverse)
+                return container:GetData()
+            end,
+            callback = function(setting, value)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate.BetterDebuffs.sortDirection = value
+                end)
+
+                nPlates:UpdateElement("BetterDebuffs")
+            end,
+        },
+        {
+            type = "CheckBox",
+            name = "NPLATES_DEBUFF_TYPE",
+            variable = "ShowDebuffType",
+            label = L.ShowDebuffType,
+            tooltip = L.ShowDebuffTypeTooltip,
+            default = Settings.Default.False,
+            varType = Settings.VarType.Boolean,
+            callback = function(setting, value)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate.BetterDebuffs.showType = value
+                end)
+                nPlates:UpdateElement("BetterDebuffs")
+            end,
         },
         {
             type = "CheckBox",
@@ -208,7 +272,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateElement("Debuffs")
+                nPlates:UpdateElement("BetterDebuffs")
             end,
         },
         {
@@ -220,7 +284,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateElement("Debuffs")
+                nPlates:UpdateElement("BetterDebuffs")
             end,
         },
         {
@@ -232,7 +296,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateElement("Debuffs")
+                nPlates:UpdateElement("BetterDebuffs")
             end,
         },
         {
@@ -249,7 +313,7 @@ function nPlates:RegisterSettings()
             step = 0.05,
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.Debuffs:SetScale(value)
+                    plate.BetterDebuffs:SetScale(value)
                 end)
             end,
         },
@@ -268,8 +332,9 @@ function nPlates:RegisterSettings()
             callback = function(...)
                 local _, value = ...
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.ComboPoints:Toggle(value)
-                    plate.Chi:Toggle(value)
+                    if plate.ComboPoints then plate.ComboPoints:Toggle(value) end
+                    if plate.Chi then plate.Chi:Toggle(value) end
+                    if plate.Essence then plate.Essence:Toggle(value) end
                 end)
             end,
         },
@@ -386,25 +451,53 @@ function nPlates:RegisterSettings()
                 SetCVar("nameplatePlayerMaxDistance", value)
             end,
         },
+        {
+            type = "Label",
+            label = MISCELLANEOUS,
+        },
+        {
+            type = "Slider",
+            name = "NPLATES_SIMPLE_SCALE",
+            variable = "nameplateSimplifiedScale",
+            label = L.SimplifiedScale,
+            tooltip = L.SimplifiedScaleTooltip,
+            varType = Settings.VarType.Number,
+            min = .15,
+            max = 1,
+            step = 0.01,
+            default = 0.30,
+            format = Percentage,
+            callback = function(control, value)
+                if ( nPlates:IsTaintable() ) then
+                    return
+                end
+
+                SetCVar("nameplateSimplifiedScale", value)
+            end,
+        },
     }
 
     for index, control in ipairs(options) do
         if control.type == "Label" then
             layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(control.label))
+
         elseif control.type == "CheckBox" then
             local setting = Settings.RegisterAddOnSetting(category, control.name, control.variable, nPlatesDB, control.varType, control.label, control.default)
             setting:SetValueChangedCallback(control.callback)
             Settings.CreateCheckbox(category, setting, control.tooltip)
+
         elseif control.type == "Dropdown" then
             local setting = Settings.RegisterAddOnSetting(category, control.name, control.variable, nPlatesDB, control.varType, control.label, control.default)
             setting:SetValueChangedCallback(control.callback)
             Settings.CreateDropdown(category, setting, control.options, control.tooltip)
+
         elseif control.type == "Slider" then
             local options = Settings.CreateSliderOptions(control.min, control.max, control.step)
             options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, control.format)
             local setting = Settings.RegisterAddOnSetting(category, control.name, control.variable, nPlatesDB, control.varType, control.label, control.default)
             setting:SetValueChangedCallback(control.callback)
             Settings.CreateSlider(category, setting, options, control.tooltip)
+
         elseif control.type == "Swatch" then
             local hex = Settings.RegisterAddOnSetting(category, control.name.."_HEX", control.variable.."Hex", nPlatesDB, Settings.VarType.String, nil, control.color)
             hex:SetValueChangedCallback(function(s, value)
@@ -448,13 +541,16 @@ function nPlates:RegisterSettings()
 
             local clickRequiresSet = true
             local invertClickRequiresSet = false
+
             local initializer = CreateSettingsCheckboxWithColorSwatchInitializer(
                 setting,
+                control.tooltip,
                 OpenColorPicker,
                 clickRequiresSet,
                 invertClickRequiresSet,
+                GetColor,
                 control.label,
-                GetColor
+                L.ColorPickerToolitp
             )
 
             if control.indent then

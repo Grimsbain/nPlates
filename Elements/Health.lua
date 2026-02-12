@@ -40,15 +40,14 @@ function nPlates.UpdateHealth(self, event, unit)
         r, g, b = 0.5, 0.5, 0.5
     else
         if ( UnitIsPlayer(self.unit) or UnitInPartyIsAI(self.unit) ) then
-            local _, class = UnitClass(self.unit)
-            r, g, b = C_ClassColor.GetClassColor(class):GetRGB()
+            r, g, b = self.classColor:GetRGB()
         else
             local healthStyle = Settings.GetValue("NPLATES_HEALTH_COLOR")
 
-            if ( self:ShouldShowMobType() and healthStyle == "mobType" ) then
-                r, g, b = nPlates.Colors[self.mobType]:GetRGB()
+            if ( self:ShouldShowMobType() and (healthStyle == "mobType" or healthStyle == "mobTypeOrThreat") ) then
+                r, g, b = nPlates.MobColors[self.mobType]:GetRGB()
             elseif ( nPlates.IsOnThreatListWithPlayer(self.unit) ) then
-                if ( healthStyle == "threat" ) then
+                if ( healthStyle == "threat" or healthStyle == "mobTypeOrThreat" ) then
                     r, g, b = nPlates.GetThreatColor(self.unit):GetRGB()
                 else
                     r, g, b = 1, 0, 0

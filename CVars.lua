@@ -32,6 +32,7 @@ function nPlates:CVarCheck()
     SetCVar("nameplateOccludedAlphaMult", Settings.GetValue("NPLATES_ALPHA"))
     SetCVar("nameplateMaxDistance", Settings.GetValue("NPLATES_DISTANCE_NPC"))
     SetCVar("nameplatePlayerMaxDistance", Settings.GetValue("NPLATES_DISTANCE_PLAYER"))
+    SetCVar("nameplateSimplifiedScale", Settings.GetValue("NPLATES_SIMPLE_SCALE"))
     SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", Settings.GetValue("NPLATES_ONLYNAME") and 1 or 0)
 end
 
@@ -40,6 +41,7 @@ function nPlates:RestoreCVars()
         "nameplateMaxDistance",
         "nameplatePlayerMaxDistance",
         "nameplateOccludedAlphaMult",
+        "nameplateSimplifiedScale",
     })
     do
         local default = GetCVarDefault(setting)

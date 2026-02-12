@@ -2,6 +2,7 @@ local _, nPlates = ...
 
 function nPlates.CreateCCIcon(self)
     self.CCIcon = CreateFrame("Frame", "$parentCCIcon", self)
+    self.CCIcon:SetFrameLevel(self:GetFrameLevel()+5)
     self.CCIcon:SetSize(20, 14)
     self.CCIcon:SetPoint("LEFT", self.QuestIndicator, "RIGHT", 4, 0)
     self.CCIcon:SetCollapsesLayout(true)
@@ -13,8 +14,10 @@ function nPlates.CreateCCIcon(self)
 
     self.CCIcon.Cooldown = CreateFrame("Cooldown", "$parentCooldown", self.CCIcon, "CooldownFrameTemplate")
     self.CCIcon.Cooldown:SetAllPoints(self.CCIcon)
-    self.CCIcon.Cooldown:SetHideCountdownNumbers(false)
     self.CCIcon.Cooldown:SetCountdownFont("nPlate_CooldownFont")
+    self.CCIcon.Cooldown:SetHideCountdownNumbers(not Settings.GetValue("NPLATES_COOLDOWN"))
+    self.CCIcon.Cooldown:SetDrawEdge(Settings.GetValue("NPLATES_COOLDOWN_EDGE"))
+    self.CCIcon.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
 
     self.CCIcon.Icon = self.CCIcon:CreateTexture("$parentIcon", "ARTWORK")
     self.CCIcon.Icon:SetPoint("CENTER")

@@ -13,6 +13,7 @@
     <Frame name="nPlatesDriverFrame" mixin="nPlatesMixin">
         <Scripts>
             <OnLoad method="OnLoad"/>
+            <OnEvent method="OnEvent"/>
         </Scripts>
     </Frame>
 </Ui>

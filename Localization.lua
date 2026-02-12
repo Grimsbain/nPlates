@@ -9,6 +9,10 @@ setmetatable(L, { __index = function(t, k)
     return v
 end })
 
+------------------------------------------------------------------------
+-- Global
+------------------------------------------------------------------------
+
 L.AddonTitle = C_AddOns.GetAddOnMetadata(addon, "Title")
 
 ------------------------------------------------------------------------
@@ -32,22 +36,33 @@ L.CastTargetTooltip = "Shows the name of the spells current target."
 -- Coloring Options
 L.ColoringOptionsLabel = "Coloring Options"
 L.ColorHealthBy = "Color Health By"
-L.ColorHealthByTooltip = "Colors the health bar. Options are default coloring, by threat, or by mob type."
+L.ColorHealthByTooltip = "Colors the health bar. Options are default coloring, by threat, or by mob type." .. ORANGE_FONT_COLOR:WrapTextInColorCode("\n\nMob type only works in dungeons and raids.")
 L.ColorBorderBy  = "Color Border By"
-L.ColorBorderByTooltip = "Colors the border. Options are default coloring, by threat, or by mob type."
+L.ColorBorderByTooltip = "Colors the border. Options are default coloring, by threat, or by mob type." .. ORANGE_FONT_COLOR:WrapTextInColorCode("\n\nMob type only works in dungeons and raids.")
 L.Default = "Default"
 L.ThreatColoring = "Threat Coloring"
-L.MobType = "Mob Type"
+L.MobType = "Mob Type Only"
+L.MobTypeOrHealth = "Mob Type with Threat Coloring"
 L.OffTankColor = "Off Tank Color"
-L.OffTankColorTooltip = "Color shown if another tank is being targeted."
+L.OffTankColorTooltip = "Color to use when another tank has aggro. Only works when the player is a tank."
 L.SelectionColor = "Target Selection Color"
 L.SelectionColorTooltip = "Displays a custom selection border."
+L.ColorPickerToolitp = "Click to set color."
 -- Buff Options
 L.BuffOptions = "Buff Options"
 L.ShowBuffs = "Show Buffs"
-L.ShowBuffsTooltip = "Display important buffs to the left of the nameplate."
+L.ShowBuffsTooltip = "Display buffs to the left of the nameplate.\n\nFor player it only shows important buffs.\nFor NPCs it will show nameplate buffs."
 -- Aura Options
 L.DebuffOptions = "Debuff Options"
+L.SortBy = "Sort By"
+L.SortByTooltip = "Change how auras are sorted. Options are default, name, or time."
+L.Name = "Name"
+L.Time = "Time"
+L.SortDirection = "Sort Direction"
+L.SortDirectionTooltip = "Change the order that the debuffs are sorted. Options are default or reverse."
+L.Reverse = "Reverse"
+L.ShowDebuffType = "Show Debuff Type"
+L.ShowDebuffTypeTooltip = "Displays the debuff type color on the icon."
 L.CrowdControl = "Show Crowd Control Icon"
 L.CrowdControlTooltip = "Displays icon for crowd control spells to the right of the health bar."
 L.CooldownNumbers = "Show Cooldown Numbers"
@@ -81,6 +96,9 @@ L.NpcRange = "NPC Range"
 L.NpcRangeTooltip = "Adjusts the distance at which NPC nameplates are shown."
 L.PlayerRange = "Player Range"
 L.PlayerRangeTooltip = "Adjusts the distance at which player nameplates are shown."
+-- Misc
+L.SimplifiedScale = "Simplified Scale"
+L.SimplifiedScaleTooltip = "Adjust how big simplified nameplates are scaled. Blizzard default is 30%."
 
 local CURRENT_LOCALE = GetLocale()
 if CURRENT_LOCALE == "enUS" then return end

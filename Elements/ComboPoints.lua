@@ -79,7 +79,7 @@ function nPlatesComboPointsMixin:Update(unit)
 end
 
 function nPlatesComboPointsMixin:UpdateSize()
-	local totalWidth = (self.maxPoints * self.indicatorSize) + ((self.maxPoints) * self.spacing)
+	local totalWidth = (self.maxPoints * self.indicatorSize) + (self.maxPoints * self.spacing)
 	self:SetWidth(totalWidth)
 end
 

@@ -2,7 +2,7 @@
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates addon based on the NeavUI style.
 ## Author: Grimsbain
-## Version: 3.0.11
+## Version: 3.0.12
 ## IconTexture: Interface\AddOns\nPlates\Media\Addon_Icon.png
 ## SavedVariablesPerCharacter: nPlatesDB
 ## AllowLoad: Game
@@ -30,5 +30,9 @@
 ## X-oUF: nPlates3
 
 Libs\oUF\oUF.xml
+Libs\oUF_BetterBuffs.lua
+Libs\oUF_BetterDebuffs.lua
 Libs\oUF_CCIcon.lua
+Libs\oUF_ClassificationIndicator.lua
+
 nPlates.xml
