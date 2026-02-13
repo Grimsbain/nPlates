@@ -59,16 +59,22 @@ function PlateMixin:IsWidgetMode()
     return self.widgetsOnlyMode
 end
 
+function PlateMixin:SetWidgetMode(isWidgetMode)
+    self.widgetsOnlyMode = isWidgetMode
+end
+
 function PlateMixin:UpdateWidgetsOnlyMode()
-    self.widgetsOnlyMode = self.unit ~= nil and UnitNameplateShowsWidgetsOnly(self.unit)
-    self.Health:SetShown(not self.widgetsOnlyMode)
-    if self.ComboPoints then self.ComboPoints:SetWidgetMode(self.widgetsOnlyMode) end
-    if self.Chi then self.Chi:SetWidgetMode(self.widgetsOnlyMode) end
-    if self.Essence then self.Essence:SetWidgetMode(self.widgetsOnlyMode) end
+    local widgetsOnlyMode = self.unit ~= nil and UnitNameplateShowsWidgetsOnly(self.unit)
+    self:SetWidgetMode(widgetsOnlyMode)
+    self.Health:SetShown(not widgetsOnlyMode)
+
+    if self.ComboPoints then self.ComboPoints:SetWidgetMode(widgetsOnlyMode) end
+    if self.Chi then self.Chi:SetWidgetMode(widgetsOnlyMode) end
+    if self.Essence then self.Essence:SetWidgetMode(widgetsOnlyMode) end
 
     self.WidgetContainer:ClearAllPoints()
 
-    if self.widgetsOnlyMode then
+    if widgetsOnlyMode then
         PixelUtil.SetPoint(self.WidgetContainer, "BOTTOM", self, "BOTTOM", 0, 0)
         PixelUtil.SetPoint(self.WidgetContainer, "CENTER", self, "CENTER", 0, 0)
     else
@@ -77,7 +83,7 @@ function PlateMixin:UpdateWidgetsOnlyMode()
 end
 
 function PlateMixin:UpdateHealth()
-    nPlates.UpdateHealth(self, "FORCE", self.unit)
+    self.Health:ForceUpdate()
 end
 
 function PlateMixin:ShouldShowMobType()
@@ -142,10 +148,6 @@ function PlateMixin:UpdateClassPower()
 end
 
 function PlateMixin:UpdateClassColor()
-    if ( not self:IsPlayer() ) then
-        return
-    end
-
     local _, class = UnitClass(self.unit)
     self.classColor = C_ClassColor.GetClassColor(class)
 end
@@ -235,7 +237,8 @@ end
 
 function PlateMixin:UpdateClassification()
     if ( self:IsPlayer() ) then
-        return "Player"
+        self.mobType = "Player"
+        return
     end
 
     local classification = UnitClassification(self.unit)
@@ -245,20 +248,35 @@ function PlateMixin:UpdateClassification()
         local playerLevel = UnitLevel("player")
 
         if ( level >= playerLevel + 2 or level == -1 ) then
-            return "Boss"
+            self.mobType = "Boss"
+            return
         elseif ( level == playerLevel + 1 ) then
-            return "MiniBoss"
+            self.mobType = "MiniBoss"
+            return
         elseif ( level == playerLevel ) then
             local class = UnitClassBase(self.unit)
-            return class == "PALADIN" and "Caster" or "Melee"
+            self.mobType = (class == "PALADIN" and "Caster") or "Melee"
+            return
+        end
     end
+
+    self.mobType = "Trivial"
 end
 
-    return "Trivial"
+function PlateMixin:OnEvent(event, ...)
+    if ( event == "UNIT_CLASSIFICATION_CHANGED" ) then
+        self:UpdateClassification()
+    elseif ( event == "PLAYER_TARGET_CHANGED" ) then
+        nPlates:OnTargetChanged(self, "PLAYER_TARGET_CHANGED", self.unit)
+    elseif ( event == "PLAYER_FOCUS_CHANGED" ) then
+        self:UpdateIsFocus()
+        self:SetSelectionColor()
+    end
 end
 
 local function Layout(self, unit)
     Mixin(self, PlateMixin)
+    self:HookScript("OnEvent", self.OnEvent)
 
     self.Name = self:CreateFontString(nil, "OVERLAY", "nPlate_NameFont")
     self.Name:SetJustifyH("CENTER")
@@ -281,28 +299,9 @@ local function Layout(self, unit)
     nPlates.CreateDebuffs(self)
     nPlates.CreateClassPowers(self)
 
-    self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", nPlates.UpdateHealth)
-    self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", nPlates.UpdateHealth)
-    self:RegisterEvent("UNIT_FACTION", nPlates.UpdateHealth)
-    self:RegisterEvent("UNIT_FLAGS", nPlates.UpdateHealth)
-
-    self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", function(self, event, unit)
-        self:UpdateClassification()
-        self:UpdateName()
-    end)
-
-    -- We use a custom "PLAYER_TARGET_CHANGED" because the oUF version
-    -- doesn't fire when you lose target.
-    self:RegisterEvent("PLAYER_TARGET_CHANGED", function(self, event)
-        nPlates:OnTargetChanged(self, "PLAYER_TARGET_CHANGED", self.unit)
-    end, true)
-
-    self:RegisterEvent("PLAYER_FOCUS_CHANGED", function(self, event)
-        self:UpdateIsFocus()
-        nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-            plate:SetSelectionColor()
-        end)
-    end, true)
+    self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", self.OnEvent)
+    self:RegisterEvent("PLAYER_TARGET_CHANGED", self.OnEvent, true)
+    self:RegisterEvent("PLAYER_FOCUS_CHANGED", self.OnEvent, true)
 
     -- Waiting on Blizzard
     -- self.HitTest = CreateFrame("Frame", "$parentHitTest", self)
@@ -359,7 +358,6 @@ function nPlatesMixin:Initialize()
 end
 
 function nPlates:OnNamePlateRemoved(nameplate, event, unit)
-    nameplate.unit = nil
     nameplate.widgetsOnlyMode = nil
     nameplate:Hide()
 end
@@ -368,8 +366,6 @@ function nPlates:OnNamePlateAdded(nameplate, event, unit)
     if ( unit == "preview" ) then
         return
     end
-
-    nameplate.unit = unit
 
     nameplate:UpdateIsPlayer()
     nameplate:UpdateIsTarget()
