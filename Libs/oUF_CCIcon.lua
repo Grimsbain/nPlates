@@ -27,7 +27,11 @@ local function Update(self, event, unit, isFullUpdate, updatedAuraInfos)
     if ( not unit or unit ~= self.unit ) then return end
 
     local element = self.CCIcon
-    element.data = {}
+
+    if ( not self:ShouldShowCrowdControl() or self:IsWidgetMode() or self:IsSimplified() ) then
+        element:Hide()
+        return
+    end
 
     --[[ Callback: CCIcon:PreUpdate()
     Called before the element has been updated.

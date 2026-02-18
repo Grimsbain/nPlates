@@ -51,6 +51,10 @@ function PlateMixin:IsFocus()
 end
 
 function PlateMixin:IsSimplified()
+    if not self:GetUnitFrame() then
+        return false
+    end
+
     -- Get the status from Blizzard since they already did the work.
 	return self:GetUnitFrame().isSimplified == true
 end
@@ -114,8 +118,16 @@ function PlateMixin:UpdateHealth()
     self.Health:ForceUpdate()
 end
 
-function PlateMixin:ShouldShowMobType()
-    return self.mobType and nPlates.MobColors[self.mobType] and nPlatesDriverFrame.inInstance
+function PlateMixin:ShouldShowMobColoring(forType)
+    if ( not nPlatesDriverFrame.inInstance or not self.mobType ) then
+        return false
+    end
+
+    return (self[forType] == "mobType" or self[forType] == "mobTypeOrThreat") and nPlates.MobColors[self.mobType]
+end
+
+function PlateMixin:ShouldShowThreat(forType)
+    return (self[forType]== "threat" or self[forType] == "mobTypeOrThreat")
 end
 
 function PlateMixin:SetSelectionColor()
@@ -124,7 +136,6 @@ function PlateMixin:SetSelectionColor()
     end
 
     local healthBar = self.Health
-    local unit = self.unit
 
     if ( self:IsTarget() and self.useSelectionColor ) then
         nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.SelectionColor)
@@ -133,12 +144,12 @@ function PlateMixin:SetSelectionColor()
             nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.FocusColor)
             return
     else
-        if ( (self.borderStyle == "mobType" or self.borderStyle == "mobTypeOrThreat") and self:ShouldShowMobType() ) then
+        if ( self:ShouldShowMobColoring("borderStyle") ) then
             local color = nPlates.MobColors[self.mobType]
             nPlates:SetBeautyBorderColor(healthBar, color)
             return
-        elseif ( (self.borderStyle == "threat" or self.borderStyle == "mobTypeOrThreat") and nPlates.IsOnThreatListWithPlayer(self.unit) ) then
-            local color = nPlates.GetThreatColor(self.unit)
+        elseif ( self:ShouldShowThreat("borderStyle") and nPlates.IsOnThreatListWithPlayer(self.unit) ) then
+            local color = nPlates.GetThreatColor(self)
             nPlates:SetBeautyBorderColor(healthBar, color)
             return
         else
@@ -156,6 +167,10 @@ function PlateMixin:ShouldShowBuffs()
     return self.showBuffs == true
 end
 
+function PlateMixin:ShouldShowCrowdControl()
+    return self.showCrowdControl == true
+end
+
 function PlateMixin:UpdateClassPower()
     if self.ComboPoints then self.ComboPoints:UpdateVisibility() end
     if self.Chi then self.Chi:UpdateVisibility() end
@@ -167,22 +182,24 @@ function PlateMixin:UpdateClassColor()
     self.classColor = C_ClassColor.GetClassColor(class)
 end
 
-function PlateMixin:UpdateDebuffs()
-    self.BetterDebuffs:SetScale(Settings.GetValue("NPLATES_AURA_SCALE"))
-end
-
 function PlateMixin:UpdateDebuffLocation()
     local offset = self:ShouldShowName() and 17 or 5
     PixelUtil.SetPoint(self.BetterDebuffs, "BOTTOMLEFT", self.Health, "TOPLEFT", 0, offset)
 end
 
 function PlateMixin:UpdateOptions()
+    self.useOffTankColor = Settings.GetValue("NPLATES_OFF_TANK_COLOR")
     self.useClassColors = UnitIsPlayer(self.unit) or UnitInPartyIsAI(self.unit)
     self.useSelectionColor = Settings.GetValue("NPLATES_SELECTION_COLOR")
     self.useFocusColor = Settings.GetValue("NPLATES_FOCUS_COLOR")
     self.showBuffs = Settings.GetValue("NPLATES_SHOW_BUFFS")
+    self.showCrowdControl = Settings.GetValue("NPLATES_CROWD_CONTROL")
     self.borderStyle = Settings.GetValue("NPLATES_BORDER_COLOR")
     self.healthStyle = Settings.GetValue("NPLATES_HEALTH_COLOR")
+    self.alwaysShowName = Settings.GetValue("NPLATES_FORCE_NAME")
+    self.showLevel = Settings.GetValue("NPLATES_SHOWLEVEL")
+    self.colorEnemyNames = Settings.GetValue("NPLATES_PLAYER_THREAT")
+    self.nameOnly = Settings.GetValue("NPLATES_ONLYNAME")
 end
 
 function PlateMixin:ShouldShowName()
@@ -190,7 +207,7 @@ function PlateMixin:ShouldShowName()
         return false
     end
 
-    if ( Settings.GetValue("NPLATES_FORCE_NAME") ) then
+    if ( self.alwaysShowName ) then
         return true
     end
 
@@ -213,13 +230,13 @@ function PlateMixin:UpdateName()
         local name = UnitName(self.unit) or UNKOWN
 
         if ( self:IsPlayer() ) then
-            if ( not self:IsFriend() and Settings.GetValue("NPLATES_PLAYER_THREAT") ) then
+            if ( not self:IsFriend() and self.colorEnemyNames ) then
                 self.Name:SetFormattedText("%s%s|r", nPlates.DifficultyColor(self.unit), name)
             else
                 self.Name:SetText(GetClassColoredTextForUnit(self.unit, name))
             end
         else
-            if ( Settings.GetValue("NPLATES_SHOWLEVEL") ) then
+            if ( self.showLevel ) then
                 local level = UnitLevel(self.unit)
 
                 if ( level == -1 ) then
@@ -244,7 +261,7 @@ function PlateMixin:UpdateNameLocation()
 
     self.Name:ClearAllPoints()
 
-    if ( self:IsFriendlyPlayer() and Settings.GetValue("NPLATES_ONLYNAME") ) then
+    if ( self:IsFriendlyPlayer() and self.nameOnly ) then
         self.Name:SetPoint("BOTTOM", self, "TOP", 0, 5)
         self.Health:ClearAllPoints()
     else
@@ -369,7 +386,6 @@ function nPlates:OnNamePlateAdded(nameplate, event, unit)
     nameplate:UpdateClassification()
     nameplate:UpdateName()
     nameplate:UpdateNameLocation()
-    nameplate:UpdateDebuffs()
     nameplate:UpdateDebuffLocation()
     nameplate:UpdateClassPower()
     nameplate:UpdateClassColor()

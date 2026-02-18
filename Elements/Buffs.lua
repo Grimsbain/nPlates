@@ -26,12 +26,4 @@ function nPlates.CreateBuffs(self)
         local shouldShow = not self:IsWidgetMode() and self:ShouldShowBuffs()
         buffs:SetShown(shouldShow)
     end
-
-    self.BetterBuffs.PostUpdate = function(element)
-        if element.Cooldown then
-            element.Cooldown:SetHideCountdownNumbers(not Settings.GetValue("NPLATES_COOLDOWN"))
-            element.Cooldown:SetDrawEdge(Settings.GetValue("NPLATES_COOLDOWN_EDGE"))
-            element.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
-        end
-    end
 end

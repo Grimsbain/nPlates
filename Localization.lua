@@ -50,12 +50,10 @@ L.SelectionColorTooltip = "Displays a custom selection border."
 L.FocusColor = "Focus Color"
 L.FocusColorTooltip = "Colors the border of your current focus target."
 L.ColorPickerToolitp = "Click to set color."
--- Buff Options
-L.BuffOptions = "Buff Options"
+-- Aura Options
+L.AuraOptions = "Aura Options"
 L.ShowBuffs = "Show Buffs"
 L.ShowBuffsTooltip = "Display buffs to the left of the nameplate.\n\nFor player it only shows important buffs.\nFor NPCs it will show nameplate buffs."
--- Aura Options
-L.DebuffOptions = "Debuff Options"
 L.SortBy = "Sort By"
 L.SortByTooltip = "Change how auras are sorted. Options are default, name, or time."
 L.Name = "Name"
@@ -65,7 +63,7 @@ L.SortDirectionTooltip = "Change the order that the debuffs are sorted. Options 
 L.Reverse = "Reverse"
 L.ShowDebuffType = "Show Debuff Type"
 L.ShowDebuffTypeTooltip = "Displays the debuff type color on the icon."
-L.CrowdControl = "Show Crowd Control Icon"
+L.CrowdControl = "Show Crowd Control"
 L.CrowdControlTooltip = "Displays icon for crowd control spells to the right of the health bar."
 L.CooldownNumbers = "Show Cooldown Numbers"
 L.CooldownNumbersTooltip = "Shows or hides cooldown text."

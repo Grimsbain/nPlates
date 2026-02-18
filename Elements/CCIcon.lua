@@ -7,16 +7,6 @@ function nPlates.CreateCCIcon(self)
     self.CCIcon:SetPoint("LEFT", self.QuestIndicator, "RIGHT", 4, 0)
     self.CCIcon:SetCollapsesLayout(true)
     self.CCIcon:SetIgnoreParentScale(true)
-    self.CCIcon.PreUpdate = function(element)
-        local shouldShow = not self:IsWidgetMode() and not self:IsSimplified() and Settings.GetValue("NPLATES_CROWD_CONTROL")
-        element:SetShown(shouldShow)
-    end
-
-    self.CCIcon.PostUpdate = function(element)
-        element.Cooldown:SetHideCountdownNumbers(not Settings.GetValue("NPLATES_COOLDOWN"))
-        element.Cooldown:SetDrawEdge(Settings.GetValue("NPLATES_COOLDOWN_EDGE"))
-        element.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
-    end
 
     self.CCIcon.Cooldown = CreateFrame("Cooldown", "$parentCooldown", self.CCIcon, "CooldownFrameTemplate")
     self.CCIcon.Cooldown:SetAllPoints(self.CCIcon)
@@ -33,4 +23,10 @@ function nPlates.CreateCCIcon(self)
     self.CCIcon.Background = self.CCIcon:CreateTexture("$parentBackground", "BACKGROUND")
     self.CCIcon.Background:SetAllPoints(self.CCIcon)
     self.CCIcon.Background:SetColorTexture(0, 0, 0)
+
+    self.CCIcon.PostUpdate = function(element)
+        element.Cooldown:SetHideCountdownNumbers(not Settings.GetValue("NPLATES_COOLDOWN"))
+        element.Cooldown:SetDrawEdge(Settings.GetValue("NPLATES_COOLDOWN_EDGE"))
+        element.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
+    end
 end

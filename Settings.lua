@@ -191,7 +191,7 @@ function nPlates:RegisterSettings()
         },
         {
             type = "Label",
-            label = L.BuffOptions,
+            label = L.AuraOptions,
         },
         {
             type = "CheckBox",
@@ -204,18 +204,24 @@ function nPlates:RegisterSettings()
             callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate.showBuffs = value
-                    if value then
-                        plate:EnableElement("BetterBuffs")
-                    else
-                        plate:DisableElement("BetterBuffs")
-                    end
-                    plate.BetterBuffs:ForceUpdate()
+                    nPlates:ToggleElement("BetterBuffs", plate, value)
                 end)
             end,
         },
         {
-            type = "Label",
-            label = L.DebuffOptions,
+            type = "CheckBox",
+            name = "NPLATES_CROWD_CONTROL",
+            variable = "ShowCrowdControl",
+            label = L.CrowdControl,
+            tooltip = L.CrowdControlTooltip,
+            default = Settings.Default.True,
+            varType = Settings.VarType.Boolean,
+            callback = function(control, value)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate.showCrowdControl = value
+                    nPlates:ToggleElement("CCIcon", plate, value)
+                end)
+            end,
         },
         {
             type = "Dropdown",
@@ -261,6 +267,24 @@ function nPlates:RegisterSettings()
             end,
         },
         {
+            type = "Slider",
+            name = "NPLATES_AURA_SCALE",
+            variable = "AuraScale",
+            label = L.AuraScale,
+            tooltip = L.AuraScaleTooltip,
+            default = 1,
+            varType = Settings.VarType.Number,
+            percentage = true,
+            min = 0.85,
+            max = 1.5,
+            step = 0.05,
+            callback = function(setting, value)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate.BetterDebuffs:SetScale(value)
+                end)
+            end,
+        },
+        {
             type = "CheckBox",
             name = "NPLATES_DEBUFF_TYPE",
             variable = "ShowDebuffType",
@@ -273,18 +297,6 @@ function nPlates:RegisterSettings()
                     plate.BetterDebuffs.showType = value
                     plate.BetterDebuffs:ForceUpdate()
                 end)
-            end,
-        },
-        {
-            type = "CheckBox",
-            name = "NPLATES_CROWD_CONTROL",
-            variable = "ShowCrowdControl",
-            label = L.CrowdControl,
-            tooltip = L.CrowdControlTooltip,
-            default = Settings.Default.True,
-            varType = Settings.VarType.Boolean,
-            callback = function(...)
-                nPlates:UpdateElement("CCIcon")
             end,
         },
         {
@@ -307,8 +319,8 @@ function nPlates:RegisterSettings()
             tooltip = L.CooldownEdgeTooltip,
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
-            callback = function(...)
-                nPlates:UpdateElement("BetterDebuffs")
+            callback = function(control, value)
+                nPlates:UpdateAllNameplates()
             end,
         },
         {
@@ -320,25 +332,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateElement("BetterDebuffs")
-            end,
-        },
-        {
-            type = "Slider",
-            name = "NPLATES_AURA_SCALE",
-            variable = "AuraScale",
-            label = L.AuraScale,
-            tooltip = L.AuraScaleTooltip,
-            default = 1,
-            varType = Settings.VarType.Number,
-            percentage = true,
-            min = 0.85,
-            max = 1.5,
-            step = 0.05,
-            callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.BetterDebuffs:SetScale(value)
-                end)
+                nPlates:UpdateAllNameplates()
             end,
         },
         {

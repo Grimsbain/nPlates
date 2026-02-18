@@ -36,7 +36,7 @@ function nPlates.IsOnThreatListWithPlayer(unit)
 end
 
 local function UseOffTankColor(unit)
-    if ( not Settings.GetValue("NPLATES_OFF_TANK_COLOR") or not PlayerUtil.IsPlayerEffectivelyTank() ) then
+    if ( not PlayerUtil.IsPlayerEffectivelyTank() ) then
         return false
     end
 
@@ -82,21 +82,21 @@ nPlates.PostCreateButton = function(auras, button)
     button.Icon:SetTexCoord(0.05, 0.95, 0.1, 0.6)
 end
 
-nPlates.PostUpdateButton = function(auras, button)
+nPlates.PostUpdateButton = function(element, button, unit, data, position)
     button.Cooldown:SetHideCountdownNumbers(not Settings.GetValue("NPLATES_COOLDOWN"))
     button.Cooldown:SetDrawEdge(Settings.GetValue("NPLATES_COOLDOWN_EDGE"))
     button.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
 end
 
-nPlates.GetThreatColor = function(unit)
-    local isTanking, threatStatus = UnitDetailedThreatSituation("player", unit)
+nPlates.GetThreatColor = function(self)
+    local isTanking, threatStatus = UnitDetailedThreatSituation("player", self.unit)
     if ( isTanking and threatStatus ) then
         if ( threatStatus >= 3 ) then
             r, g, b = 0.0, 1.0, 0.0
         else
             r, g, b = GetThreatStatusColor(threatStatus)
         end
-    elseif ( UseOffTankColor(unit) ) then
+    elseif ( self.useOffTankColor and UseOffTankColor(self.unit) ) then
         r, g, b = nPlates.Media.OffTankColor:GetRGB()
     else
         r, g, b = 1, 0, 0
@@ -135,5 +135,18 @@ function nPlates:UpdateElement(name)
                 element:ForceUpdate()
             end
         end
+    end
+end
+
+function nPlates:ToggleElement(name, nameplate, shouldShow)
+    local element = nameplate[name]
+    if element and element.ForceUpdate then
+        if shouldShow then
+            nameplate:EnableElement("BetterBuffs")
+        else
+            nameplate:DisableElement("BetterBuffs")
+        end
+
+        element:ForceUpdate()
     end
 end

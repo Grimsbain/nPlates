@@ -35,11 +35,11 @@ local function UpdateColor(self, event, unit)
         if ( self.useClassColors ) then
             r, g, b = self.classColor:GetRGB()
         else
-            if ( (self.healthStyle == "mobType" or self.healthStyle == "mobTypeOrThreat") and self:ShouldShowMobType() ) then
+            if ( self:ShouldShowMobColoring("healthStyle") ) then
                 r, g, b = nPlates.MobColors[self.mobType]:GetRGB()
             elseif ( nPlates.IsOnThreatListWithPlayer(self.unit) ) then
-                if ( self.healthStyle == "threat" or self.healthStyle == "mobTypeOrThreat" ) then
-                    r, g, b = nPlates.GetThreatColor(self.unit):GetRGB()
+                if ( self:ShouldShowThreat("healthStyle") ) then
+                    r, g, b = nPlates.GetThreatColor(self):GetRGB()
                 else
                     r, g, b = 1, 0, 0
                 end
