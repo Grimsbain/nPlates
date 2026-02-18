@@ -1,0 +1,9 @@
+<Ui>
+    <Script file="Libs\SimpleUI.lua"/>
+
+    <Include file="Libs\oUF\oUF.xml"/>
+    <Script file="Libs\oUF_BetterBuffs.lua"/>
+    <Script file="Libs\oUF_BetterDebuffs.lua"/>
+    <Script file="Libs\oUF_CCIcon.lua"/>
+    <Script file="Libs\oUF_ClassificationIndicator.lua"/>
+</Ui>

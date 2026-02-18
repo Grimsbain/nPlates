@@ -82,6 +82,34 @@ function PlateMixin:UpdateWidgetsOnlyMode()
     end
 end
 
+function PlateMixin:UpdateClassification()
+    if ( self:IsPlayer() ) then
+        self.mobType = "Player"
+        return
+    end
+
+    local classification = UnitClassification(self.unit)
+
+    if ( classification == "elite" ) then
+        local level = UnitEffectiveLevel(self.unit)
+        local playerLevel = UnitLevel("player")
+
+        if ( level >= playerLevel + 2 or level == -1 ) then
+            self.mobType = "Boss"
+            return
+        elseif ( level == playerLevel + 1 ) then
+            self.mobType = "MiniBoss"
+            return
+        elseif ( level == playerLevel ) then
+            local class = UnitClassBase(self.unit)
+            self.mobType = (class == "PALADIN" and "Caster") or "Melee"
+            return
+        end
+    end
+
+    self.mobType = "Trivial"
+end
+
 function PlateMixin:UpdateHealth()
     self.Health:ForceUpdate()
 end
@@ -98,20 +126,18 @@ function PlateMixin:SetSelectionColor()
     local healthBar = self.Health
     local unit = self.unit
 
-    if ( self:IsTarget() and Settings.GetValue("NPLATES_SELECTION_COLOR") ) then
+    if ( self:IsTarget() and self.useSelectionColor ) then
         nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.SelectionColor)
         return
-    elseif ( self:IsFocus() and Settings.GetValue("NPLATES_FOCUS_COLOR") ) then
+    elseif ( self:IsFocus() and self.useFocusColor ) then
             nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.FocusColor)
             return
     else
-        local borderType = Settings.GetValue("NPLATES_BORDER_COLOR")
-
-        if ( (borderType == "mobType" or borderType == "mobTypeOrThreat") and self:ShouldShowMobType() ) then
+        if ( (self.borderStyle == "mobType" or self.borderStyle == "mobTypeOrThreat") and self:ShouldShowMobType() ) then
             local color = nPlates.MobColors[self.mobType]
             nPlates:SetBeautyBorderColor(healthBar, color)
             return
-        elseif ( (borderType == "threat" or borderType == "mobTypeOrThreat") and nPlates.IsOnThreatListWithPlayer(self.unit) ) then
+        elseif ( (self.borderStyle == "threat" or self.borderStyle == "mobTypeOrThreat") and nPlates.IsOnThreatListWithPlayer(self.unit) ) then
             local color = nPlates.GetThreatColor(self.unit)
             nPlates:SetBeautyBorderColor(healthBar, color)
             return
@@ -128,17 +154,6 @@ end
 
 function PlateMixin:ShouldShowBuffs()
     return self.showBuffs == true
-end
-
-function PlateMixin:UpdateBuffs()
-    if self:IsFriend() then
-        self.BetterBuffs.filter = self.BetterBuffs.helpfulFilter
-    else
-        self.BetterBuffs.filter = self.BetterBuffs.harmfulFilter
-    end
-
-    self.showBuffs = Settings.GetValue("NPLATES_SHOW_BUFFS")
-    self.BetterBuffs:ForceUpdate()
 end
 
 function PlateMixin:UpdateClassPower()
@@ -161,6 +176,15 @@ function PlateMixin:UpdateDebuffLocation()
     PixelUtil.SetPoint(self.BetterDebuffs, "BOTTOMLEFT", self.Health, "TOPLEFT", 0, offset)
 end
 
+function PlateMixin:UpdateOptions()
+    self.useClassColors = UnitIsPlayer(self.unit) or UnitInPartyIsAI(self.unit)
+    self.useSelectionColor = Settings.GetValue("NPLATES_SELECTION_COLOR")
+    self.useFocusColor = Settings.GetValue("NPLATES_FOCUS_COLOR")
+    self.showBuffs = Settings.GetValue("NPLATES_SHOW_BUFFS")
+    self.borderStyle = Settings.GetValue("NPLATES_BORDER_COLOR")
+    self.healthStyle = Settings.GetValue("NPLATES_HEALTH_COLOR")
+end
+
 function PlateMixin:ShouldShowName()
     if ( self:IsWidgetMode() ) then
         return false
@@ -179,10 +203,6 @@ function PlateMixin:ShouldShowName()
     end
 
     return false
-end
-
-function PlateMixin:ToggleName(shouldShow)
-    self.Name:SetShown(shouldShow)
 end
 
 function PlateMixin:UpdateName()
@@ -235,39 +255,15 @@ function PlateMixin:UpdateNameLocation()
     end
 end
 
-function PlateMixin:UpdateClassification()
-    if ( self:IsPlayer() ) then
-        self.mobType = "Player"
-        return
-    end
-
-    local classification = UnitClassification(self.unit)
-
-    if ( classification == "elite" ) then
-        local level = UnitEffectiveLevel(self.unit)
-        local playerLevel = UnitLevel("player")
-
-        if ( level >= playerLevel + 2 or level == -1 ) then
-            self.mobType = "Boss"
-            return
-        elseif ( level == playerLevel + 1 ) then
-            self.mobType = "MiniBoss"
-            return
-        elseif ( level == playerLevel ) then
-            local class = UnitClassBase(self.unit)
-            self.mobType = (class == "PALADIN" and "Caster") or "Melee"
-            return
-        end
-    end
-
-    self.mobType = "Trivial"
-end
-
 function PlateMixin:OnEvent(event, ...)
     if ( event == "UNIT_CLASSIFICATION_CHANGED" ) then
         self:UpdateClassification()
     elseif ( event == "PLAYER_TARGET_CHANGED" ) then
-        nPlates:OnTargetChanged(self, "PLAYER_TARGET_CHANGED", self.unit)
+        self:UpdateIsTarget()
+        self:UpdateName()
+        self:UpdateDebuffLocation()
+        self:UpdateClassPower()
+        self:SetSelectionColor()
     elseif ( event == "PLAYER_FOCUS_CHANGED" ) then
         self:UpdateIsFocus()
         self:SetSelectionColor()
@@ -317,6 +313,7 @@ nPlatesMixin = {}
 
 function nPlatesMixin:OnLoad()
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
+
     EventRegistry:RegisterFrameEventAndCallback("VARIABLES_LOADED", function()
         nPlates:RegisterSettings()
         nPlates:CVarCheck()
@@ -363,31 +360,19 @@ function nPlates:OnNamePlateRemoved(nameplate, event, unit)
 end
 
 function nPlates:OnNamePlateAdded(nameplate, event, unit)
-    if ( unit == "preview" ) then
-        return
-    end
-
+    nameplate:UpdateOptions()
     nameplate:UpdateIsPlayer()
     nameplate:UpdateIsTarget()
     nameplate:UpdateIsFocus()
-
     nameplate:UpdateWidgetsOnlyMode()
+
     nameplate:UpdateClassification()
     nameplate:UpdateName()
     nameplate:UpdateNameLocation()
-    nameplate:UpdateBuffs()
     nameplate:UpdateDebuffs()
     nameplate:UpdateDebuffLocation()
     nameplate:UpdateClassPower()
     nameplate:UpdateClassColor()
 
     nameplate:Show()
-end
-
-function nPlates:OnTargetChanged(nameplate, event, unit)
-    nameplate:UpdateIsTarget()
-    nameplate:UpdateName()
-    nameplate:UpdateDebuffLocation()
-    nameplate:UpdateClassPower()
-    nameplate:SetSelectionColor()
 end

@@ -32,15 +32,13 @@ local function UpdateColor(self, event, unit)
     if ( UnitIsDeadOrGhost(self.unit) or UnitIsTapDenied(self.unit) ) then
         r, g, b = 0.5, 0.5, 0.5
     else
-        if ( UnitIsPlayer(self.unit) or UnitInPartyIsAI(self.unit) ) then
+        if ( self.useClassColors ) then
             r, g, b = self.classColor:GetRGB()
         else
-            local healthStyle = Settings.GetValue("NPLATES_HEALTH_COLOR")
-
-            if ( self:ShouldShowMobType() and (healthStyle == "mobType" or healthStyle == "mobTypeOrThreat") ) then
+            if ( (self.healthStyle == "mobType" or self.healthStyle == "mobTypeOrThreat") and self:ShouldShowMobType() ) then
                 r, g, b = nPlates.MobColors[self.mobType]:GetRGB()
             elseif ( nPlates.IsOnThreatListWithPlayer(self.unit) ) then
-                if ( healthStyle == "threat" or healthStyle == "mobTypeOrThreat" ) then
+                if ( self.healthStyle == "threat" or self.healthStyle == "mobTypeOrThreat" ) then
                     r, g, b = nPlates.GetThreatColor(self.unit):GetRGB()
                 else
                     r, g, b = 1, 0, 0
@@ -51,7 +49,7 @@ local function UpdateColor(self, event, unit)
         end
     end
 
-    element:GetStatusBarTexture():SetVertexColor(r, g, b)
+    element:SetStatusBarColor(r, g, b)
 
     self:SetSelectionColor()
     UpdateStatusText(self)
@@ -79,52 +77,52 @@ function nPlates.CreateHealth(self)
     self.Health.Text:SetJustifyV("MIDDLE")
     self.Health.Text:SetTextColor(1, 1, 1)
 
-    -- local healingAll = CreateFrame("StatusBar", "$parentHealing", self.Health)
-    -- healingAll:SetPoint("TOP")
-    -- healingAll:SetPoint("BOTTOM")
-    -- healingAll:SetPoint("LEFT", self.Health:GetStatusBarTexture(), "RIGHT")
-    -- healingAll:SetStatusBarTexture(nPlates.Media.StatusBarTexture)
-    -- healingAll:GetStatusBarTexture():SetVertexColor(HEALTHBAR_MY_HEAL_PREDICTION_COLOR:GetRGB())
-    -- healingAll:SetUsingParentLevel(true)
-    -- self.Health.HealingAll = healingAll
+    local HealingAll = CreateFrame("StatusBar", "$parentHealing", self.Health)
+    HealingAll:SetPoint("TOP")
+    HealingAll:SetPoint("BOTTOM")
+    HealingAll:SetPoint("LEFT", self.Health:GetStatusBarTexture(), "RIGHT")
+    HealingAll:SetStatusBarTexture(nPlates.Media.StatusBarTexture)
+    HealingAll:GetStatusBarTexture():SetVertexColor(HEALTHBAR_MY_HEAL_PREDICTION_COLOR:GetRGB())
+    HealingAll:SetUsingParentLevel(true)
+    self.Health.HealingAll = HealingAll
 
-    -- local damageAbsorb = CreateFrame("StatusBar", "$parentObsorb", self.Health)
-    -- damageAbsorb:SetPoint("TOP")
-    -- damageAbsorb:SetPoint("BOTTOM")
-    -- damageAbsorb:SetPoint("LEFT", self.Health:GetStatusBarTexture(), "RIGHT")
-    -- damageAbsorb:SetStatusBarTexture([[Interface\RaidFrame\Shield-Fill]])
-    -- damageAbsorb:SetStatusBarColor(HEALTHBAR_TOTAL_ABSORB_COLOR:GetRGB())
-    -- damageAbsorb:SetUsingParentLevel(true)
-    -- -- Overlay
-    -- damageAbsorb.overlay = damageAbsorb:CreateTexture("$parentOverlay", "OVERLAY")
-    -- damageAbsorb.overlay:SetTexture([[Interface\RaidFrame\Shield-Overlay]], true, true)
-    -- damageAbsorb.overlay:SetAllPoints(damageAbsorb:GetStatusBarTexture())
-    -- damageAbsorb.overlay:SetVertexColor(HEALTHBAR_TOTAL_ABSORB_COLOR:GetRGB())
-    -- damageAbsorb.overlay:SetHorizTile(true)
-    -- self.Health.DamageAbsorb = damageAbsorb
+    local DamageAbsorb = CreateFrame("StatusBar", "$parentObsorb", self.Health)
+    DamageAbsorb:SetPoint("TOP")
+    DamageAbsorb:SetPoint("BOTTOM")
+    DamageAbsorb:SetPoint("LEFT", HealingAll:GetStatusBarTexture(), "RIGHT")
+    DamageAbsorb:SetStatusBarTexture([[Interface\RaidFrame\Shield-Fill]])
+    DamageAbsorb:SetStatusBarColor(HEALTHBAR_TOTAL_ABSORB_COLOR:GetRGB())
+    DamageAbsorb:SetUsingParentLevel(true)
+    -- Overlay
+    DamageAbsorb.Overlay = DamageAbsorb:CreateTexture("$parentOverlay", "OVERLAY")
+    DamageAbsorb.Overlay:SetTexture([[Interface\RaidFrame\Shield-Overlay]], true, true)
+    DamageAbsorb.Overlay:SetAllPoints(DamageAbsorb:GetStatusBarTexture())
+    DamageAbsorb.Overlay:SetVertexColor(HEALTHBAR_TOTAL_ABSORB_COLOR:GetRGB())
+    DamageAbsorb.Overlay:SetHorizTile(true)
+    self.Health.DamageAbsorb = DamageAbsorb
 
-    -- local healAbsorb = CreateFrame("StatusBar", "$parentHealObsorb", self.Health)
-    -- healAbsorb:SetStatusBarTexture([[Interface\RaidFrame\Absorb-Fill]], true, true)
-    -- healAbsorb:GetStatusBarTexture():SetVertexColor(HEALTHBAR_HEAL_ABSORB_COLOR:GetRGB())
-    -- healAbsorb:SetPoint("TOP")
-    -- healAbsorb:SetPoint("BOTTOM")
-    -- healAbsorb:SetPoint("RIGHT", self.Health:GetStatusBarTexture())
-    -- healAbsorb:SetWidth(200)
-    -- healAbsorb:SetReverseFill(true)
-    -- healAbsorb:SetUsingParentLevel(true)
-    -- self.Health.HealAbsorb = healAbsorb
+    local HealAbsorb = CreateFrame("StatusBar", "$parentHealObsorb", self.Health)
+    HealAbsorb:SetStatusBarTexture([[Interface\RaidFrame\Absorb-Fill]], true, true)
+    HealAbsorb:GetStatusBarTexture():SetVertexColor(HEALTHBAR_HEAL_ABSORB_COLOR:GetRGB())
+    HealAbsorb:SetPoint("TOP")
+    HealAbsorb:SetPoint("BOTTOM")
+    HealAbsorb:SetPoint("RIGHT", self.Health:GetStatusBarTexture())
+    HealAbsorb:SetWidth(200)
+    HealAbsorb:SetReverseFill(true)
+    HealAbsorb:SetUsingParentLevel(true)
+    self.Health.HealAbsorb = HealAbsorb
 
-    -- local overDamageAbsorbIndicator = self.Health:CreateTexture("$parentOverObsorb", "OVERLAY")
-    -- overDamageAbsorbIndicator:SetPoint("TOP")
-    -- overDamageAbsorbIndicator:SetPoint("BOTTOM")
-    -- overDamageAbsorbIndicator:SetPoint("LEFT", self.Health, "RIGHT")
-    -- overDamageAbsorbIndicator:SetWidth(10)
-    -- self.Health.OverDamageAbsorbIndicator = overDamageAbsorbIndicator
+    local OverDamageAbsorbIndicator = self.Health:CreateTexture("$parentOverObsorb", "OVERLAY")
+    OverDamageAbsorbIndicator:SetPoint("TOP")
+    OverDamageAbsorbIndicator:SetPoint("BOTTOM")
+    OverDamageAbsorbIndicator:SetPoint("LEFT", self.Health, "RIGHT")
+    OverDamageAbsorbIndicator:SetWidth(10)
+    self.Health.OverDamageAbsorbIndicator = OverDamageAbsorbIndicator
 
-    -- local overHealAbsorbIndicator = self.Health:CreateTexture("$parentOverHealObsorb", "OVERLAY")
-    -- overHealAbsorbIndicator:SetPoint("TOP")
-    -- overHealAbsorbIndicator:SetPoint("BOTTOM")
-    -- overHealAbsorbIndicator:SetPoint("RIGHT", self.Health, "LEFT")
-    -- overHealAbsorbIndicator:SetWidth(10)
-    -- self.Health.OverHealAbsorbIndicator = overHealAbsorbIndicator
+    local OverHealAbsorbIndicator = self.Health:CreateTexture("$parentOverHealObsorb", "OVERLAY")
+    OverHealAbsorbIndicator:SetPoint("TOP")
+    OverHealAbsorbIndicator:SetPoint("BOTTOM")
+    OverHealAbsorbIndicator:SetPoint("RIGHT", self.Health, "LEFT")
+    OverHealAbsorbIndicator:SetWidth(10)
+    self.Health.OverHealAbsorbIndicator = OverHealAbsorbIndicator
 end

@@ -1,5 +1,6 @@
 local _, nPlates = ...
 local L = nPlates.L
+local SimpleUI = nPlates.SimpleUI
 
 local function Percentage(percentage)
     local value = Round(percentage * 100)
@@ -8,6 +9,7 @@ end
 
 function nPlates:RegisterSettings()
     nPlatesDB = nPlatesDB or {}
+    SimpleUI.DB = nPlatesDB
 
     local category, layout = Settings.RegisterVerticalLayoutCategory(L.AddonTitle)
     Settings.RegisterAddOnCategory(category)
@@ -98,7 +100,8 @@ function nPlates:RegisterSettings()
             end,
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                nPlates:UpdateElement("Health")
+                    plate.healthStyle = value
+                    plate.Health:ForceUpdate()
                 end)
             end,
         },
@@ -120,6 +123,7 @@ function nPlates:RegisterSettings()
             end,
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate.borderStyle = value
                     plate:SetSelectionColor()
                 end)
             end,
@@ -134,9 +138,11 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             color = "ff7328ff",
             callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:UpdateElement("Health")
-                end)
+                nPlates:UpdateElement("Health")
+            end,
+            hexCallback = function(setting, value)
+                nPlates.Media.OffTankColor = CreateColorFromHexString(value)
+                nPlates:UpdateElement("Health")
             end,
         },
         {
@@ -148,7 +154,14 @@ function nPlates:RegisterSettings()
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
             color = "ffffffff",
-            callback = function(...)
+            callback = function(control, value)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate.useSelectionColor = value
+                    plate:SetSelectionColor()
+                end)
+            end,
+            hexCallback = function(setting, value)
+                nPlates.Media.SelectionColor = CreateColorFromHexString(value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate:SetSelectionColor()
                 end)
@@ -159,11 +172,18 @@ function nPlates:RegisterSettings()
             name = "NPLATES_FOCUS_COLOR",
             variable = "FocusColor",
             default = Settings.Default.False,
-            label = "Focus Color",
-            tooltip = "Colors the border of your current focus target.",
+            label = L.FocusColor,
+            tooltip = L.FocusColorTooltip,
             varType = Settings.VarType.Boolean,
             color = "FFFF7B00",
             callback = function(setting, value)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate.useFocusColor = value
+                    plate:SetSelectionColor()
+                end)
+            end,
+            hexCallback = function(setting, value)
+                nPlates.Media.FocusColor = CreateColorFromHexString(value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate:SetSelectionColor()
                 end)
@@ -181,9 +201,15 @@ function nPlates:RegisterSettings()
             tooltip = L.ShowBuffsTooltip,
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
-            callback = function(...)
+            callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateBuffs()
+                    plate.showBuffs = value
+                    if value then
+                        plate:EnableElement("BetterBuffs")
+                    else
+                        plate:DisableElement("BetterBuffs")
+                    end
+                    plate.BetterBuffs:ForceUpdate()
                 end)
             end,
         },
@@ -209,9 +235,8 @@ function nPlates:RegisterSettings()
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate.BetterDebuffs.sortRule = value
+                    plate.BetterDebuffs:ForceUpdate()
                 end)
-
-                nPlates:UpdateElement("BetterDebuffs")
             end,
         },
         {
@@ -231,9 +256,8 @@ function nPlates:RegisterSettings()
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate.BetterDebuffs.sortDirection = value
+                    plate.BetterDebuffs:ForceUpdate()
                 end)
-
-                nPlates:UpdateElement("BetterDebuffs")
             end,
         },
         {
@@ -247,8 +271,8 @@ function nPlates:RegisterSettings()
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate.BetterDebuffs.showType = value
+                    plate.BetterDebuffs:ForceUpdate()
                 end)
-                nPlates:UpdateElement("BetterDebuffs")
             end,
         },
         {
@@ -272,7 +296,7 @@ function nPlates:RegisterSettings()
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
             callback = function(...)
-                nPlates:UpdateElement("BetterDebuffs")
+                nPlates:UpdateAllNameplates()
             end,
         },
         {
@@ -307,7 +331,7 @@ function nPlates:RegisterSettings()
             tooltip = L.AuraScaleTooltip,
             default = 1,
             varType = Settings.VarType.Number,
-            format = Percentage,
+            percentage = true,
             min = 0.85,
             max = 1.5,
             step = 0.05,
@@ -384,9 +408,7 @@ function nPlates:RegisterSettings()
                 return container:GetData()
             end,
             callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:UpdateElement("Health")
-                end)
+                nPlates:UpdateElement("Health")
             end,
         },
         {
@@ -397,7 +419,7 @@ function nPlates:RegisterSettings()
             tooltip = L.NameplateOccludedAlphaTooltip,
             default = 0.4,
             varType = Settings.VarType.Number,
-            format = Percentage,
+            percentage = true,
             min = 0,
             max = 1,
             step = 0.01,
@@ -466,7 +488,7 @@ function nPlates:RegisterSettings()
             max = 1,
             step = 0.01,
             default = 0.30,
-            format = Percentage,
+            percentage = true,
             callback = function(control, value)
                 if ( nPlates:IsTaintable() ) then
                     return
@@ -477,89 +499,7 @@ function nPlates:RegisterSettings()
         },
     }
 
-    for index, control in ipairs(options) do
-        if control.type == "Label" then
-            layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(control.label))
-
-        elseif control.type == "CheckBox" then
-            local setting = Settings.RegisterAddOnSetting(category, control.name, control.variable, nPlatesDB, control.varType, control.label, control.default)
-            setting:SetValueChangedCallback(control.callback)
-            Settings.CreateCheckbox(category, setting, control.tooltip)
-
-        elseif control.type == "Dropdown" then
-            local setting = Settings.RegisterAddOnSetting(category, control.name, control.variable, nPlatesDB, control.varType, control.label, control.default)
-            setting:SetValueChangedCallback(control.callback)
-            Settings.CreateDropdown(category, setting, control.options, control.tooltip)
-
-        elseif control.type == "Slider" then
-            local options = Settings.CreateSliderOptions(control.min, control.max, control.step)
-            options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, control.format)
-            local setting = Settings.RegisterAddOnSetting(category, control.name, control.variable, nPlatesDB, control.varType, control.label, control.default)
-            setting:SetValueChangedCallback(control.callback)
-            Settings.CreateSlider(category, setting, options, control.tooltip)
-
-        elseif control.type == "Swatch" then
-            local hex = Settings.RegisterAddOnSetting(category, control.name.."_HEX", control.variable.."Hex", nPlatesDB, Settings.VarType.String, nil, control.color)
-            hex:SetValueChangedCallback(function(s, value)
-                nPlates.Media[control.variable] = CreateColorFromHexString(value)
-                if control.callback then
-                    control.callback(s, value)
-                end
-            end)
-
-            local setting = Settings.RegisterAddOnSetting(category, control.name, control.variable, nPlatesDB, control.varType, control.label, control.default)
-            setting:SetValueChangedCallback(control.callback)
-
-            local function GetColor()
-                local healthColorString = Settings.GetValue(control.name.."_HEX")
-                local color = CreateColorFromHexString(healthColorString)
-                return color or COMPACT_UNIT_FRAME_FRIENDLY_HEALTH_COLOR
-            end
-
-            local function OpenColorPicker(swatch, button, isDown)
-                local info = {}
-                info.swatch = swatch
-
-                local healthColor = GetColor()
-                info.r, info.g, info.b = healthColor:GetRGB()
-
-                local currentColor = CreateColor(0, 0, 0, 0)
-                info.swatchFunc = function()
-                    local r,g,b = ColorPickerFrame:GetColorRGB()
-                    currentColor:SetRGB(r, g, b)
-                    hex:SetValue(currentColor:GenerateHexColor())
-                end
-
-                info.cancelFunc = function()
-                    local r,g,b = ColorPickerFrame:GetPreviousValues()
-                    currentColor:SetRGB(r, g, b)
-                    hex:SetValue(currentColor:GenerateHexColor())
-                end
-
-                ColorPickerFrame:SetupColorPickerAndShow(info)
-            end
-
-            local clickRequiresSet = true
-            local invertClickRequiresSet = false
-
-            local initializer = CreateSettingsCheckboxWithColorSwatchInitializer(
-                setting,
-                control.tooltip,
-                OpenColorPicker,
-                clickRequiresSet,
-                invertClickRequiresSet,
-                GetColor,
-                control.label,
-                L.ColorPickerToolitp
-            )
-
-            if control.indent then
-                initializer:Indent()
-            end
-
-            layout:AddInitializer(initializer)
-        end
-    end
+    SimpleUI:ProcessSettings(category, layout, options)
 
     -- Register cvar callbacks so settings are updated if the cvar is changed outside of the addon.
 
@@ -573,6 +513,10 @@ function nPlates:RegisterSettings()
 
     CVarCallbackRegistry:RegisterCallback("nameplatePlayerMaxDistance", function(arg1, value)
         Settings.SetValue("NPLATES_DISTANCE_PLAYER", tonumber(value))
+    end)
+
+    CVarCallbackRegistry:RegisterCallback("nameplateSimplifiedScale", function(arg1, value)
+        Settings.SetValue("NPLATES_SIMPLE_SCALE", tonumber(value))
     end)
 end
 
@@ -591,7 +535,7 @@ nPlates_OnAddonCompartmentClick = ToggleSettings
 nPlates_OnAddonCompartmentOnLeave = function() GameTooltip:Hide() end
 nPlates_OnAddonCompartmentOnEnter = function(name, button)
     GameTooltip:SetOwner(button, "ANCHOR_LEFT")
-    GameTooltip:AddLine(L.AddonTitle, 1, 1, 1)
+    GameTooltip:AddLine(name, 1, 1, 1)
     GameTooltip:AddLine(L.CompartmentTooltip)
     GameTooltip:Show()
 end

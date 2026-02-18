@@ -12,6 +12,12 @@ function nPlates.CreateCCIcon(self)
         element:SetShown(shouldShow)
     end
 
+    self.CCIcon.PostUpdate = function(element)
+        element.Cooldown:SetHideCountdownNumbers(not Settings.GetValue("NPLATES_COOLDOWN"))
+        element.Cooldown:SetDrawEdge(Settings.GetValue("NPLATES_COOLDOWN_EDGE"))
+        element.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
+    end
+
     self.CCIcon.Cooldown = CreateFrame("Cooldown", "$parentCooldown", self.CCIcon, "CooldownFrameTemplate")
     self.CCIcon.Cooldown:SetAllPoints(self.CCIcon)
     self.CCIcon.Cooldown:SetCountdownFont("nPlate_CooldownFont")

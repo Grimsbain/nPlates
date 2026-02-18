@@ -47,6 +47,8 @@ L.OffTankColor = "Off Tank Color"
 L.OffTankColorTooltip = "Color to use when another tank has aggro. Only works when the player is a tank."
 L.SelectionColor = "Target Selection Color"
 L.SelectionColorTooltip = "Displays a custom selection border."
+L.FocusColor = "Focus Color"
+L.FocusColorTooltip = "Colors the border of your current focus target."
 L.ColorPickerToolitp = "Click to set color."
 -- Buff Options
 L.BuffOptions = "Buff Options"

@@ -59,6 +59,7 @@ nPlates.PostCreateButton = function(auras, button)
     button.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
     button.Cooldown:SetReverse(true)
     button.Cooldown:SetCountdownFont("nPlate_CooldownFont")
+    button.Cooldown:SetUseAuraDisplayTime(true)
 
     button.Background = button:CreateTexture("$parentBackground", "BACKGROUND")
     button.Background:SetAllPoints(button)

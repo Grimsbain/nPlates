@@ -4,7 +4,6 @@ local oUF = ns.oUF
 local function UpdateTooltip(self)
 	if ( nPlatesTooltip:IsForbidden() ) then return end
 
-    -- print(self:GetParent():GetDebugName())
 	nPlatesTooltip:SetUnitAuraByAuraInstanceID(self.__owner.unit, self.auraInstanceID)
 end
 

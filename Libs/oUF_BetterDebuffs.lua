@@ -184,6 +184,11 @@ local function UpdateButton(element, unit, data, position)
 	if ( button.Overlay ) then
 		if ( element.showType ) then
 			local color = C_UnitAuras.GetAuraDispelTypeColor(unit, data.auraInstanceID, dispelColorCurve)
+            if color == nil then
+                -- BUG: this shouldn't happen but color can be nil, so default to None color
+                color = dispelColorCurve:Evaluate(0)
+            end
+
 			button.Overlay:SetVertexColor(color:GetRGBA())
 			button.Overlay:Show()
 		else
@@ -229,8 +234,8 @@ end
 
 local function UpdateAura(self, auraInstanceID)
     local element = self.BetterDebuffs
+    if ( element.debuffList[auraInstanceID] ~= nil ) then
     local newAura = C_UnitAuras.GetAuraDataByAuraInstanceID(self.unit, auraInstanceID)
-    if ( newAura and element.debuffList[auraInstanceID] ) then
         element.debuffList[auraInstanceID] = newAura
         return true
     end
@@ -241,7 +246,7 @@ end
 local function RemoveAura(self, auraInstanceID)
     local element = self.BetterDebuffs
 
-    if ( element.debuffList[auraInstanceID] ) then
+    if ( element.debuffList[auraInstanceID] ~= nil ) then
         element.debuffList[auraInstanceID] = nil
         return true
     end

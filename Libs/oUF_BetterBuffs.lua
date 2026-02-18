@@ -219,8 +219,9 @@ end
 
 local function UpdateAura(self, auraInstanceID)
     local element = self.BetterBuffs
+
+    if ( element.buffList[auraInstanceID] ~= nil ) then
     local newAura = C_UnitAuras.GetAuraDataByAuraInstanceID(self.unit, auraInstanceID)
-    if ( newAura and element.buffList[auraInstanceID] ) then
         element.buffList[auraInstanceID] = newAura
         return true
     end
@@ -231,7 +232,7 @@ end
 local function RemoveAura(self, auraInstanceID)
     local element = self.BetterBuffs
 
-    if ( element.buffList[auraInstanceID] ) then
+    if ( element.buffList[auraInstanceID] ~= nil ) then
         element.buffList[auraInstanceID] = nil
         return true
     end
@@ -240,7 +241,7 @@ local function RemoveAura(self, auraInstanceID)
 end
 
 local function UpdateAuras(self, event, unit, updateInfo)
-	if ( self.unit ~= unit ) then return end
+	if ( self.unit ~= unit or not self:ShouldShowBuffs() ) then return end
 
 	local isFullUpdate = not updateInfo or updateInfo.isFullUpdate
 
@@ -253,7 +254,7 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 		local aurasChanged = false
 		local maxAuras = element.numTotal or 2
-		local filter = element.filter or "HELPFUL"
+		local filter = (self:IsFriend() and element.friendFilter) or element.enemyFilter or "HELPFUL"
         local sortRule = element.sortRule or Enum.UnitAuraSortRule.ExpirationOnly
         local sortDirection = element.sortDirection or Enum.UnitAuraSortDirection.Normal
 

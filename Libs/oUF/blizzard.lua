@@ -36,6 +36,8 @@ function oUF:DisableBlizzardNamePlate(frame)
         frame.UnitFrame.AurasFrame.BuffListFrame:SetParent(hiddenParent)
         frame.UnitFrame.AurasFrame.CrowdControlListFrame:SetParent(hiddenParent)
         frame.UnitFrame.AurasFrame.LossOfControlFrame:SetParent(hiddenParent)
+        frame.UnitFrame.AurasFrame:UnregisterAllEvents()
+        
         for _, key in ipairs(reparentedKeys) do
           frame.UnitFrame[key]:SetParent(hiddenParent)
         end
