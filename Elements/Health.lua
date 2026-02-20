@@ -1,16 +1,15 @@
 local _, nPlates = ...
 
-local function UpdateStatusText(self)
-    local element = self.Health
+local function UpdateStatusText(element, self, unit, cur, max, lossPerc)
     local text = element.Text
-    local style = Settings.GetValue("NPLATES_HEALTH_STYLE")
+    local style = self.statusTextStyle
 
     if ( style == "disabled" ) then
         text:Hide()
         return
     else
         local health = AbbreviateNumbers(element.values:GetCurrentHealth())
-        local percent = UnitHealthPercent(self.unit, true, CurveConstants.ScaleTo100)
+        local percent = UnitHealthPercent(unit, true, CurveConstants.ScaleTo100)
 
         if ( style == "cur_perc" ) then
             text:SetFormattedText("%s - %.0f%%", health, percent)
@@ -52,7 +51,6 @@ local function UpdateColor(self, event, unit)
     element:SetStatusBarColor(r, g, b)
 
     self:SetSelectionColor()
-    UpdateStatusText(self)
 end
 
 function nPlates.CreateHealth(self)
@@ -62,6 +60,7 @@ function nPlates.CreateHealth(self)
     self.Health:SetHeight(18)
     self.Health:SetStatusBarTexture(nPlates.Media.StatusBarTexture)
     self.Health.UpdateColor = UpdateColor
+    self.Health.PostUpdate = UpdateStatusText
     self.Health.incomingHealOverflow = 1.2
     nPlates:SetBorder(self.Health)
 

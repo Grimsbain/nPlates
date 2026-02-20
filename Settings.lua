@@ -74,8 +74,11 @@ function nPlates:RegisterSettings()
             tooltip = L.CastTargetTooltip,
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
-            callback = function(...)
-                nPlates:UpdateElement("Castbar")
+            callback = function(control, value)
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate.Castbar.showTarget = value
+                    plate.Castbar:ForceUpdate()
+                end)
             end,
         },
         {
@@ -347,8 +350,7 @@ function nPlates:RegisterSettings()
             tooltip = L.ClassResourceTooltip,
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
-            callback = function(...)
-                local _, value = ...
+            callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     if plate.ComboPoints then plate.ComboPoints:Toggle(value) end
                     if plate.Chi then plate.Chi:Toggle(value) end
@@ -402,7 +404,10 @@ function nPlates:RegisterSettings()
                 return container:GetData()
             end,
             callback = function(setting, value)
-                nPlates:UpdateElement("Health")
+                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+                    plate.statusTextStyle = value
+                    plate.Health:ForceUpdate()
+                end)
             end,
         },
         {

@@ -89,8 +89,8 @@ nPlates.PostUpdateButton = function(element, button, unit, data, position)
 end
 
 nPlates.GetThreatColor = function(self)
-    local isTanking, threatStatus = UnitDetailedThreatSituation("player", self.unit)
-    if ( isTanking and threatStatus ) then
+    local threatStatus = UnitThreatSituation("player", self.unit)
+    if ( threatStatus ) then
         if ( threatStatus >= 3 ) then
             r, g, b = 0.0, 1.0, 0.0
         else

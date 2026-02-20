@@ -188,14 +188,25 @@ function PlateMixin:UpdateDebuffLocation()
 end
 
 function PlateMixin:UpdateOptions()
-    self.useOffTankColor = Settings.GetValue("NPLATES_OFF_TANK_COLOR")
-    self.useClassColors = UnitIsPlayer(self.unit) or UnitInPartyIsAI(self.unit)
-    self.useSelectionColor = Settings.GetValue("NPLATES_SELECTION_COLOR")
-    self.useFocusColor = Settings.GetValue("NPLATES_FOCUS_COLOR")
+    -- Auras
     self.showBuffs = Settings.GetValue("NPLATES_SHOW_BUFFS")
     self.showCrowdControl = Settings.GetValue("NPLATES_CROWD_CONTROL")
+
+    -- Castbar
+    self.Castbar.showTarget = Settings.GetValue("NPLATES_CAST_TARGET")
+
+    -- Coloring
     self.borderStyle = Settings.GetValue("NPLATES_BORDER_COLOR")
     self.healthStyle = Settings.GetValue("NPLATES_HEALTH_COLOR")
+    self.useOffTankColor = Settings.GetValue("NPLATES_OFF_TANK_COLOR")
+    self.useClassColors = self:IsPlayer() or UnitInPartyIsAI(self.unit)
+    self.useSelectionColor = Settings.GetValue("NPLATES_SELECTION_COLOR")
+    self.useFocusColor = Settings.GetValue("NPLATES_FOCUS_COLOR")
+
+    -- Health
+    self.statusTextStyle = Settings.GetValue("NPLATES_HEALTH_STYLE")
+
+    -- Name
     self.alwaysShowName = Settings.GetValue("NPLATES_FORCE_NAME")
     self.showLevel = Settings.GetValue("NPLATES_SHOWLEVEL")
     self.colorEnemyNames = Settings.GetValue("NPLATES_PLAYER_THREAT")

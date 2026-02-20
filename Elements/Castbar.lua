@@ -7,7 +7,7 @@ local function PostCastStart(castbar, unit)
     local borderColor = C_CurveUtil.EvaluateColorFromBoolean(castbar.notInterruptible, nPlates.Media.InteruptibleColor, nPlates.Media.DefaultBorderColor)
     nPlates:SetCastbarBorderColor(castbar, borderColor)
 
-    if ( Settings.GetValue("NPLATES_CAST_TARGET") ) then
+    if ( castbar.showTarget ) then
         local targetName = UnitSpellTargetName(unit)
         local class = unit and UnitSpellTargetClass(unit) or "PRIEST"
         local classColor = C_ClassColor.GetClassColor(class)
