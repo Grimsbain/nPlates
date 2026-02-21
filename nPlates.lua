@@ -96,7 +96,7 @@ function PlateMixin:UpdateClassification()
 
     if ( classification == "elite" ) then
         local level = UnitEffectiveLevel(self.unit)
-        local playerLevel = UnitLevel("player")
+        local playerLevel = nPlatesDriverFrame.playerLevel
 
         if ( level >= playerLevel + 2 or level == -1 ) then
             self.mobType = "Boss"
@@ -341,6 +341,7 @@ nPlatesMixin = {}
 
 function nPlatesMixin:OnLoad()
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    self:RegisterEvent("PLAYER_LEVEL_UP")
 
     EventRegistry:RegisterFrameEventAndCallback("VARIABLES_LOADED", function()
         nPlates:RegisterSettings()
@@ -351,14 +352,21 @@ end
 
 function nPlatesMixin:OnEvent(event, ...)
     if ( event == "PLAYER_ENTERING_WORLD" ) then
-        self.inInstance = self:InInstance()
+        self:InInstance()
+        self:UpdateLevel()
+    else
+        self:UpdateLevel()
     end
+    end
+
+function nPlatesMixin:UpdateLevel()
+    self.playerLevel = UnitLevel("player")
 end
 
 function nPlatesMixin:InInstance()
     local inInstance, instanceType = IsInInstance()
     local shouldShow = inInstance and (instanceType == "party" or instanceType == "raid")
-    return shouldShow
+    self.inInstance = shouldShow
 end
 
 function nPlatesMixin:Initialize()

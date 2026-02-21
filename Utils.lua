@@ -31,7 +31,7 @@ nPlates.MobColors = {
     -- Threat Functions
 
 function nPlates.IsOnThreatListWithPlayer(unit)
-    local _, threatStatus = UnitDetailedThreatSituation("player", unit)
+    local threatStatus = UnitThreatSituation("player", unit)
     return threatStatus ~= nil
 end
 
