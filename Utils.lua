@@ -91,7 +91,6 @@ nPlates.PostUpdateButton = function(element, button, unit, data, position)
 end
 
 local threatColors = {
-    [0] = CreateColor(1, 0, 0),
     [1] = CreateColor(1, 0, 0),
     [2] = CreateColor(1, 0.6, 0),
     [3] = CreateColor(0, 1, 0),
@@ -99,11 +98,11 @@ local threatColors = {
 
 nPlates.GetThreatColor = function(self)
     local r, g, b
-
     local threatStatus = UnitThreatSituation("player", self.unit)
-    if ( threatStatus ) then
-        local color = threatColors[threatStatus] or RED_FONT_COLOR
-        r, g, b = color:GetRGB()
+    local threatColor = threatColors[threatStatus]
+
+    if ( threatStatus and threatColor ) then
+        r, g, b = threatColor:GetRGB()
     elseif ( self.useOffTankColor and UseOffTankColor(self.unit) ) then
         r, g, b = nPlates.Media.OffTankColor:GetRGB()
     else
