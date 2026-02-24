@@ -17,6 +17,8 @@ nPlates.Media = {
     InteruptibleColor = CreateColor(0.75, 0.0, 0.0),
 
     -- Health
+    HealthColor = CreateColor(1, 0, 0),
+    ThreatColor = CreateColor(1, 0, 0),
     OffTankColor =  CreateColor(174/255, 0.0, 1.0),
 }
 
@@ -88,23 +90,29 @@ nPlates.PostUpdateButton = function(element, button, unit, data, position)
     button.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
 end
 
+local threatColors = {
+    [0] = CreateColor(1, 0, 0),
+    [1] = CreateColor(1, 0, 0),
+    [2] = CreateColor(1, 0.6, 0),
+    [3] = CreateColor(0, 1, 0),
+}
+
 nPlates.GetThreatColor = function(self)
+    local r, g, b
+
     local threatStatus = UnitThreatSituation("player", self.unit)
     if ( threatStatus ) then
-        if ( threatStatus >= 3 ) then
-            r, g, b = 0.0, 1.0, 0.0
-        else
-            r, g, b = GetThreatStatusColor(threatStatus)
-        end
+        local color = threatColors[threatStatus] or RED_FONT_COLOR
+        r, g, b = color:GetRGB()
     elseif ( self.useOffTankColor and UseOffTankColor(self.unit) ) then
         r, g, b = nPlates.Media.OffTankColor:GetRGB()
     else
         r, g, b = 1, 0, 0
     end
 
-    nPlates.Media.BorderColor:SetRGB(r, g, b)
+    nPlates.Media.ThreatColor:SetRGB(r, g, b)
 
-    return nPlates.Media.BorderColor
+    return nPlates.Media.ThreatColor
 end
 
 -- oUF Functions

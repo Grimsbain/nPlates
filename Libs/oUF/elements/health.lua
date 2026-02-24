@@ -174,13 +174,13 @@ local function UpdateColor(self, event, unit)
 	elseif(element.colorReaction and UnitReaction(unit, 'player')) then
 		color = self.colors.reaction[UnitReaction(unit, 'player')]
 	elseif(element.colorSmooth and self.colors.health:GetCurve()) then
-		color = self.values:EvaluateCurrentHealthPercent(self.colors.health:GetCurve())
+		color = element.values:EvaluateCurrentHealthPercent(self.colors.health:GetCurve())
 	elseif(element.colorHealth) then
 		color = self.colors.health
 	end
 
 	if(color) then
-		element:GetStatusBarTexture():SetVertexColor(color:GetRGB())
+		element:SetStatusBarColor(color:GetRGB())
 	end
 
 	--[[ Callback: Health:PostUpdateColor(unit, color)
@@ -208,7 +208,6 @@ end
 
 local function Update(self, event, unit)
 	if(not unit or self.unit ~= unit) then return end
-
 	local element = self.Health
 
 	--[[ Callback: Health:PreUpdate(unit)

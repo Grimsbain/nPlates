@@ -59,6 +59,10 @@ function PlateMixin:IsSimplified()
 	return self:GetUnitFrame().isSimplified == true
 end
 
+function PlateMixin:IsGameObject()
+    return self.isGameObject == true
+end
+
 function PlateMixin:IsWidgetMode()
     return self.widgetsOnlyMode
 end
@@ -214,7 +218,11 @@ function PlateMixin:UpdateOptions()
 end
 
 function PlateMixin:ShouldShowName()
-    if ( self:IsWidgetMode() ) then
+    if ( self:IsWidgetMode() or self:IsGameObject() ) then
+        return false
+    end
+
+    if ( self:IsSimplified() and not self:IsTarget() ) then
         return false
     end
 
@@ -265,7 +273,7 @@ function PlateMixin:UpdateName()
 end
 
 function PlateMixin:UpdateNameLocation()
-    if ( self:IsWidgetMode() ) then
+    if ( self:IsWidgetMode() or self:IsGameObject() ) then
         self.Name:Hide()
         return
     end
@@ -396,6 +404,8 @@ function nPlates:OnNamePlateRemoved(nameplate, event, unit)
 end
 
 function nPlates:OnNamePlateAdded(nameplate, event, unit)
+    nameplate.isGameObject = unit ~= nil and UnitIsGameObject(unit);
+
     nameplate:UpdateOptions()
     nameplate:UpdateIsPlayer()
     nameplate:UpdateIsTarget()

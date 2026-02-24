@@ -27,6 +27,7 @@ end
 
 local function UpdateColor(self, event, unit)
 	local element = self.Health
+    local r, g, b
 
     if ( UnitIsDeadOrGhost(self.unit) or UnitIsTapDenied(self.unit) ) then
         r, g, b = 0.5, 0.5, 0.5
@@ -49,7 +50,6 @@ local function UpdateColor(self, event, unit)
     end
 
     element:SetStatusBarColor(r, g, b)
-
     self:SetSelectionColor()
 end
 
