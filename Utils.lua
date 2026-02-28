@@ -49,7 +49,7 @@ end
 
 nPlates.DifficultyColor = function(unit)
     local difficulty = C_PlayerInfo.GetContentDifficultyCreatureForPlayer(unit)
-    local color = GetDifficultyColor(difficulty)
+    local color = (difficulty and GetDifficultyColor(difficulty)) or WHITE_FONT_COLOR
     return ConvertRGBtoColorString(color)
 end
 
