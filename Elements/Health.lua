@@ -32,7 +32,7 @@ local function UpdateColor(self, event, unit)
     if ( UnitIsDeadOrGhost(self.unit) or UnitIsTapDenied(self.unit) ) then
         r, g, b = 0.5, 0.5, 0.5
     else
-        if ( self.useClassColors ) then
+        if ( self.useClassColor ) then
             r, g, b = self.classColor:GetRGB()
         else
             if ( self:ShouldShowMobColoring("healthStyle") ) then

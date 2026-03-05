@@ -3,7 +3,7 @@ local _, nPlates = ...
 function nPlates.UpdateSoftTarget(self)
     self.SoftTargetFrame = self:GetUnitFrame().SoftTargetFrame
     self.SoftTargetFrame:ClearAllPoints()
-    self.SoftTargetFrame:SetPoint("RIGHT", self.RaidTargetIndicator, "LEFT", -5, 0)
+    self.SoftTargetFrame:SetPoint("BOTTOM", self.ClassFrameContainer, "TOP", 0, 4)
     self.SoftTargetFrame:SetCollapsesLayout(true)
     self.SoftTargetFrame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 

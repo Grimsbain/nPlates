@@ -63,6 +63,10 @@ function PlateMixin:IsGameObject()
     return self.isGameObject == true
 end
 
+function PlateMixin:UpdateGameObject()
+    self.isGameObject = self.unit ~= nil and UnitIsGameObject(self.unit)
+end
+
 function PlateMixin:IsWidgetMode()
     return self.widgetsOnlyMode
 end
@@ -183,7 +187,7 @@ end
 
 function PlateMixin:UpdateClassColor()
     local _, class = UnitClass(self.unit)
-    self.classColor = C_ClassColor.GetClassColor(class)
+    self.classColor = (class and C_ClassColor.GetClassColor(class)) or BATTLENET_FONT_COLOR
 end
 
 function PlateMixin:UpdateDebuffLocation()
@@ -192,6 +196,11 @@ function PlateMixin:UpdateDebuffLocation()
 end
 
 function PlateMixin:UpdateOptions()
+    self:UpdateIsPlayer()
+    self:UpdateIsTarget()
+    self:UpdateIsFocus()
+    self:UpdateClassColor()
+
     -- Auras
     self.showBuffs = Settings.GetValue("NPLATES_SHOW_BUFFS")
     self.showCrowdControl = Settings.GetValue("NPLATES_CROWD_CONTROL")
@@ -203,9 +212,9 @@ function PlateMixin:UpdateOptions()
     self.borderStyle = Settings.GetValue("NPLATES_BORDER_COLOR")
     self.healthStyle = Settings.GetValue("NPLATES_HEALTH_COLOR")
     self.useOffTankColor = Settings.GetValue("NPLATES_OFF_TANK_COLOR")
-    self.useClassColors = self:IsPlayer() or UnitInPartyIsAI(self.unit)
     self.useSelectionColor = Settings.GetValue("NPLATES_SELECTION_COLOR")
     self.useFocusColor = Settings.GetValue("NPLATES_FOCUS_COLOR")
+    self.useClassColor = self:IsPlayer() or UnitInPartyIsAI(self.unit)
 
     -- Health
     self.statusTextStyle = Settings.GetValue("NPLATES_HEALTH_STYLE")
@@ -256,12 +265,12 @@ function PlateMixin:UpdateName()
             end
         else
             if ( self.showLevel ) then
-                local level = UnitLevel(self.unit)
+                local level = UnitLevel(self.unit) or -1
 
                 if ( level == -1 ) then
                     self.Name:SetText(name)
                 else
-                    self.Name:SetFormattedText("%s%d|r %s", nPlates.DifficultyColor(self.unit), level, name)
+                    self.Name:SetFormattedText("%s%s|r %s", nPlates.DifficultyColor(self.unit), level, name)
                 end
             else
                 self.Name:SetText(name)
@@ -400,16 +409,13 @@ end
 
 function nPlates:OnNamePlateRemoved(nameplate, event, unit)
     nameplate.widgetsOnlyMode = nil
+    nameplate.isGameObject = nil
     nameplate:Hide()
 end
 
 function nPlates:OnNamePlateAdded(nameplate, event, unit)
-    nameplate.isGameObject = unit ~= nil and UnitIsGameObject(unit);
-
     nameplate:UpdateOptions()
-    nameplate:UpdateIsPlayer()
-    nameplate:UpdateIsTarget()
-    nameplate:UpdateIsFocus()
+    nameplate:UpdateGameObject()
     nameplate:UpdateWidgetsOnlyMode()
 
     nameplate:UpdateClassification()
@@ -417,7 +423,6 @@ function nPlates:OnNamePlateAdded(nameplate, event, unit)
     nameplate:UpdateNameLocation()
     nameplate:UpdateDebuffLocation()
     nameplate:UpdateClassPower()
-    nameplate:UpdateClassColor()
 
     nameplate:Show()
 end
