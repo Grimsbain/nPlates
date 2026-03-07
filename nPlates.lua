@@ -255,7 +255,7 @@ function PlateMixin:UpdateName()
         self.Name:Hide()
         return
     else
-        local name = UnitName(self.unit) or UNKOWN
+        local name = UnitName(self.unit) or UNKNOWN
 
         if ( self:IsPlayer() ) then
             if ( not self:IsFriend() and self.colorEnemyNames ) then
