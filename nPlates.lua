@@ -207,6 +207,7 @@ function PlateMixin:UpdateOptions()
 
     -- Castbar
     self.Castbar.showTarget = Settings.GetValue("NPLATES_CAST_TARGET")
+    self.Castbar.useImportantCast = Settings.GetValue("NPLATES_IMPORTANT_CAST_COLOR")
 
     -- Coloring
     self.borderStyle = Settings.GetValue("NPLATES_BORDER_COLOR")
@@ -319,9 +320,9 @@ local function Layout(self, unit)
     Mixin(self, PlateMixin)
     self:HookScript("OnEvent", self.OnEvent)
 
-    self.Name = self:CreateFontString(nil, "OVERLAY", "nPlate_NameFont")
+    self.Name = self:CreateFontString("$parentName", "OVERLAY", "nPlate_NameFont")
     self.Name:SetJustifyH("CENTER")
-    self.Name:SetIgnoreParentScale(true)
+    self.Name:SetSmoothScaling(true)
 
     nPlates.CreateHealth(self)
     nPlates.CreateCastbar(self)
@@ -343,13 +344,6 @@ local function Layout(self, unit)
     self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", self.OnEvent)
     self:RegisterEvent("PLAYER_TARGET_CHANGED", self.OnEvent, true)
     self:RegisterEvent("PLAYER_FOCUS_CHANGED", self.OnEvent, true)
-
-    -- Waiting on Blizzard
-    -- self.HitTest = CreateFrame("Frame", "$parentHitTest", self)
-    -- self.HitTest:SetPoint("TOPLEFT", self.Health, "TOPLEFT", -10, 10)
-    -- self.HitTest:SetPoint("BOTTOMRIGHT", self.Health, "BOTTOMRIGHT", 10, -10)
-
-    -- C_NamePlateManager.SetNamePlateHitTestFrame(unit, self.HitTest);
 
     return self
 end
@@ -390,6 +384,7 @@ function nPlatesMixin:Initialize()
     nPlates.Media.OffTankColor = CreateColorFromHexString(Settings.GetValue("NPLATES_OFF_TANK_COLOR_HEX"))
     nPlates.Media.SelectionColor = CreateColorFromHexString(Settings.GetValue("NPLATES_SELECTION_COLOR_HEX"))
     nPlates.Media.FocusColor = CreateColorFromHexString(Settings.GetValue("NPLATES_FOCUS_COLOR_HEX"))
+    nPlates.Media.ImportantCastColor = CreateColorFromHexString(Settings.GetValue("NPLATES_IMPORTANT_CAST_COLOR_HEX"))
 
     oUF:RegisterStyle("nPlate3", Layout)
     oUF:Factory(function(self)

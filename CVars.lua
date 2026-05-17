@@ -1,5 +1,13 @@
 local _, nPlates = ...
 
+local cVars = {
+    "nameplateOccludedAlphaMult",
+    "nameplateMaxDistance",
+    "nameplatePlayerMaxDistance",
+    "nameplateSimplifiedScale",
+    "nameplateShowOnlyNameForFriendlyPlayerUnits",
+}
+
 local events = {
     "PLAYER_REGEN_DISABLED",
     "PLAYER_REGEN_ENABLED",
@@ -37,13 +45,7 @@ function nPlates:CVarCheck()
 end
 
 function nPlates:RestoreCVars()
-    for _, setting in pairs({
-        "nameplateMaxDistance",
-        "nameplatePlayerMaxDistance",
-        "nameplateOccludedAlphaMult",
-        "nameplateSimplifiedScale",
-    })
-    do
+    for _, setting in pairs(cVars) do
         local default = GetCVarDefault(setting)
 
         if ( default ) then

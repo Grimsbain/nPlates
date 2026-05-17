@@ -88,7 +88,7 @@ function nPlatesComboPointsMixin:ShouldShowComboPoints(unit)
         return false
     end
 
-    if ( UnitHasVehicleUI("player") ) then
+    if ( UnitHasVehicleUI("player") or PlayerVehicleHasComboPoints() ) then
         return false
     end
 

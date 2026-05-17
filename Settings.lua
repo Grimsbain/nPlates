@@ -82,6 +82,23 @@ function nPlates:RegisterSettings()
             end,
         },
         {
+            type = "Swatch",
+            name = "NPLATES_IMPORTANT_CAST_COLOR",
+            variable = "ImportantColor",
+            default = Settings.Default.True,
+            label = "Important Color Cast",
+            tooltip = "Color used for important casts.",
+            varType = Settings.VarType.Boolean,
+            color = "FFff007f",
+            callback = function(setting, value)
+                nPlates:UpdateElement("Castbar")
+            end,
+            hexCallback = function(setting, value)
+                nPlates.Media.ImportantCastColor = CreateColorFromHexString(value)
+                nPlates:UpdateElement("Castbar")
+            end,
+        },
+        {
             type = "Label",
             label = L.ColoringOptionsLabel,
         },

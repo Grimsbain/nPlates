@@ -27,7 +27,7 @@ nPlates.MobColors = {
     MiniBoss = CreateColor(188/255, 198/255, 204/255),
     Caster = C_ClassColor.GetClassColor("MAGE"),
     Melee = C_ClassColor.GetClassColor("WARRIOR"),
-    Trivial = CreateColor(0.4, 0.4, 0.4),
+    Trivial = RED_THREAT_COLOR,
 }
 
     -- Threat Functions

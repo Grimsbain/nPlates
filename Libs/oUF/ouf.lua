@@ -1,6 +1,6 @@
 local parent, ns = ...
 local global = C_AddOns.GetAddOnMetadata(parent, 'X-oUF')
-local _VERSION = '13.3.0'
+local _VERSION = '13.3.1'
 if(_VERSION:find('project%-version')) then
 	_VERSION = 'devel'
 end
@@ -869,7 +869,7 @@ do
 			local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
 			if(not nameplate or nameplate.explicitIsPlayer or unit == "preview" ) then return end
 
-			oUF:DisableBlizzardNamePlate(nameplate)
+			oUF:DisableBlizzardNamePlate(nameplate.UnitFrame)
 
 			if(not nameplate.unitFrame) then
 				nameplate.style = self.style
@@ -887,6 +887,8 @@ do
 			end
 
 			nameplate.unitFrame:SetAttribute('unit', unit)
+            nameplate:ClearAllHitTestPoints() -- to prevent lingering hit test points on default
+			nameplate:SetAllHitTestPoints(nameplate.unitFrame)
 
 			if(nameplate.UnitFrame) then
 				if(nameplate.UnitFrame.WidgetContainer) then

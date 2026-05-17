@@ -1,19 +1,19 @@
 local _, nPlates = ...
 
 local function PostCastStart(castbar, unit)
-    local isImportant = C_Spell.IsSpellImportant(castbar.spellID)
-    castbar:GetStatusBarTexture():SetVertexColorFromBoolean(isImportant, nPlates.Media.ImportantCastColor, nPlates.Media.StatusBarColor)
+    local castColor = C_CurveUtil.EvaluateColorFromBoolean(castbar.notInterruptible, RED_FONT_COLOR, GREEN_FONT_COLOR)
+    castbar:GetStatusBarTexture():SetVertexColor(castColor:GetRGB())
+    nPlates:SetCastbarBorderColor(castbar, castColor)
 
-    local borderColor = C_CurveUtil.EvaluateColorFromBoolean(castbar.notInterruptible, nPlates.Media.InteruptibleColor, nPlates.Media.DefaultBorderColor)
-    nPlates:SetCastbarBorderColor(castbar, borderColor)
+    if ( castbar.useImportantCast ) then
+        local isImportant = C_Spell.IsSpellImportant(castbar.spellID)
+        local castColor = C_CurveUtil.EvaluateColorFromBoolean(isImportant, nPlates.Media.ImportantCastColor, castColor)
+        castbar:GetStatusBarTexture():SetVertexColor(castColor:GetRGB())
+        nPlates:SetCastbarBorderColor(castbar, castColor)
+    end
 
     if ( castbar.showTarget ) then
-        local targetName = UnitSpellTargetName(unit)
-        local class = unit and UnitSpellTargetClass(unit) or "PRIEST"
-        local classColor = C_ClassColor.GetClassColor(class)
-
-        castbar.Target:SetText(targetName)
-        castbar.Target:SetTextColor(classColor:GetRGB())
+        castbar.Target:SetText(UnitSpellTargetName(unit))
         castbar.Target:Show()
     else
         castbar.Target:Hide()
@@ -21,12 +21,16 @@ local function PostCastStart(castbar, unit)
 end
 
 local function PostCastInterrupted(castbar, unit, interruptedBy)
-    castbar:GetStatusBarTexture():SetVertexColor(1, 0, 0)
+    castbar:GetStatusBarTexture():SetVertexColor(ORANGE_FONT_COLOR:GetRGB())
+    nPlates:SetCastbarBorderColor(castbar, ORANGE_FONT_COLOR)
+
     local name = select(6, GetPlayerInfoByGUID(interruptedBy))
-    if name then
+
+    if ( name ) then
         castbar.Target:SetText(name)
-        castbar.Target:SetTextColor(WHITE_FONT_COLOR:GetRGB())
         castbar.Target:Show()
+    else
+        castbar.Target:Hide()
     end
 end
 
