@@ -7,6 +7,22 @@ local function Percentage(percentage)
 	return _G.PERCENTAGE_STRING:format(value)
 end
 
+local function UpdateNames()
+    nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+        plate:UpdateOptions()
+        plate:UpdateName()
+    end)
+end
+
+local function GetColorOptions()
+    local container = Settings.CreateControlTextContainer()
+    container:Add("default", L.Default)
+    container:Add("threat", L.ThreatColoring)
+    container:Add("mobType", L.MobType)
+    container:Add("mobTypeOrHealth", L.MobTypeOrHealth)
+    return container:GetData()
+end
+
 function nPlates:RegisterSettings()
     nPlatesDB = nPlatesDB or {}
     SimpleUI.DB = nPlatesDB
@@ -28,11 +44,7 @@ function nPlates:RegisterSettings()
             tooltip = L.ShowLevelToolitp,
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
-            callback = function(...)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateName()
-                end)
-            end,
+            callback = UpdateNames,
         },
         {
             type = "CheckBox",
@@ -42,11 +54,7 @@ function nPlates:RegisterSettings()
             tooltip = L.AlwaysShowNameTooltip,
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
-            callback = function(...)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateName()
-                end)
-            end,
+            callback = UpdateNames,
         },
         {
             type = "CheckBox",
@@ -56,11 +64,7 @@ function nPlates:RegisterSettings()
             tooltip = L.PlayerThreatLevelTooltip,
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
-            callback = function(...)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateName()
-                end)
-            end,
+            callback = UpdateNames,
         },
         {
             type = "Label",
@@ -76,7 +80,7 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.Castbar.showTarget = value
+                    plate:UpdateOptions()
                     plate.Castbar:ForceUpdate()
                 end)
             end,
@@ -110,17 +114,10 @@ function nPlates:RegisterSettings()
             tooltip = L.ColorHealthByTooltip,
             default = "default",
             varType = Settings.VarType.String,
-            options = function()
-                local container = Settings.CreateControlTextContainer()
-                container:Add("default", L.Default)
-                container:Add("threat", L.ThreatColoring)
-                container:Add("mobType", L.MobType)
-                container:Add("mobTypeOrThreat", L.MobTypeOrHealth)
-                return container:GetData()
-            end,
+            options = GetColorOptions,
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.healthStyle = value
+                    plate:UpdateOptions()
                     plate.Health:ForceUpdate()
                 end)
             end,
@@ -133,38 +130,31 @@ function nPlates:RegisterSettings()
             tooltip = L.ColorBorderByTooltip,
             default = "default",
             varType = Settings.VarType.String,
-            options = function()
-                local container = Settings.CreateControlTextContainer()
-                container:Add("default", L.Default)
-                container:Add("threat", L.ThreatColoring)
-                container:Add("mobType", L.MobType)
-                container:Add("mobTypeOrThreat", L.MobTypeOrHealth)
-                return container:GetData()
-            end,
+            options = GetColorOptions,
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.borderStyle = value
+                    plate:UpdateOptions()
                     plate:SetSelectionColor()
                 end)
             end,
         },
-        {
-            type = "Swatch",
-            name = "NPLATES_OFF_TANK_COLOR",
-            variable = "OffTankColor",
-            default = Settings.Default.False,
-            label = L.OffTankColor,
-            tooltip = L.OffTankColorTooltip,
-            varType = Settings.VarType.Boolean,
-            color = "ff7328ff",
-            callback = function(setting, value)
-                nPlates:UpdateElement("Health")
-            end,
-            hexCallback = function(setting, value)
-                nPlates.Media.OffTankColor = CreateColorFromHexString(value)
-                nPlates:UpdateElement("Health")
-            end,
-        },
+        -- {
+        --     type = "Swatch",
+        --     name = "NPLATES_OFF_TANK_COLOR",
+        --     variable = "OffTankColor",
+        --     default = Settings.Default.False,
+        --     label = L.OffTankColor,
+        --     tooltip = L.OffTankColorTooltip,
+        --     varType = Settings.VarType.Boolean,
+        --     color = "ff7328ff",
+        --     callback = function(setting, value)
+        --         nPlates:UpdateElement("Health")
+        --     end,
+        --     hexCallback = function(setting, value)
+        --         nPlates.Media.OffTankColor = CreateColorFromHexString(value)
+        --         nPlates:UpdateElement("Health")
+        --     end,
+        -- },
         {
             type = "Swatch",
             name = "NPLATES_SELECTION_COLOR",
@@ -176,7 +166,7 @@ function nPlates:RegisterSettings()
             color = "ffffffff",
             callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.useSelectionColor = value
+                    plate:UpdateOptions()
                     plate:SetSelectionColor()
                 end)
             end,
@@ -198,7 +188,7 @@ function nPlates:RegisterSettings()
             color = "FFFF7B00",
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.useFocusColor = value
+                    plate:UpdateOptions()
                     plate:SetSelectionColor()
                 end)
             end,
@@ -223,8 +213,8 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.showBuffs = value
-                    nPlates:ToggleElement("BetterBuffs", plate, value)
+                    plate:UpdateOptions()
+                    plate.Buffs:SetEnabled(value)
                 end)
             end,
         },
@@ -238,8 +228,8 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.showCrowdControl = value
-                    nPlates:ToggleElement("CCIcon", plate, value)
+                    plate:UpdateOptions()
+                    plate.CCIcon:SetEnabled(value)
                 end)
             end,
         },
@@ -249,19 +239,20 @@ function nPlates:RegisterSettings()
             variable = "SortBy",
             label = L.SortBy,
             tooltip = L.SortByTooltip,
-            default = Enum.UnitAuraSortRule.Default,
+            default = AuraContainerSortMethod.Default,
             varType = Settings.VarType.Number,
             options = function()
                 local container = Settings.CreateControlTextContainer()
-                container:Add(Enum.UnitAuraSortRule.Default, L.Default)
-                container:Add(Enum.UnitAuraSortRule.NameOnly, L.Name)
-                container:Add(Enum.UnitAuraSortRule.ExpirationOnly, L.Time)
+                container:Add(AuraContainerSortMethod.Default, L.Default)
+                container:Add(AuraContainerSortMethod.NameOnly, L.Name)
+                container:Add(AuraContainerSortMethod.ExpirationOnly, L.Time)
                 return container:GetData()
             end,
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.BetterDebuffs.sortRule = value
-                    plate.BetterDebuffs:ForceUpdate()
+                    plate.Debuffs.sortMethod = value
+                    plate.Debuffs:SetAuraGroupSortMethod(plate.Debuffs.key, value, plate.Debuffs.sortDirection)
+                    plate.Debuffs:ForceUpdate()
                 end)
             end,
         },
@@ -271,18 +262,19 @@ function nPlates:RegisterSettings()
             variable = "SortDirection",
             label = L.SortDirection,
             tooltip = L.SortDirectionTooltip,
-            default = Enum.UnitAuraSortDirection.Normal,
+            default = AuraContainerSortDirection.Normal,
             varType = Settings.VarType.Number,
             options = function()
                 local container = Settings.CreateControlTextContainer()
-                container:Add(Enum.UnitAuraSortDirection.Normal, L.Default)
-                container:Add(Enum.UnitAuraSortDirection.Reverse, L.Reverse)
+                container:Add(AuraContainerSortDirection.Normal, L.Default)
+                container:Add(AuraContainerSortDirection.Reverse, L.Reverse)
                 return container:GetData()
             end,
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.BetterDebuffs.sortDirection = value
-                    plate.BetterDebuffs:ForceUpdate()
+                    plate.Debuffs.sortDirection = value
+                    plate.Debuffs:SetAuraGroupSortMethod(plate.Debuffs.key, plate.Debuffs.sortMethod, value)
+                    plate.Debuffs:ForceUpdate()
                 end)
             end,
         },
@@ -300,61 +292,61 @@ function nPlates:RegisterSettings()
             step = 0.05,
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.BetterDebuffs:SetScale(value)
+                    plate.Debuffs:SetScale(value)
                 end)
             end,
         },
-        {
-            type = "CheckBox",
-            name = "NPLATES_DEBUFF_TYPE",
-            variable = "ShowDebuffType",
-            label = L.ShowDebuffType,
-            tooltip = L.ShowDebuffTypeTooltip,
-            default = Settings.Default.False,
-            varType = Settings.VarType.Boolean,
-            callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.BetterDebuffs.showType = value
-                    plate.BetterDebuffs:ForceUpdate()
-                end)
-            end,
-        },
-        {
-            type = "CheckBox",
-            name = "NPLATES_COOLDOWN",
-            variable = "ShowCooldownNumbers",
-            label = L.CooldownNumbers,
-            tooltip = L.CooldownNumbersTooltip,
-            default = Settings.Default.True,
-            varType = Settings.VarType.Boolean,
-            callback = function(...)
-                nPlates:UpdateAllNameplates()
-            end,
-        },
-        {
-            type = "CheckBox",
-            name = "NPLATES_COOLDOWN_EDGE",
-            variable = "ShowCooldowndownEdge",
-            label = L.CooldownEdge,
-            tooltip = L.CooldownEdgeTooltip,
-            default = Settings.Default.True,
-            varType = Settings.VarType.Boolean,
-            callback = function(control, value)
-                nPlates:UpdateAllNameplates()
-            end,
-        },
-        {
-            type = "CheckBox",
-            name = "NPLATES_COOLDOWN_SWIPE",
-            variable = "ShowCooldownSwipe",
-            label = L.CooldownSwipe,
-            tooltip = L.CooldownSwipeTooltip,
-            default = Settings.Default.False,
-            varType = Settings.VarType.Boolean,
-            callback = function(...)
-                nPlates:UpdateAllNameplates()
-            end,
-        },
+        -- {
+        --     type = "CheckBox",
+        --     name = "NPLATES_DEBUFF_TYPE",
+        --     variable = "ShowDebuffType",
+        --     label = L.ShowDebuffType,
+        --     tooltip = L.ShowDebuffTypeTooltip,
+        --     default = Settings.Default.False,
+        --     varType = Settings.VarType.Boolean,
+        --     callback = function(setting, value)
+        --         nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+        --             plate.BetterDebuffs.showType = value
+        --             plate.BetterDebuffs:ForceUpdate()
+        --         end)
+        --     end,
+        -- },
+        -- {
+        --     type = "CheckBox",
+        --     name = "NPLATES_COOLDOWN",
+        --     variable = "ShowCooldownNumbers",
+        --     label = L.CooldownNumbers,
+        --     tooltip = L.CooldownNumbersTooltip,
+        --     default = Settings.Default.True,
+        --     varType = Settings.VarType.Boolean,
+        --     callback = function(...)
+        --         nPlates:UpdateAllNameplates()
+        --     end,
+        -- },
+        -- {
+        --     type = "CheckBox",
+        --     name = "NPLATES_COOLDOWN_EDGE",
+        --     variable = "ShowCooldowndownEdge",
+        --     label = L.CooldownEdge,
+        --     tooltip = L.CooldownEdgeTooltip,
+        --     default = Settings.Default.True,
+        --     varType = Settings.VarType.Boolean,
+        --     callback = function(control, value)
+        --         nPlates:UpdateAllNameplates()
+        --     end,
+        -- },
+        -- {
+        --     type = "CheckBox",
+        --     name = "NPLATES_COOLDOWN_SWIPE",
+        --     variable = "ShowCooldownSwipe",
+        --     label = L.CooldownSwipe,
+        --     tooltip = L.CooldownSwipeTooltip,
+        --     default = Settings.Default.False,
+        --     varType = Settings.VarType.Boolean,
+        --     callback = function(...)
+        --         nPlates:UpdateAllNameplates()
+        --     end,
+        -- },
         {
             type = "Label",
             label = L.FrameOptionsLabel,
@@ -369,9 +361,7 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    if plate.ComboPoints then plate.ComboPoints:Toggle(value) end
-                    if plate.Chi then plate.Chi:Toggle(value) end
-                    if plate.Essence then plate.Essence:Toggle(value) end
+                    nPlates:ToggleClassPower(plate, value)
                 end)
             end,
         },
@@ -395,12 +385,9 @@ function nPlates:RegisterSettings()
             tooltip = L.OnlyNameToolitp,
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
-            callback = function(...)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateNameLocation()
-                end)
-
-                SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", value and 1 or 0)
+            callback = function(control, value)
+                nPlates:UpdateCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", value)
+                nPlates:UpdateAllNameplates()
             end,
         },
         {
@@ -422,7 +409,7 @@ function nPlates:RegisterSettings()
             end,
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.statusTextStyle = value
+                    plate:UpdateOptions()
                     plate.Health:ForceUpdate()
                 end)
             end,
@@ -440,11 +427,7 @@ function nPlates:RegisterSettings()
             max = 1,
             step = 0.01,
             callback = function(setting, value)
-                if ( nPlates:IsTaintable() ) then
-                    return
-                end
-
-                SetCVar("nameplateOccludedAlphaMult", value)
+                nPlates:UpdateCVar("nameplateOccludedAlphaMult", value)
             end,
         },
         {
@@ -463,11 +446,7 @@ function nPlates:RegisterSettings()
             max = 60,
             step = 1,
             callback = function(setting, value)
-                if ( nPlates:IsTaintable() ) then
-                    return
-                end
-
-                SetCVar("nameplateMaxDistance", value)
+                nPlates:UpdateCVar("nameplateMaxDistance", value)
             end,
         },
         {
@@ -482,11 +461,7 @@ function nPlates:RegisterSettings()
             max = 60,
             step = 1,
             callback = function(setting, value)
-                if ( nPlates:IsTaintable() ) then
-                    return
-                end
-
-                SetCVar("nameplatePlayerMaxDistance", value)
+                nPlates:UpdateCVar("nameplatePlayerMaxDistance", value)
             end,
         },
         {
@@ -506,11 +481,7 @@ function nPlates:RegisterSettings()
             default = 0.30,
             percentage = true,
             callback = function(control, value)
-                if ( nPlates:IsTaintable() ) then
-                    return
-                end
-
-                SetCVar("nameplateSimplifiedScale", value)
+                nPlates:UpdateCVar("nameplateSimplifiedScale", value)
             end,
         },
     }

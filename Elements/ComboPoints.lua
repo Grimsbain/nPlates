@@ -1,14 +1,13 @@
 local _, nPlates = ...
+local oUF = nPlates.oUF
 
 nPlatesComboPointsMixin = {}
 
 function nPlatesComboPointsMixin:OnLoad()
     self.PowerEvents = {
         "UNIT_POWER_FREQUENT",
-        "UNIT_MAXPOWER"
+        "UNIT_MAXPOWER",
     }
-
-    self:RegisterUnitEvent("UNIT_DISPLAYPOWER", "player")
 end
 
 function nPlatesComboPointsMixin:OnEvent(event, ...)
@@ -16,7 +15,7 @@ function nPlatesComboPointsMixin:OnEvent(event, ...)
         self:UpdatePower()
     elseif ( event == "PLAYER_ENTERING_WORLD" ) then
         self:UpdatePower()
-    elseif ( event == "UNIT_MAXPOWER" ) then
+    elseif ( event == "UNIT_MAXPOWER" or "TRAIT_CONFIG_UPDATED" ) then
         self:UnitMaxPower()
     end
 end
@@ -24,7 +23,7 @@ end
 function nPlatesComboPointsMixin:OnShow()
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     FrameUtil.RegisterFrameForUnitEvents(self, self.PowerEvents, "player")
-    self:Update(self:GetParent().unit)
+    self:Update(self:GetParent().__unit)
 end
 
 function nPlatesComboPointsMixin:OnHide()
@@ -34,7 +33,7 @@ function nPlatesComboPointsMixin:OnHide()
 end
 
 function nPlatesComboPointsMixin:UpdatePower()
-    self:Update(self:GetParent().unit)
+    self:Update(self:GetParent().__unit)
 end
 
 function nPlatesComboPointsMixin:UnitMaxPower()
@@ -100,7 +99,7 @@ function nPlatesComboPointsMixin:ShouldShowComboPoints(unit)
 end
 
 function nPlatesComboPointsMixin:UpdateVisibility()
-    local shouldShow = self:ShouldShowComboPoints(self:GetParent().unit)
+    local shouldShow = self:ShouldShowComboPoints(self:GetParent().__unit)
     self:SetShown(shouldShow)
 end
 
@@ -117,12 +116,39 @@ function nPlatesComboPointsMixin:IsWidgetMode()
     return self.isWidgetMode == true
 end
 
-function nPlates:CreateComboPoints(nameplate)
-	local frame = CreateFrame("Frame", "$parentComboPoints", nameplate, "nPlatesComboPoints")
-	frame.comboPoints = GetComboPoints("player", "target")
-	frame.maxPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
-    frame:UpdateSize()
-
-	return frame
+local function Path(self, ...)
+    local element = self.ComboPoints
+    if ( element ) then
+        element:Update(self.__unit)
+    end
 end
 
+local function Enable(self)
+    local element = self.ComboPoints
+
+    if ( element ) then
+        element.__owner = self
+
+        element:RegisterUnitEvent("UNIT_DISPLAYPOWER", "player")
+        element:RegisterEvent("TRAIT_CONFIG_UPDATED")
+        element:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+
+        element.comboPoints = GetComboPoints("player", "target")
+	    element.maxPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
+        element:UpdateSize()
+
+        element:Show()
+    end
+end
+
+local function Disable(self)
+    local element = self.ComboPoints
+    if ( element ) then
+        element:UnregisterEvent("UNIT_DISPLAYPOWER")
+        element:UnregisterEvent("TRAIT_CONFIG_UPDATED")
+        element:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+        element:Hide()
+    end
+end
+
+oUF:AddElement("ComboPoints", Path, Enable, Disable)

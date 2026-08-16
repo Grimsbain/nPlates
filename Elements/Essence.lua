@@ -1,4 +1,5 @@
 local _, nPlates = ...
+local oUF = nPlates.oUF
 
 nPlatesEssenceMixin = {}
 
@@ -16,10 +17,6 @@ function nPlatesEssenceMixin:OnLoad()
         self:UnregisterAllEvents()
         return
     end
-
-    self:RegisterUnitEvent("UNIT_DISPLAYPOWER", "player")
-    self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-    self:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 
 function nPlatesEssenceMixin:OnEvent(event, ...)
@@ -40,7 +37,7 @@ end
 function nPlatesEssenceMixin:OnShow()
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     FrameUtil.RegisterFrameForUnitEvents(self, self.PowerEvents, "player")
-    self:Update(self:GetParent().unit)
+    self:Update(self:GetParent().__unit)
 end
 
 function nPlatesEssenceMixin:OnHide()
@@ -50,7 +47,7 @@ function nPlatesEssenceMixin:OnHide()
 end
 
 function nPlatesEssenceMixin:UpdatePower()
-    self:Update(self:GetParent().unit)
+    self:Update(self:GetParent().__unit)
 end
 
 function nPlatesEssenceMixin:UnitMaxPower()
@@ -101,7 +98,7 @@ function nPlatesEssenceMixin:ShouldShow(unit)
 end
 
 function nPlatesEssenceMixin:UpdateVisibility()
-    local shouldShow = self:ShouldShow(self:GetParent().unit)
+    local shouldShow = self:ShouldShow(self:GetParent().__unit)
     self:SetShown(shouldShow)
 end
 
@@ -118,11 +115,38 @@ function nPlatesEssenceMixin:IsWidgetMode()
     return self.isWidgetMode == true
 end
 
-function nPlates:CreateEssence(nameplate)
-	local frame = CreateFrame("Frame", "$parentEssence", nameplate, "nPlatesEssenceFrame")
-	frame.maxPower = UnitPowerMax("player", Enum.PowerType.Essence)
-    frame:UpdateSize()
-
-	return frame
+local function Path(self, ...)
+    local element = self.Essence
+    if ( element ) then
+        element:Update(self.__unit)
+    end
 end
 
+local function Enable(self)
+    local element = self.Essence
+
+    if ( element ) then
+        element.__owner = self
+
+        element:RegisterUnitEvent("UNIT_DISPLAYPOWER", "player")
+        element:RegisterEvent("TRAIT_CONFIG_UPDATED")
+        element:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+
+        element.maxPower = UnitPowerMax("player", Enum.PowerType.Essence)
+        element:UpdateSize()
+
+        element:Show()
+    end
+end
+
+local function Disable(self)
+    local element = self.Essence
+    if ( element ) then
+        element:UnregisterEvent("UNIT_DISPLAYPOWER")
+        element:UnregisterEvent("TRAIT_CONFIG_UPDATED")
+        element:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+        element:Hide()
+    end
+end
+
+oUF:AddElement("Essence", Path, Enable, Disable)

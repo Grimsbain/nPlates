@@ -1,29 +1,29 @@
 local _, nPlates = ...
 
 function nPlates.CreateBuffs(self)
-    self.BetterBuffs = CreateFrame("Frame", "$parentBuffs", self)
-    self.BetterBuffs:SetIgnoreParentScale(true)
-    self.BetterBuffs:SetCollapsesLayout(true)
-    self.BetterBuffs.size = 20
-    self.BetterBuffs.width = 20
-    self.BetterBuffs.height = 14
-    self.BetterBuffs:SetHeight(20)
-    self.BetterBuffs:SetWidth(50)
-    self.BetterBuffs.initialAnchor = "RIGHT"
-    self.BetterBuffs.growthX = "LEFT"
-    self.BetterBuffs.growthY = "UP"
-    self.BetterBuffs.spacing = 2
-    self.BetterBuffs.reanchorIfVisibleChanged = true
-    self.BetterBuffs.numTotal = 2
-    self.BetterBuffs.friendFilter = "HELPFUL|IMPORTANT"
-    self.BetterBuffs.enemyFilter = "HELPFUL|INCLUDE_NAME_PLATE_ONLY"
-    self.BetterBuffs:SetPoint("RIGHT", self.RaidTargetIndicator, "LEFT", -4, 0)
-    self.BetterBuffs.PostCreateButton = nPlates.PostCreateButton
-    self.BetterBuffs.PostUpdateButton = nPlates.PostUpdateButton
-    self.BetterBuffs:SetShown(Settings.GetValue("NPLATES_SHOW_BUFFS"))
+    local Buffs = self:CreateAuras()
+    Buffs.maxFrameCount = 2
+    Buffs.size = 20
+    Buffs.width = 20
+    Buffs.height = 14
+    Buffs.showCount = true
+    Buffs.initialAnchor = "RIGHT"
+    Buffs.growthX = "LEFT"
+    Buffs.growthY = "UP"
+    Buffs.elementSpacing = 2
+    Buffs.showDuration = false
+    Buffs:SetIgnoreParentScale(true)
+    Buffs:SetCollapsesLayout(true)
+    Buffs.PostCreateButton = nPlates.PostCreateButton
+    Buffs.sortMethod = AuraContainerSortMethod.ExpirationOnly
+    Buffs.sortDirection = AuraContainerSortDirection.Normal
 
-    self.BetterBuffs.PreUpdate = function(buffs, unit)
-        local shouldShow = not self:IsWidgetMode() and self:ShouldShowBuffs()
-        buffs:SetShown(shouldShow)
-    end
+    PixelUtil.SetPoint(Buffs, "RIGHT", self.RaidTargetIndicator, "LEFT", -4, 0)
+
+    -- Register a group using a filter and some options
+    Buffs:AddGroup("HELPFUL|IMPORTANT", {})
+
+    Buffs:SetEnabled(Settings.GetValue("NPLATES_SHOW_BUFFS"))
+
+    self.Buffs = Buffs
 end

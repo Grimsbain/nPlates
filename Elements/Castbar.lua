@@ -1,19 +1,30 @@
 local _, nPlates = ...
 
-local function PostCastStart(castbar, unit)
-    local castColor = C_CurveUtil.EvaluateColorFromBoolean(castbar.notInterruptible, RED_FONT_COLOR, GREEN_FONT_COLOR)
-    castbar:GetStatusBarTexture():SetVertexColor(castColor:GetRGB())
+local function PostCastStart(castbar, unit, spellID, notInterruptible, displayName, texture, isTradeSkill)
+    local castColor = C_CurveUtil.EvaluateColorFromBoolean(notInterruptible, RED_FONT_COLOR, GREEN_FONT_COLOR)
+    castbar:SetStatusBarColor(castColor:GetRGB())
     nPlates:SetCastbarBorderColor(castbar, castColor)
 
     if ( castbar.useImportantCast ) then
-        local isImportant = C_Spell.IsSpellImportant(castbar.spellID)
-        local castColor = C_CurveUtil.EvaluateColorFromBoolean(isImportant, nPlates.Media.ImportantCastColor, castColor)
-        castbar:GetStatusBarTexture():SetVertexColor(castColor:GetRGB())
-        nPlates:SetCastbarBorderColor(castbar, castColor)
+        local isImportant = C_Spell.IsSpellImportant(spellID)
+        local color = C_CurveUtil.EvaluateColorFromBoolean(isImportant, nPlates.Media.ImportantCastColor, castColor)
+        castbar:SetStatusBarColor(color:GetRGB())
+        -- nPlates:SetCastbarBorderColor(castbar, color)
     end
 
-    if ( castbar.showTarget ) then
-        castbar.Target:SetText(UnitSpellTargetName(unit))
+    local name = UnitSpellTargetName(unit)
+
+    if ( name and castbar.showTarget ) then
+        local color
+        local classToken = UnitSpellTargetClass(unit)
+
+        if classToken then
+            color = C_ClassColor.GetClassColor(classToken)
+        else
+            color = WHITE_FONT_COLOR
+        end
+
+        castbar.Target:SetFormattedText(color:WrapTextInColorCode(name))
         castbar.Target:Show()
     else
         castbar.Target:Hide()
@@ -21,12 +32,18 @@ local function PostCastStart(castbar, unit)
 end
 
 local function PostCastInterrupted(castbar, unit, interruptedBy)
-    castbar:GetStatusBarTexture():SetVertexColor(ORANGE_FONT_COLOR:GetRGB())
+    castbar:SetStatusBarColor(ORANGE_FONT_COLOR:GetRGB())
     nPlates:SetCastbarBorderColor(castbar, ORANGE_FONT_COLOR)
 
-    local name = select(6, GetPlayerInfoByGUID(interruptedBy))
+    if ( interruptedBy ~= nil ) then
+        local name = UnitNameFromGUID(interruptedBy)
+        local _, classToken = UnitClassFromGUID(interruptedBy)
 
-    if ( name ) then
+        if classToken ~= nil then
+            local color = C_ClassColor.GetClassColor(classToken)
+            name = color:WrapTextInColorCode(name)
+        end
+
         castbar.Target:SetText(name)
         castbar.Target:Show()
     else
@@ -35,20 +52,17 @@ local function PostCastInterrupted(castbar, unit, interruptedBy)
 end
 
 function nPlates.CreateCastbar(self)
-    self.Castbar = CreateFrame("StatusBar", "$parentCastbar", self)
+    self.Castbar = CreateFrame("StatusBar", "$parentCastbar", self, "nPlatesStatusBar")
     self.Castbar:SetPoint("TOPLEFT", self.Health, "BOTTOMLEFT", 0, -5)
     self.Castbar:SetPoint("TOPRIGHT", self.Health, "BOTTOMRIGHT", 0, -5)
     self.Castbar:SetHeight(18)
-    self.Castbar:SetStatusBarTexture(nPlates.Media.StatusBarTexture)
-    self.Castbar:GetStatusBarTexture():SetVertexColor(nPlates.Media.StatusBarColor:GetRGB())
+    self.Castbar:SetStatusBarColor(nPlates.Media.StatusBarColor:GetRGB())
     self.Castbar.PostCastStart = PostCastStart
+    self.Castbar.PostCastInterruptible = PostCastStart
     self.Castbar.PostCastInterrupted = PostCastInterrupted
-    self.Castbar.timeToHold = 0.8
+    self.Castbar.PostCastFail = PostCastInterrupted
+    self.Castbar.timeToHold = 1
     nPlates:SetBorder(self.Castbar)
-
-    self.Castbar.Background = self.Castbar:CreateTexture("$parentBackground", "BACKGROUND")
-    self.Castbar.Background:SetAllPoints(self.Castbar)
-    self.Castbar.Background:SetColorTexture(0.1, 0.1, 0.1, 0.8)
 
     self.Castbar.Text = self.Castbar:CreateFontString("$parentText", "OVERLAY", "nPlate_CastbarFont")
     self.Castbar.Text:SetPoint("LEFT", self.Castbar, 2, 1)
@@ -71,10 +85,22 @@ function nPlates.CreateCastbar(self)
     nPlates:SetBorder(self.Castbar.Icon)
 
     -- Waiting on Blizzard timer formatting function.
-    -- self.Castbar.Time = self.Castbar:CreateFontString("$parentTime", "OVERLAY", "nPlate_CastbarTimerFont")
-    -- self.Castbar.Time:SetPoint("BOTTOMRIGHT", self.Castbar.Icon, -1, 1)
-    -- self.Castbar.Time:SetJustifyH("RIGHT")
-    -- self.Castbar.Time:SetTextColor(1, 1, 1)
+    self.Castbar.Time = self.Castbar:CreateFontString("$parentTime", "OVERLAY", "nPlate_CastbarTimerFont")
+    self.Castbar.Time:SetPoint("BOTTOMRIGHT", self.Castbar.Icon, -1, 1)
+    self.Castbar.Time:SetJustifyH("RIGHT")
+    self.Castbar.Time:SetTextColor(1, 1, 1)
+
+    self.Castbar:HookScript("OnShow", function()
+        self.ClassFrameContainer:ClearAllPoints()
+        self.ClassFrameContainer:SetPoint("TOP", self.Castbar, "BOTTOM", 0, -5)
+        self.ClassFrameContainer:SetPoint("CENTER", self.Castbar)
+    end)
+
+    self.Castbar:HookScript("OnHide", function()
+        self.ClassFrameContainer:ClearAllPoints()
+        self.ClassFrameContainer:SetPoint("TOP", self.Health, "BOTTOM", 0, -5)
+        self.ClassFrameContainer:SetPoint("CENTER", self.Health)
+    end)
 end
 
 

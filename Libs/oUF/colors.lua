@@ -145,14 +145,10 @@ if(not customClassColors()) then
 	end)
 end
 
--- copy of DEBUFF_DISPLAY_INFO from AuraUtil
-colors.dispel[oUF.Enum.DispelType.None] = _G.DEBUFF_TYPE_NONE_COLOR
-colors.dispel[oUF.Enum.DispelType.Magic] = _G.DEBUFF_TYPE_MAGIC_COLOR
-colors.dispel[oUF.Enum.DispelType.Curse] = _G.DEBUFF_TYPE_CURSE_COLOR
-colors.dispel[oUF.Enum.DispelType.Disease] = _G.DEBUFF_TYPE_DISEASE_COLOR
-colors.dispel[oUF.Enum.DispelType.Poison] = _G.DEBUFF_TYPE_POISON_COLOR
-colors.dispel[oUF.Enum.DispelType.Bleed] = _G.DEBUFF_TYPE_BLEED_COLOR
-colors.dispel[oUF.Enum.DispelType.Enrage] = oUF:CreateColor(243, 95, 245)
+for dispelName, dispelInfo in next, AuraUtil.GetDebuffDisplayInfoTable() do
+	colors.dispel[dispelName] = oUF:CreateColor(dispelInfo.color:GetRGB())
+end
+colors.dispel.Enrage = oUF:CreateColor(243, 95, 245) -- no default color by Blizzard
 
 for eclass, color in next, _G.FACTION_BAR_COLORS do
 	colors.reaction[eclass] = oUF:CreateColor(color.r, color.g, color.b)
@@ -227,6 +223,10 @@ colors.power[Enum.PowerType.Essence or 19] = colors.power.ESSENCE
 -- alternate power, sourced from Blizzard_UnitFrame/Mainline/CompactUnitFrame.lua
 colors.power.ALTERNATE = oUF:CreateColor(0.7, 0.7, 0.6)
 colors.power[Enum.PowerType.Alternate or 10] = colors.power.ALTERNATE
+
+-- fake power types, no ID equivalent will exist to avoid collisions
+colors.power.ICICLES = oUF:CreateColor(116, 217, 246) -- based on spell icon
+colors.power.TIP_OF_THE_SPEAR = oUF:CreateColor(108, 188, 40) -- based on spell icon
 
 for i = 0, 3 do
 	colors.threat[i] = oUF:CreateColor(GetThreatStatusColor(i))

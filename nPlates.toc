@@ -1,8 +1,8 @@
-## Interface: 120005
+## Interface: 120100
 ## Title: |cffCC3333 n|rPlates
 ## Notes: Nameplates addon based on the NeavUI style.
 ## Author: Grimsbain
-## Version: 3.0.20
+## Version: 3.0.21
 ## IconTexture: Interface\AddOns\nPlates\Media\Addon_Icon.png
 ## SavedVariablesPerCharacter: nPlatesDB
 ## AllowLoad: Game

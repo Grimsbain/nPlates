@@ -30,6 +30,10 @@ nPlates.MobColors = {
     Trivial = RED_THREAT_COLOR,
 }
 
+function nPlates:IsTaintable()
+    return (InCombatLockdown() or (UnitAffectingCombat("player") or UnitAffectingCombat("pet")))
+end
+
     -- Threat Functions
 
 function nPlates.IsOnThreatListWithPlayer(unit)
@@ -37,17 +41,30 @@ function nPlates.IsOnThreatListWithPlayer(unit)
     return threatStatus ~= nil
 end
 
-local function UseOffTankColor(unit)
-    if ( not PlayerUtil.IsPlayerEffectivelyTank() ) then
-        return false
-    end
+-- local function UseOffTankColor(unit)
+--     if ( not PlayerUtil.IsPlayerEffectivelyTank() ) then
+--         return false
+--     end
 
-    return IsInRaid() and UnitGroupRolesAssignedEnum(unit.."target") == Enum.LFGRole.Tank
-end
+--     return IsInRaid() and UnitGroupRolesAssignedEnum(unit.."target") == Enum.LFGRole.Tank
+-- end
 
     -- Color
 
+local function ConvertRGBtoColorString(color)
+	local colorString = "|cff";
+	local r = color.r * 255;
+	local g = color.g * 255;
+	local b = color.b * 255;
+	colorString = colorString..string.format("%2x%2x%2x", r, g, b);
+	return colorString;
+end
+
 nPlates.DifficultyColor = function(unit)
+    if ( not unit ) then
+        return ConvertRGBtoColorString(WHITE_FONT_COLOR)
+    end
+
     local difficulty = C_PlayerInfo.GetContentDifficultyCreatureForPlayer(unit)
     local color = (difficulty and GetDifficultyColor(difficulty)) or WHITE_FONT_COLOR
     return ConvertRGBtoColorString(color)
@@ -55,10 +72,10 @@ end
 
 -- Aura Functions
 
-nPlates.PostCreateButton = function(auras, button)
-    button.Cooldown:SetHideCountdownNumbers(not Settings.GetValue("NPLATES_COOLDOWN"))
-    button.Cooldown:SetDrawEdge(Settings.GetValue("NPLATES_COOLDOWN_EDGE"))
-    button.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
+nPlates.PostCreateButton = function(element, button, options)
+    button.Cooldown:SetHideCountdownNumbers(false)
+    button.Cooldown:SetDrawEdge(true)
+    button.Cooldown:SetDrawSwipe(false)
     button.Cooldown:SetReverse(true)
     button.Cooldown:SetCountdownFont("nPlate_CooldownFont")
     button.Cooldown:SetUseAuraDisplayTime(true)
@@ -66,12 +83,6 @@ nPlates.PostCreateButton = function(auras, button)
     button.Background = button:CreateTexture("$parentBackground", "BACKGROUND")
     button.Background:SetAllPoints(button)
     button.Background:SetColorTexture(0, 0, 0)
-
-    if button.Overlay then
-        button.Overlay:ClearAllPoints()
-        button.Overlay:SetAllPoints(button.Background)
-        button.Overlay:SetTexture([[Interface\AddOns\nPlates\Media\borderTexture]])
-    end
 
     button.Count:SetFontObject("nPlate_CountFont")
     button.Count:ClearAllPoints()
@@ -84,27 +95,21 @@ nPlates.PostCreateButton = function(auras, button)
     button.Icon:SetTexCoord(0.05, 0.95, 0.1, 0.6)
 end
 
-nPlates.PostUpdateButton = function(element, button, unit, data, position)
-    button.Cooldown:SetHideCountdownNumbers(not Settings.GetValue("NPLATES_COOLDOWN"))
-    button.Cooldown:SetDrawEdge(Settings.GetValue("NPLATES_COOLDOWN_EDGE"))
-    button.Cooldown:SetDrawSwipe(Settings.GetValue("NPLATES_COOLDOWN_SWIPE"))
-end
-
 local threatColors = {
-    [1] = CreateColor(1, 0, 0),
-    [2] = CreateColor(1, 0.6, 0),
-    [3] = CreateColor(0, 1, 0),
+    [1] = {r = 1, g = 0, b = 0 },
+    [2] = {r = 1, g = 0.6, b = 0 },
+    [3] = {r = 0, g = 1, b = 0 },
 }
 
 nPlates.GetThreatColor = function(self)
     local r, g, b
-    local threatStatus = UnitThreatSituation("player", self.unit)
+    local threatStatus = UnitThreatSituation("player", self.__unit)
     local threatColor = threatColors[threatStatus]
 
     if ( threatStatus and threatColor ) then
-        r, g, b = threatColor:GetRGB()
-    elseif ( self.useOffTankColor and UseOffTankColor(self.unit) ) then
-        r, g, b = nPlates.Media.OffTankColor:GetRGB()
+        r, g, b = threatColor.r, threatColor.g, threatColor.b
+    -- elseif ( self.useOffTankColor and UseOffTankColor(self.__unit) ) then
+    --     r, g, b = nPlates.Media.OffTankColor:GetRGB()
     else
         r, g, b = 1, 0, 0
     end
@@ -118,7 +123,7 @@ end
 
 function nPlates:UpdateAllNameplates()
     for _, obj in ipairs(oUF.objects) do
-        if ( obj and obj.isNamePlate and obj.unit ) then
+        if ( obj and obj.isNamePlate and obj.__unit ) then
             obj:UpdateAllElements("RefreshUnit")
         end
     end
@@ -126,7 +131,7 @@ end
 
 function nPlates:UpdateNameplatesWithFunction(func, ...)
     for _, obj in ipairs(oUF.objects) do
-        if ( obj and obj.isNamePlate and obj.unit ) then
+        if ( obj and obj.isNamePlate and obj.__unit ) then
             if func then
                 func(obj, obj.unit, ...)
             end
@@ -136,7 +141,7 @@ end
 
 function nPlates:UpdateElement(name)
     for _, obj in ipairs(oUF.objects) do
-        if ( obj and obj.isNamePlate and obj:IsShown() and obj.unit ) then
+        if ( obj and obj.isNamePlate and obj:IsShown() and obj.__unit ) then
             local element = obj[name]
             if element and element.ForceUpdate then
                 element:ForceUpdate()
@@ -147,13 +152,15 @@ end
 
 function nPlates:ToggleElement(name, nameplate, shouldShow)
     local element = nameplate[name]
-    if element and element.ForceUpdate then
+    if element then
         if shouldShow then
-            nameplate:EnableElement("BetterBuffs")
+            nameplate:EnableElement(name)
         else
-            nameplate:DisableElement("BetterBuffs")
+            nameplate:DisableElement(name)
         end
 
+        if element.ForceUpdate then
         element:ForceUpdate()
+        end
     end
 end

@@ -4,7 +4,7 @@ local oUF = ns.oUF
 local function Update(self, event, unit)
     local element = self.ClassificationIndicator
 
-    if ( not unit or self.unit ~= unit or self:IsWidgetMode() ) then
+    if ( not unit or self.__unit ~= unit or self:IsWidgetMode() ) then
         element:Hide()
         return
     end
@@ -18,7 +18,7 @@ local function Update(self, event, unit)
         element:PreUpdate()
     end
 
-    local classification = UnitClassification(self.unit)
+    local classification = UnitClassification(self.__unit)
 
     if ( classification == "elite" or classification == "worldboss" ) then
         element:SetAtlas("nameplates-icon-elite-gold")

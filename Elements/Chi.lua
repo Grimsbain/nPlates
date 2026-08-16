@@ -1,4 +1,5 @@
 local _, nPlates = ...
+local oUF = nPlates.oUF
 
 nPlatesChiMixin = {}
 
@@ -17,10 +18,6 @@ function nPlatesChiMixin:OnLoad()
         self:UnregisterAllEvents()
         return
     end
-
-    self:RegisterUnitEvent("UNIT_DISPLAYPOWER", "player")
-    self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-    self:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 
 function nPlatesChiMixin:OnEvent(event, ...)
@@ -41,7 +38,7 @@ end
 function nPlatesChiMixin:OnShow()
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     FrameUtil.RegisterFrameForUnitEvents(self, self.PowerEvents, "player")
-    self:Update(self:GetParent().unit)
+    self:Update(self:GetParent().__unit)
 end
 
 function nPlatesChiMixin:OnHide()
@@ -51,7 +48,7 @@ function nPlatesChiMixin:OnHide()
 end
 
 function nPlatesChiMixin:UpdatePower()
-    self:Update(self:GetParent().unit)
+    self:Update(self:GetParent().__unit)
 end
 
 function nPlatesChiMixin:UnitMaxPower()
@@ -108,7 +105,7 @@ function nPlatesChiMixin:ShouldShow(unit)
 end
 
 function nPlatesChiMixin:UpdateVisibility()
-    local shouldShow = self:ShouldShow(self:GetParent().unit)
+    local shouldShow = self:ShouldShow(self:GetParent().__unit)
     self:SetShown(shouldShow)
 end
 
@@ -125,11 +122,38 @@ function nPlatesChiMixin:IsWidgetMode()
     return self.isWidgetMode == true
 end
 
-function nPlates:CreateChi(nameplate)
-	local frame = CreateFrame("Frame", "$parentChi", nameplate, "nPlatesChiFrame")
-	frame.maxPower = UnitPowerMax("player", Enum.PowerType.Chi)
-    frame:UpdateSize()
-
-	return frame
+local function Path(self, ...)
+    local element = self.Chi
+    if ( element ) then
+        element:Update(self.__unit)
+    end
 end
 
+local function Enable(self)
+    local element = self.Chi
+
+    if ( element ) then
+        element.__owner = self
+
+        element:RegisterUnitEvent("UNIT_DISPLAYPOWER", "player")
+        element:RegisterEvent("TRAIT_CONFIG_UPDATED")
+        element:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+
+        element.maxPower = UnitPowerMax("player", Enum.PowerType.Chi)
+        element:UpdateSize()
+
+        element:Show()
+    end
+end
+
+local function Disable(self)
+    local element = self.Chi
+    if ( element ) then
+        element:UnregisterEvent("UNIT_DISPLAYPOWER")
+        element:UnregisterEvent("TRAIT_CONFIG_UPDATED")
+        element:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+        element:Hide()
+    end
+end
+
+oUF:AddElement("Chi", Path, Enable, Disable)

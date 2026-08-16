@@ -30,6 +30,10 @@ function Private.unitExists(unit)
 	return unit and (UnitExists(unit) or UnitIsVisible(unit))
 end
 
+function Private.unitIsUnit(unit1, unit2)
+	return C_Secrets.CanCompareUnitTokens(unit1, unit2) and UnitIsUnit(unit1, unit2)
+end
+
 local validator = CreateFrame('Frame')
 
 function Private.validateEventUnit(unit)
