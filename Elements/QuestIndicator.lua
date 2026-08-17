@@ -1,15 +1,8 @@
 local _, nPlates = ...
 
 local function Override(self, event, unit)
-    local element = self.QuestIndicator
-
-    if ( self:IsWidgetMode() ) then
-        element:Hide()
-        return
-    end
-
     local shouldShow = Settings.GetValue("NPLATES_SHOWQUEST") and C_QuestLog.UnitIsRelatedToActiveQuest(unit)
-    element:SetShown(shouldShow)
+    self.QuestIndicator:SetShown(shouldShow)
 end
 
 function nPlates.CreateQuestIcon(self)

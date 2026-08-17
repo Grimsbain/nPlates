@@ -89,10 +89,6 @@ function nPlatesChiMixin:UpdateSize()
 end
 
 function nPlatesChiMixin:ShouldShow(unit)
-    if ( self:IsWidgetMode() ) then
-        return false
-    end
-
     if ( self.requiredSpec ~= C_SpecializationInfo.GetSpecialization() ) then
         return false
     end
@@ -112,14 +108,6 @@ end
 function nPlatesChiMixin:Toggle(value)
     local shouldHide = self:IsShown() and value == false
     if shouldHide then self:Hide() else self:UpdateVisibility() end
-end
-
-function nPlatesChiMixin:SetWidgetMode(isWidgetMode)
-    self.isWidgetMode = isWidgetMode
-end
-
-function nPlatesChiMixin:IsWidgetMode()
-    return self.isWidgetMode == true
 end
 
 local function Path(self, ...)

@@ -59,65 +59,9 @@ function PlateMixin:IsSimplified()
 	return self:GetUnitFrame().isSimplified == true
 end
 
-function PlateMixin:IsGameObject()
-    return self.isGameObject == true
-end
-
-function PlateMixin:UpdateGameObject()
-    self.isGameObject = self.__unit ~= nil and UnitIsGameObject(self.__unit)
-end
-
-function PlateMixin:IsWidgetMode()
-    return self.widgetsOnlyMode
-end
-
-function PlateMixin:SetWidgetMode(isWidgetMode)
-    self.widgetsOnlyMode = isWidgetMode
-end
-
-function PlateMixin:UpdateWidgets()
-    local unit = self.__unit
-    local widgetsOnlyMode = unit ~= nil and UnitNameplateShowsWidgetsOnly(unit)
-    self:SetWidgetMode(widgetsOnlyMode)
-    self:UpdateGameObject()
-    self:UpdateClassification()
-
-    if self.ComboPoints then self.ComboPoints:SetWidgetMode(widgetsOnlyMode) end
-    if self.Chi then self.Chi:SetWidgetMode(widgetsOnlyMode) end
-    if self.Essence then self.Essence:SetWidgetMode(widgetsOnlyMode) end
-
-    -- self.WidgetContainer:ClearAllPoints()
-
-    -- if widgetsOnlyMode then
-    --     PixelUtil.SetPoint(self.WidgetContainer, "BOTTOM", self, "BOTTOM", 0, 0)
-    --     PixelUtil.SetPoint(self.WidgetContainer, "CENTER", self, "CENTER", 0, 0)
-    -- else
-    --     PixelUtil.SetPoint(self.WidgetContainer, "TOP", self.Castbar, "BOTTOM", 0, 0)
-    -- end
-
-    if ( self:IsWidgetMode() or self:IsGameObject() ) then
-		self:DisableElement("Auras")
-		self:DisableElement("Health")
-		self:DisableElement("ClassificationIndicator")
-		self:DisableElement("Castbar")
-		self.Health:Hide()
-		return
-    elseif ( self:IsFriendlyPlayer() and self.nameOnly ) then
-        self:DisableElement("Auras")
-        self:DisableElement("Health")
-		self:DisableElement("ClassificationIndicator")
-		self:DisableElement("Castbar")
-        self:UpdateNameLocation()
-        self.Health:Hide()
-        self.Name:Show()
-        return
-    else
-		self:EnableElement("Auras")
-		self:EnableElement("Health")
-		self:EnableElement("ClassificationIndicator")
-		self:EnableElement("Castbar")
-        self.Health:Show()
-    end
+function PlateMixin:UpdateClassColor()
+    local _, class = UnitClass(self.__unit)
+    self.classColor = (class and C_ClassColor.GetClassColor(class)) or BATTLENET_FONT_COLOR
 end
 
 function PlateMixin:UpdateClassification()
@@ -148,11 +92,7 @@ function PlateMixin:UpdateClassification()
     self.mobType = "Trivial"
 end
 
-function PlateMixin:UpdateHealth()
-    self.Health:ForceUpdate()
-end
-
-function PlateMixin:ShouldShowMobColoring(forType)
+function PlateMixin:UseMobColoring(forType)
     if ( not nPlatesDriverFrame.inInstance or not self.mobType ) then
         return false
     end
@@ -160,7 +100,7 @@ function PlateMixin:ShouldShowMobColoring(forType)
     return (self[forType] == "mobType" or self[forType] == "mobTypeOrThreat") and nPlates.MobColors[self.mobType]
 end
 
-function PlateMixin:ShouldShowThreat(forType)
+function PlateMixin:UseThreatColoring(forType)
     return (self[forType]== "threat" or self[forType] == "mobTypeOrThreat")
 end
 
@@ -178,11 +118,11 @@ function PlateMixin:SetSelectionColor()
             nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.FocusColor)
             return
     else
-        if ( self:ShouldShowMobColoring("borderStyle") ) then
+        if ( self:UseMobColoring("borderStyle") ) then
             local color = nPlates.MobColors[self.mobType]
             nPlates:SetBeautyBorderColor(healthBar, color)
             return
-        elseif ( self:ShouldShowThreat("borderStyle") and nPlates.IsOnThreatListWithPlayer(self.__unit) ) then
+        elseif ( self:UseThreatColoring("borderStyle") and nPlates.IsOnThreatListWithPlayer(self.__unit) ) then
             local color = nPlates.GetThreatColor(self)
             nPlates:SetBeautyBorderColor(healthBar, color)
             return
@@ -197,23 +137,10 @@ end
     end
 end
 
-function PlateMixin:ShouldShowBuffs()
-    return self.showBuffs == true
-end
-
-function PlateMixin:ShouldShowCrowdControl()
-    return self.showCrowdControl == true
-end
-
 function PlateMixin:UpdateClassPower()
-    if self.ComboPoints then self.ComboPoints:UpdateVisibility() end
-    if self.Chi then self.Chi:UpdateVisibility() end
-    if self.Essence then self.Essence:UpdateVisibility() end
-end
-
-function PlateMixin:UpdateClassColor()
-    local _, class = UnitClass(self.__unit)
-    self.classColor = (class and C_ClassColor.GetClassColor(class)) or BATTLENET_FONT_COLOR
+    if ( self.ClassFrameContainer.Power ) then
+        self.ClassFrameContainer.Power:UpdateVisibility()
+    end
 end
 
 function PlateMixin:UpdateDebuffLocation()
@@ -228,9 +155,8 @@ function PlateMixin:UpdateOptions()
     self:UpdateClassColor()
 
     -- Auras
-    -- self.showBuffs = Settings.GetValue("NPLATES_SHOW_BUFFS")
     self.Buffs:SetEnabled(Settings.GetValue("NPLATES_SHOW_BUFFS"))
-    self.showCrowdControl = Settings.GetValue("NPLATES_CROWD_CONTROL")
+    self.CCIcon:SetEnabled(Settings.GetValue("NPLATES_CROWD_CONTROL"))
 
     -- Castbar
     self.Castbar.showTarget = Settings.GetValue("NPLATES_CAST_TARGET")
@@ -239,10 +165,10 @@ function PlateMixin:UpdateOptions()
     -- Coloring
     self.borderStyle = Settings.GetValue("NPLATES_BORDER_COLOR")
     self.healthStyle = Settings.GetValue("NPLATES_HEALTH_COLOR")
-    -- self.useOffTankColor = Settings.GetValue("NPLATES_OFF_TANK_COLOR")
     self.useSelectionColor = Settings.GetValue("NPLATES_SELECTION_COLOR")
     self.useFocusColor = Settings.GetValue("NPLATES_FOCUS_COLOR")
     self.useClassColor = self:IsPlayer() or UnitInPartyIsAI(self.__unit)
+    -- self.useOffTankColor = Settings.GetValue("NPLATES_OFF_TANK_COLOR")
 
     -- Health
     self.statusTextStyle = Settings.GetValue("NPLATES_HEALTH_STYLE")
@@ -254,11 +180,31 @@ function PlateMixin:UpdateOptions()
     self.nameOnly = Settings.GetValue("NPLATES_ONLYNAME")
 end
 
-function PlateMixin:ShouldShowName()
-    if ( self:IsWidgetMode() or self:IsGameObject() ) then
-        return false
-    end
+function PlateMixin:UpdateWidgets()
+    self:UpdateClassification()
 
+    if ( self:IsFriendlyPlayer() and self.nameOnly ) then
+        self:DisableElement("Auras")
+        self:DisableElement("Health")
+		self:DisableElement("ClassificationIndicator")
+		self:DisableElement("Castbar")
+        self:UpdateNameLocation()
+        self.Health:Hide()
+        self.Name:Show()
+        return
+	else
+		self:EnableElement("Auras")
+		self:EnableElement("Health")
+		self:EnableElement("ClassificationIndicator")
+		self:EnableElement("Castbar")
+        self.Health:Show()
+	end
+
+    local filterString = self:IsPlayer() and "HELPFUL|IMPORTANT" or "HELPFUL|INCLUDE_NAME_PLATE_ONLY"
+    self.Buffs:SetAuraGroupFilterString(self.Buffs.groupKey, filterString)
+end
+
+function PlateMixin:ShouldShowName()
     if ( self:IsSimplified() and not self:IsTarget() ) then
         return false
     end
@@ -289,8 +235,7 @@ function PlateMixin:UpdateName()
             if ( not self:IsFriend() and self.colorEnemyNames ) then
                 self.Name:SetFormattedText("%s%s|r", nPlates.DifficultyColor(self.__unit), name)
             else
-                local className, classFileName = UnitClass(self.__unit)
-                local color = classFileName and C_ClassColor.GetClassColor(classFileName) or WHITE_FONT_COLOR
+                local color = self.classColor or WHITE_FONT_COLOR
                 self.Name:SetText(color:WrapTextInColorCode(name))
             end
         else
@@ -312,11 +257,6 @@ function PlateMixin:UpdateName()
 end
 
 function PlateMixin:UpdateNameLocation()
-    if ( self:IsWidgetMode() or self:IsGameObject() ) then
-        self.Name:Hide()
-        return
-    end
-
     self.Name:ClearAllPoints()
 
     if ( self:IsFriendlyPlayer() and self.nameOnly ) then
@@ -400,11 +340,6 @@ local function OnNamePlateAdded(nameplate)
     C_Timer.After(0, GenerateClosure(nameplate.Health.ForceUpdate, nameplate.Health))
 end
 
-local function OnNamePlateRemoved(nameplate)
-    nameplate.widgetsOnlyMode = nil
-    nameplate.isGameObject = nil
-end
-
 oUF:RegisterStyle(styleName, function(self, unit)
     Mixin(self, PlateMixin)
     self:HookScript("OnEvent", self.OnEvent)
@@ -442,64 +377,3 @@ oUF:SetActiveStyle(styleName)
 
 local driver = oUF:SpawnNamePlates(styleName)
 driver:SetAddedCallback(OnNamePlateAdded)
-driver:SetRemovedCallback(OnNamePlateRemoved)
-
--- driver:SetCVars({
--- 	nameplateShowAll = 1,
--- 	nameplateShowEnemies = 1,
--- 	nameplateShowEnemyPets = 1,
--- 	nameplateShowEnemyMinus = 1,
--- 	nameplateShowFriendlyPlayers = 0,
--- 	nameplateShowFriendlyPlayerMinions = 0,
--- 	nameplateShowFriendlyNpcs = 0,
--- 	nameplateShowOffscreen = 0,
--- 	nameplateStackingTypes = {
--- 		[Enum.NamePlateStackType.Enemy] = true,
--- 		[Enum.NamePlateStackType.Friendly] = false,
--- 	},
--- 	nameplateSize = 2,
--- 	nameplateAuraScale = 0.70,
--- 	nameplateStyle = 0,
--- 	nameplateInfoDisplay = {
--- 		[Enum.NamePlateInfoDisplay.CurrentHealthPercent] = false,
--- 		[Enum.NamePlateInfoDisplay.CurrentHealthValue] = false,
--- 		[Enum.NamePlateInfoDisplay.RarityIcon] = false,
--- 	},
--- 	nameplateCastBarDisplay = {
--- 		[Enum.NamePlateCastBarDisplay.SpellName] = false,
--- 		[Enum.NamePlateCastBarDisplay.SpellIcon] = false,
--- 		[Enum.NamePlateCastBarDisplay.SpellTarget] = false,
--- 		[Enum.NamePlateCastBarDisplay.HighlightImportantCasts] = false,
--- 		[Enum.NamePlateCastBarDisplay.HighlightWhenCastTarget] = false,
--- 	},
--- 	nameplateThreatDisplay = {
--- 		[Enum.NamePlateThreatDisplay.Progressive] = false,
--- 		[Enum.NamePlateThreatDisplay.Flash] = false,
--- 		[Enum.NamePlateThreatDisplay.HealthBarColor] = false,
--- 	},
--- 	nameplateEnemyNpcAuraDisplay = {
--- 		[Enum.NamePlateEnemyNpcAuraDisplay.Buffs] = false,
--- 		[Enum.NamePlateEnemyNpcAuraDisplay.Debuffs] = false,
--- 		[Enum.NamePlateEnemyNpcAuraDisplay.CrowdControl] = false,
--- 	},
--- 	nameplateEnemyPlayerAuraDisplay = {
--- 		[Enum.NamePlateEnemyPlayerAuraDisplay.Buffs] = false,
--- 		[Enum.NamePlateEnemyPlayerAuraDisplay.Debuffs] = false,
--- 		[Enum.NamePlateEnemyPlayerAuraDisplay.LossOfControl] = false,
--- 	},
--- 	nameplateFriendlyPlayerAuraDisplay = {
--- 		[Enum.NamePlateFriendlyPlayerAuraDisplay.Buffs] = false,
--- 		[Enum.NamePlateFriendlyPlayerAuraDisplay.Debuffs] = false,
--- 		[Enum.NamePlateFriendlyPlayerAuraDisplay.LossOfControl] = false,
--- 	},
--- 	nameplateDebuffPadding = 0,
--- 	nameplateSimplifiedTypes = {
--- 		[Enum.NamePlateSimplifiedType.Minion] = false,
--- 		[Enum.NamePlateSimplifiedType.MinusMob] = false,
--- 		[Enum.NamePlateSimplifiedType.FriendlyPlayer] = false,
--- 		[Enum.NamePlateSimplifiedType.FriendlyNpc] = false,
--- 	},
-
--- 	nameplateShowOnlyNameForFriendlyPlayerUnits = 1,
--- 	nameplateUseClassColorForFriendlyPlayerUnitNames = 1,
--- })

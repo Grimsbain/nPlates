@@ -297,8 +297,7 @@ local function Update(self, event, unit)
 	* lossPerc - the percent by which the unit's max health has been temporarily reduced (number)
 	--]]
 	if(element.PostUpdate) then
-		-- element:PostUpdate(unit, cur, max, lossPerc)
-        element:PostUpdate(self, unit)
+		element:PostUpdate(unit, cur, max, lossPerc)
 	end
 end
 

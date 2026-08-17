@@ -86,10 +86,6 @@ function nPlatesEssenceMixin:UpdateSize()
 end
 
 function nPlatesEssenceMixin:ShouldShow(unit)
-    if ( self:IsWidgetMode() ) then
-        return false
-    end
-
     if ( not unit or not self:GetParent():IsTarget() or self:GetParent():IsFriend() ) then
         return false
     end
@@ -105,14 +101,6 @@ end
 function nPlatesEssenceMixin:Toggle(value)
     local shouldHide = self:IsShown() and value == false
     if shouldHide then self:Hide() else self:UpdateVisibility() end
-end
-
-function nPlatesEssenceMixin:SetWidgetMode(isWidgetMode)
-    self.isWidgetMode = isWidgetMode
-end
-
-function nPlatesEssenceMixin:IsWidgetMode()
-    return self.isWidgetMode == true
 end
 
 local function Path(self, ...)

@@ -26,7 +26,7 @@ function nPlates.CreateClassPowers(self)
     end
 
     if ( class == "EVOKER" ) then
-        self.Essence = CreateFrame("Frame", "$parentEssence", nameplate, "nPlatesEssenceFrame")
+        self.Essence = CreateFrame("Frame", "$parentEssence", self, "nPlatesEssenceFrame")
     self.Essence:SetPoint("CENTER", self.ClassFrameContainer, "CENTER")
         self.ClassFrameContainer.Power = self.Essence
     end

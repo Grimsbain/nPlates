@@ -6,23 +6,15 @@ local function PostCastStart(castbar, unit, spellID, notInterruptible, displayNa
     nPlates:SetCastbarBorderColor(castbar, castColor)
 
     if ( castbar.useImportantCast ) then
-        local isImportant = C_Spell.IsSpellImportant(spellID)
-        local color = C_CurveUtil.EvaluateColorFromBoolean(isImportant, nPlates.Media.ImportantCastColor, castColor)
+        local color = C_CurveUtil.EvaluateColorFromBoolean(C_Spell.IsSpellImportant(spellID), nPlates.Media.ImportantCastColor, castColor)
         castbar:SetStatusBarColor(color:GetRGB())
-        -- nPlates:SetCastbarBorderColor(castbar, color)
     end
 
     local name = UnitSpellTargetName(unit)
 
     if ( name and castbar.showTarget ) then
-        local color
         local classToken = UnitSpellTargetClass(unit)
-
-        if classToken then
-            color = C_ClassColor.GetClassColor(classToken)
-        else
-            color = WHITE_FONT_COLOR
-        end
+        local color = classToken and C_ClassColor.GetClassColor(classToken) or WHITE_FONT_COLOR
 
         castbar.Target:SetFormattedText(color:WrapTextInColorCode(name))
         castbar.Target:Show()

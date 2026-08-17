@@ -7,6 +7,26 @@ local function Percentage(percentage)
 	return _G.PERCENTAGE_STRING:format(value)
 end
 
+local function OnlyShowName(value)
+    nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
+        if value then
+            plate:DisableElement("Auras")
+            plate:DisableElement("Health")
+            plate:DisableElement("ClassificationIndicator")
+            plate:DisableElement("Castbar")
+            plate:UpdateNameLocation()
+            plate.Health:Hide()
+            plate.Name:Show()
+        else
+            plate:EnableElement("Auras")
+            plate:EnableElement("Health")
+            plate:EnableElement("ClassificationIndicator")
+            plate:EnableElement("Castbar")
+            plate.Health:Show()
+        end
+    end)
+end
+
 local function UpdateNames()
     nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
         plate:UpdateOptions()
@@ -214,7 +234,6 @@ function nPlates:RegisterSettings()
             callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate:UpdateOptions()
-                    plate.Buffs:SetEnabled(value)
                 end)
             end,
         },
@@ -229,7 +248,6 @@ function nPlates:RegisterSettings()
             callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate:UpdateOptions()
-                    plate.CCIcon:SetEnabled(value)
                 end)
             end,
         },
@@ -251,7 +269,7 @@ function nPlates:RegisterSettings()
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate.Debuffs.sortMethod = value
-                    plate.Debuffs:SetAuraGroupSortMethod(plate.Debuffs.key, value, plate.Debuffs.sortDirection)
+                    plate.Debuffs:SetAuraGroupSortMethod(plate.Debuffs.groupKey, value, plate.Debuffs.sortDirection)
                     plate.Debuffs:ForceUpdate()
                 end)
             end,
@@ -273,7 +291,7 @@ function nPlates:RegisterSettings()
             callback = function(setting, value)
                 nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
                     plate.Debuffs.sortDirection = value
-                    plate.Debuffs:SetAuraGroupSortMethod(plate.Debuffs.key, plate.Debuffs.sortMethod, value)
+                    plate.Debuffs:SetAuraGroupSortMethod(plate.Debuffs.groupKey, plate.Debuffs.sortMethod, value)
                     plate.Debuffs:ForceUpdate()
                 end)
             end,
@@ -387,7 +405,7 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
                 nPlates:UpdateCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", value)
-                nPlates:UpdateAllNameplates()
+                OnlyShowName(value)
             end,
         },
         {

@@ -5,9 +5,4 @@ function nPlates.CreateRaidTargetIndicator(self)
     self.RaidTargetIndicator:SetPoint("RIGHT", self.ClassificationIndicator, "LEFT", -4, 0)
     self.RaidTargetIndicator:SetSize(22, 22)
     self.RaidTargetIndicator:SetCollapsesLayout(true)
-    self.RaidTargetIndicator.PostUpdate = function(element, index)
-        if ( self:IsWidgetMode() ) then
-            element:Hide()
-        end
-    end
 end

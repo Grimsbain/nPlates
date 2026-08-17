@@ -4,7 +4,7 @@ local oUF = ns.oUF
 local function Update(self, event, unit)
     local element = self.ClassificationIndicator
 
-    if ( not unit or self.__unit ~= unit or self:IsWidgetMode() ) then
+    if ( not unit or self.__unit ~= unit ) then
         element:Hide()
         return
     end

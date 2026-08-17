@@ -1,14 +1,14 @@
 local _, nPlates = ...
 
-local function UpdateStatusText(element, self, unit)
+local function UpdateStatusText(element, unit, cur, max, lossPerc)
     local text = element.Text
-    local style = self.statusTextStyle
+    local style = element.__owner.statusTextStyle
 
     if ( style == "disabled" ) then
         text:Hide()
         return
     else
-        local health = AbbreviateNumbers(element.values:GetCurrentHealth())
+        local health = AbbreviateNumbers(cur)
         local percent = UnitHealthPercent(unit, true, CurveConstants.ScaleTo100)
 
         if ( style == "cur_perc" ) then
@@ -35,10 +35,10 @@ local function UpdateColor(self, event, unit)
         if ( self.useClassColor ) then
             r, g, b = self.classColor:GetRGB()
         else
-            if ( self:ShouldShowMobColoring("healthStyle") ) then
+            if ( self:UseMobColoring("healthStyle") ) then
                 r, g, b = nPlates.MobColors[self.mobType]:GetRGB()
             elseif ( nPlates.IsOnThreatListWithPlayer(self.__unit) ) then
-                if ( self:ShouldShowThreat("healthStyle") ) then
+                if ( self:UseThreatColoring("healthStyle") ) then
                     r, g, b = nPlates.GetThreatColor(self):GetRGB()
                 else
                     r, g, b = 1, 0, 0

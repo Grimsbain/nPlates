@@ -83,10 +83,6 @@ function nPlatesComboPointsMixin:UpdateSize()
 end
 
 function nPlatesComboPointsMixin:ShouldShowComboPoints(unit)
-    if ( self:IsWidgetMode() ) then
-        return false
-    end
-
     if ( UnitHasVehicleUI("player") or PlayerVehicleHasComboPoints() ) then
         return false
     end
@@ -106,14 +102,6 @@ end
 function nPlatesComboPointsMixin:Toggle(value)
     local shouldHide = self:IsShown() and value == false
     if shouldHide then self:Hide() else self:UpdateVisibility() end
-end
-
-function nPlatesComboPointsMixin:SetWidgetMode(isWidgetMode)
-    self.isWidgetMode = isWidgetMode
-end
-
-function nPlatesComboPointsMixin:IsWidgetMode()
-    return self.isWidgetMode == true
 end
 
 local function Path(self, ...)
