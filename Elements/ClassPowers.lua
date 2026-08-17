@@ -32,9 +32,8 @@ function nPlates.CreateClassPowers(self)
     end
 end
 
-function nPlates:ToggleClassPower(self, value)
-    if self.ClassFrameContainer.Power then
-        self.ClassFrameContainer.Power:Toggle(value)
+function nPlates:ToggleClassPower(self, shouldShow)
+    if ( self.ClassFrameContainer.Power ) then
+        self.ClassFrameContainer.Power:Toggle(shouldShow)
     end
 end
-

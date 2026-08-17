@@ -43,7 +43,7 @@ end
 
 function nPlatesChiMixin:OnHide()
 	for i, event in ipairs(self.PowerEvents) do
-		self:UnregisterEvent(event);
+		self:UnregisterEvent(event)
 	end
 end
 

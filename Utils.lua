@@ -25,8 +25,7 @@ nPlates.Media = {
 nPlates.MobColors = {
     Boss = CreateColor(1, 215/255, 0),
     MiniBoss = CreateColor(188/255, 198/255, 204/255),
-    Caster = C_ClassColor.GetClassColor("MAGE"),
-    Melee = C_ClassColor.GetClassColor("WARRIOR"),
+    Other = BATTLENET_FONT_COLOR,
     Trivial = RED_THREAT_COLOR,
 }
 
@@ -52,12 +51,12 @@ end
     -- Color
 
 local function ConvertRGBtoColorString(color)
-	local colorString = "|cff";
-	local r = color.r * 255;
-	local g = color.g * 255;
-	local b = color.b * 255;
-	colorString = colorString..string.format("%2x%2x%2x", r, g, b);
-	return colorString;
+	local colorString = "|cff"
+	local r = color.r * 255
+	local g = color.g * 255
+	local b = color.b * 255
+	colorString = colorString..string.format("%2x%2x%2x", r, g, b)
+	return colorString
 end
 
 nPlates.DifficultyColor = function(unit)
@@ -121,46 +120,35 @@ end
 
 -- oUF Functions
 
+local function IsNameplate(frame)
+    return frame and frame.isNamePlate and frame.__unit
+end
+
 function nPlates:UpdateAllNameplates()
-    for _, obj in ipairs(oUF.objects) do
-        if ( obj and obj.isNamePlate and obj.__unit ) then
-            obj:UpdateAllElements("RefreshUnit")
+    for _, frame in ipairs(oUF.objects) do
+        if ( IsNameplate(frame) ) then
+            frame:UpdateAllElements("RefreshUnit")
         end
     end
 end
 
 function nPlates:UpdateNameplatesWithFunction(func, ...)
-    for _, obj in ipairs(oUF.objects) do
-        if ( obj and obj.isNamePlate and obj.__unit ) then
-            if func then
-                func(obj, obj.unit, ...)
+    for _, frame in ipairs(oUF.objects) do
+        if ( IsNameplate(frame) ) then
+            if ( func ) then
+                func(frame, frame.unit, ...)
             end
         end
     end
 end
 
 function nPlates:UpdateElement(name)
-    for _, obj in ipairs(oUF.objects) do
-        if ( obj and obj.isNamePlate and obj:IsShown() and obj.__unit ) then
-            local element = obj[name]
-            if element and element.ForceUpdate then
+    for _, frame in ipairs(oUF.objects) do
+        if ( IsNameplate(frame) ) then
+            local element = frame[name]
+            if ( element and element.ForceUpdate ) then
                 element:ForceUpdate()
             end
-        end
-    end
-end
-
-function nPlates:ToggleElement(name, nameplate, shouldShow)
-    local element = nameplate[name]
-    if element then
-        if shouldShow then
-            nameplate:EnableElement(name)
-        else
-            nameplate:DisableElement(name)
-        end
-
-        if element.ForceUpdate then
-        element:ForceUpdate()
         end
     end
 end

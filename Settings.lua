@@ -7,30 +7,30 @@ local function Percentage(percentage)
 	return _G.PERCENTAGE_STRING:format(value)
 end
 
-local function OnlyShowName(value)
-    nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-        if value then
-            plate:DisableElement("Auras")
-            plate:DisableElement("Health")
-            plate:DisableElement("ClassificationIndicator")
-            plate:DisableElement("Castbar")
-            plate:UpdateNameLocation()
-            plate.Health:Hide()
-            plate.Name:Show()
+local function OnlyShowName(showNameOnly)
+    nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+        if ( nameplate:IsFriendlyPlayer() and showNameOnly ) then
+            nameplate:DisableElement("Auras")
+            nameplate:DisableElement("Health")
+            nameplate:DisableElement("ClassificationIndicator")
+            nameplate:DisableElement("Castbar")
+            nameplate:UpdateNameLocation()
+            nameplate.Health:Hide()
+            nameplate.Name:Show()
         else
-            plate:EnableElement("Auras")
-            plate:EnableElement("Health")
-            plate:EnableElement("ClassificationIndicator")
-            plate:EnableElement("Castbar")
-            plate.Health:Show()
+            nameplate:EnableElement("Auras")
+            nameplate:EnableElement("Health")
+            nameplate:EnableElement("ClassificationIndicator")
+            nameplate:EnableElement("Castbar")
+            nameplate.Health:Show()
         end
     end)
 end
 
 local function UpdateNames()
-    nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-        plate:UpdateOptions()
-        plate:UpdateName()
+    nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+        nameplate:UpdateOptions()
+        nameplate:UpdateName()
     end)
 end
 
@@ -39,7 +39,7 @@ local function GetColorOptions()
     container:Add("default", L.Default)
     container:Add("threat", L.ThreatColoring)
     container:Add("mobType", L.MobType)
-    container:Add("mobTypeOrHealth", L.MobTypeOrHealth)
+    container:Add("mobTypeOrThreat", L.MobTypeOrHealth)
     return container:GetData()
 end
 
@@ -99,9 +99,9 @@ function nPlates:RegisterSettings()
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateOptions()
-                    plate.Castbar:ForceUpdate()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate:UpdateOptions()
+                    nameplate.Castbar:ForceUpdate()
                 end)
             end,
         },
@@ -136,9 +136,9 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.String,
             options = GetColorOptions,
             callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateOptions()
-                    plate.Health:ForceUpdate()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate:UpdateOptions()
+                    nameplate.Health:ForceUpdate()
                 end)
             end,
         },
@@ -152,9 +152,9 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.String,
             options = GetColorOptions,
             callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateOptions()
-                    plate:SetSelectionColor()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate:UpdateOptions()
+                    nameplate:SetSelectionColor()
                 end)
             end,
         },
@@ -185,15 +185,15 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             color = "ffffffff",
             callback = function(control, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateOptions()
-                    plate:SetSelectionColor()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate:UpdateOptions()
+                    nameplate:SetSelectionColor()
                 end)
             end,
             hexCallback = function(setting, value)
                 nPlates.Media.SelectionColor = CreateColorFromHexString(value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:SetSelectionColor()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate:SetSelectionColor()
                 end)
             end,
         },
@@ -207,15 +207,15 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             color = "FFFF7B00",
             callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateOptions()
-                    plate:SetSelectionColor()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate:UpdateOptions()
+                    nameplate:SetSelectionColor()
                 end)
             end,
             hexCallback = function(setting, value)
                 nPlates.Media.FocusColor = CreateColorFromHexString(value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:SetSelectionColor()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate:SetSelectionColor()
                 end)
             end,
         },
@@ -232,8 +232,8 @@ function nPlates:RegisterSettings()
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateOptions()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate:UpdateOptions()
                 end)
             end,
         },
@@ -246,8 +246,8 @@ function nPlates:RegisterSettings()
             default = Settings.Default.True,
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateOptions()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate:UpdateOptions()
                 end)
             end,
         },
@@ -267,10 +267,10 @@ function nPlates:RegisterSettings()
                 return container:GetData()
             end,
             callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.Debuffs.sortMethod = value
-                    plate.Debuffs:SetAuraGroupSortMethod(plate.Debuffs.groupKey, value, plate.Debuffs.sortDirection)
-                    plate.Debuffs:ForceUpdate()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate.Debuffs.sortMethod = value
+                    nameplate.Debuffs:SetAuraGroupSortMethod(nameplate.Debuffs.groupKey, value, nameplate.Debuffs.sortDirection)
+                    nameplate.Debuffs:ForceUpdate()
                 end)
             end,
         },
@@ -289,10 +289,10 @@ function nPlates:RegisterSettings()
                 return container:GetData()
             end,
             callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.Debuffs.sortDirection = value
-                    plate.Debuffs:SetAuraGroupSortMethod(plate.Debuffs.groupKey, plate.Debuffs.sortMethod, value)
-                    plate.Debuffs:ForceUpdate()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate.Debuffs.sortDirection = value
+                    nameplate.Debuffs:SetAuraGroupSortMethod(nameplate.Debuffs.groupKey, nameplate.Debuffs.sortMethod, value)
+                    nameplate.Debuffs:ForceUpdate()
                 end)
             end,
         },
@@ -309,8 +309,8 @@ function nPlates:RegisterSettings()
             max = 1.5,
             step = 0.05,
             callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate.Debuffs:SetScale(value)
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate.Debuffs:SetScale(value)
                 end)
             end,
         },
@@ -323,9 +323,9 @@ function nPlates:RegisterSettings()
         --     default = Settings.Default.False,
         --     varType = Settings.VarType.Boolean,
         --     callback = function(setting, value)
-        --         nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-        --             plate.BetterDebuffs.showType = value
-        --             plate.BetterDebuffs:ForceUpdate()
+        --         nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+        --             nameplate.BetterDebuffs.showType = value
+        --             nameplate.BetterDebuffs:ForceUpdate()
         --         end)
         --     end,
         -- },
@@ -378,8 +378,8 @@ function nPlates:RegisterSettings()
             default = Settings.Default.False,
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    nPlates:ToggleClassPower(plate, value)
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nPlates:ToggleClassPower(nameplate, value)
                 end)
             end,
         },
@@ -426,9 +426,9 @@ function nPlates:RegisterSettings()
                 return container:GetData()
             end,
             callback = function(setting, value)
-                nPlates:UpdateNameplatesWithFunction(function(plate, unitToken)
-                    plate:UpdateOptions()
-                    plate.Health:ForceUpdate()
+                nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+                    nameplate:UpdateOptions()
+                    nameplate.Health:ForceUpdate()
                 end)
             end,
         },

@@ -74,7 +74,7 @@ function PlateMixin:UpdateClassification()
 
     if ( classification == "elite" ) then
         local level = UnitEffectiveLevel(self.__unit)
-        local playerLevel = nPlatesDriverFrame.playerLevel
+        local playerLevel = nPlatesDriverFrame:GetPlayerLevel()
 
         if ( level >= playerLevel + 2 or level == -1 ) then
             self.mobType = "Boss"
@@ -83,8 +83,7 @@ function PlateMixin:UpdateClassification()
             self.mobType = "MiniBoss"
             return
         elseif ( level == playerLevel ) then
-            local class = UnitClassBase(self.__unit)
-            self.mobType = (class == "PALADIN" and "Caster") or "Melee"
+            self.mobType = "Other"
             return
         end
     end
@@ -311,6 +310,10 @@ function nPlatesMixin:OnEvent(event, ...)
 
 function nPlatesMixin:UpdateLevel()
     self.playerLevel = UnitLevel("player")
+end
+
+function nPlatesMixin:GetPlayerLevel()
+    return self.playerLevel
 end
 
 function nPlatesMixin:InInstance()
