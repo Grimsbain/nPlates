@@ -2,23 +2,28 @@ local _, nPlates = ...
 
 local function UpdateStatusText(element, unit, cur, max, lossPerc)
     local text = element.Text
-    local style = element.__owner.statusTextStyle
+    local tag = element.__owner.healthTag
 
-    if ( style == "disabled" ) then
+    if ( tag == "disabled" ) then
         text:Hide()
         return
     else
         local health = AbbreviateNumbers(cur)
+
+        if ( tag  == "cur" ) then
+            text:SetFormattedText("%s", health)
+            text:Show()
+            return
+        end
+
         local percent = UnitHealthPercent(unit, true, CurveConstants.ScaleTo100)
 
-        if ( style == "cur_perc" ) then
-            text:SetFormattedText("%s - %.0f%%", health, percent)
-        elseif ( style == "perc_cur" ) then
-            text:SetFormattedText("%.0f%% - %s", percent, health)
-        elseif ( style  == "cur" ) then
-            text:SetFormattedText("%s", health)
-        elseif ( style == "perc" ) then
+        if ( tag == "perc" ) then
             text:SetFormattedText("%.0f%%", percent)
+        elseif ( tag == "cur_perc" ) then
+            text:SetFormattedText("%s - %.0f%%", health, percent)
+        elseif ( tag == "perc_cur" ) then
+            text:SetFormattedText("%.0f%% - %s", percent, health)
         end
 
         text:Show()
@@ -39,7 +44,7 @@ local function UpdateColor(self, event, unit)
                 r, g, b = nPlates.MobColors[self.mobType]:GetRGB()
             elseif ( nPlates.IsOnThreatListWithPlayer(self.__unit) ) then
                 if ( self:UseThreatColoring("healthStyle") ) then
-                    r, g, b = nPlates.GetThreatColor(self):GetRGB()
+                    r, g, b = nPlates.GetThreatColor(self.__unit)
                 else
                     r, g, b = 1, 0, 0
                 end

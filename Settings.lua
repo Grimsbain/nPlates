@@ -9,6 +9,8 @@ end
 
 local function OnlyShowName(showNameOnly)
     nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
+        nameplate:UpdateIsPlayer()
+
         if ( nameplate:IsFriendlyPlayer() and showNameOnly ) then
             nameplate:DisableElement("Auras")
             nameplate:DisableElement("Health")
@@ -118,7 +120,7 @@ function nPlates:RegisterSettings()
                 nPlates:UpdateElement("Castbar")
             end,
             hexCallback = function(setting, value)
-                nPlates.Media.ImportantCastColor = CreateColorFromHexString(value)
+                nPlates.Colors.ImportantCastColor = CreateColorFromHexString(value)
                 nPlates:UpdateElement("Castbar")
             end,
         },
@@ -158,23 +160,6 @@ function nPlates:RegisterSettings()
                 end)
             end,
         },
-        -- {
-        --     type = "Swatch",
-        --     name = "NPLATES_OFF_TANK_COLOR",
-        --     variable = "OffTankColor",
-        --     default = Settings.Default.False,
-        --     label = L.OffTankColor,
-        --     tooltip = L.OffTankColorTooltip,
-        --     varType = Settings.VarType.Boolean,
-        --     color = "ff7328ff",
-        --     callback = function(setting, value)
-        --         nPlates:UpdateElement("Health")
-        --     end,
-        --     hexCallback = function(setting, value)
-        --         nPlates.Media.OffTankColor = CreateColorFromHexString(value)
-        --         nPlates:UpdateElement("Health")
-        --     end,
-        -- },
         {
             type = "Swatch",
             name = "NPLATES_SELECTION_COLOR",
@@ -191,7 +176,7 @@ function nPlates:RegisterSettings()
                 end)
             end,
             hexCallback = function(setting, value)
-                nPlates.Media.SelectionColor = CreateColorFromHexString(value)
+                nPlates.Colors.SelectionColor = CreateColorFromHexString(value)
                 nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
                     nameplate:SetSelectionColor()
                 end)
@@ -213,7 +198,7 @@ function nPlates:RegisterSettings()
                 end)
             end,
             hexCallback = function(setting, value)
-                nPlates.Media.FocusColor = CreateColorFromHexString(value)
+                nPlates.Colors.FocusColor = CreateColorFromHexString(value)
                 nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
                     nameplate:SetSelectionColor()
                 end)
@@ -233,7 +218,7 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
-                    nameplate:UpdateOptions()
+                    nameplate:UpdateAuras()
                 end)
             end,
         },
@@ -247,7 +232,7 @@ function nPlates:RegisterSettings()
             varType = Settings.VarType.Boolean,
             callback = function(control, value)
                 nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
-                    nameplate:UpdateOptions()
+                    nameplate:UpdateAuras()
                 end)
             end,
         },
@@ -314,21 +299,6 @@ function nPlates:RegisterSettings()
                 end)
             end,
         },
-        -- {
-        --     type = "CheckBox",
-        --     name = "NPLATES_DEBUFF_TYPE",
-        --     variable = "ShowDebuffType",
-        --     label = L.ShowDebuffType,
-        --     tooltip = L.ShowDebuffTypeTooltip,
-        --     default = Settings.Default.False,
-        --     varType = Settings.VarType.Boolean,
-        --     callback = function(setting, value)
-        --         nPlates:UpdateNameplatesWithFunction(function(nameplate, unitToken)
-        --             nameplate.BetterDebuffs.showType = value
-        --             nameplate.BetterDebuffs:ForceUpdate()
-        --         end)
-        --     end,
-        -- },
         -- {
         --     type = "CheckBox",
         --     name = "NPLATES_COOLDOWN",

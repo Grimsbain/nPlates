@@ -59,7 +59,7 @@ function nPlates:SetBorder(frame)
         frame.Border[i] = textureParent:CreateTexture("$parentBeautyBorder"..i, "OVERLAY")
         frame.Border[i]:SetTexture([[Interface\AddOns\nPlates\Media\borderTexture]])
         frame.Border[i]:SetSize(size, size)
-        frame.Border[i]:SetVertexColor(self.Media.DefaultBorderColor:GetRGB())
+        frame.Border[i]:SetVertexColor(self.Colors.DefaultBorderColor:GetRGB())
         frame.Border[i]:ClearAllPoints()
 
         frame.Shadow[i] = textureParent:CreateTexture("$parentBeautyShadow"..i, "BORDER")

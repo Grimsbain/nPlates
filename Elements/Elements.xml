@@ -1,6 +1,6 @@
 <Ui>
     <!-- Make our own tooltip to avoid GameTooltip secure taint. -->
-    <GameTooltip name="nPlatesTooltip" inherits="GameTooltipTemplate" parent="UIParent" frameStrata="TOOLTIP"/>
+    <!-- <GameTooltip name="nPlatesTooltip" inherits="GameTooltipTemplate" parent="UIParent" frameStrata="TOOLTIP"/> -->
 
     <Script file="Auras.lua"/>
     <Script file="Border.lua"/>

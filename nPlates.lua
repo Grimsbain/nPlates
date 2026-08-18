@@ -92,7 +92,7 @@ function PlateMixin:UpdateClassification()
 end
 
 function PlateMixin:UseMobColoring(forType)
-    if ( not nPlatesDriverFrame.inInstance or not self.mobType ) then
+    if ( not nPlatesDriverFrame:InInstance() or not self.mobType ) then
         return false
     end
 
@@ -111,10 +111,10 @@ function PlateMixin:SetSelectionColor()
     local healthBar = self.Health
 
     if ( self:IsTarget() and self.useSelectionColor ) then
-        nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.SelectionColor)
+        nPlates:SetBeautyBorderColor(healthBar, nPlates.Colors.SelectionColor)
         return
     elseif ( self:IsFocus() and self.useFocusColor ) then
-            nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.FocusColor)
+        nPlates:SetBeautyBorderColor(healthBar, nPlates.Colors.FocusColor)
             return
     else
         if ( self:UseMobColoring("borderStyle") ) then
@@ -122,15 +122,15 @@ function PlateMixin:SetSelectionColor()
             nPlates:SetBeautyBorderColor(healthBar, color)
             return
         elseif ( self:UseThreatColoring("borderStyle") and nPlates.IsOnThreatListWithPlayer(self.__unit) ) then
-            local color = nPlates.GetThreatColor(self)
-            nPlates:SetBeautyBorderColor(healthBar, color)
+            local r, g, b = nPlates.GetThreatColor(self.__unit)
+            nPlates:SetBeautyBorderColorByRGB(self, r, g, b)
             return
         else
             if ( self:IsTarget() ) then
             local r, g, b = healthBar:GetStatusBarColor()
                 nPlates:SetBeautyBorderColorByRGB(healthBar, r, g, b)
     else
-        nPlates:SetBeautyBorderColor(healthBar, nPlates.Media.DefaultBorderColor)
+                nPlates:SetBeautyBorderColor(healthBar, nPlates.Colors.DefaultBorderColor)
     end
 end
     end
@@ -140,6 +140,14 @@ function PlateMixin:UpdateClassPower()
     if ( self.ClassFrameContainer.Power ) then
         self.ClassFrameContainer.Power:UpdateVisibility()
     end
+end
+
+function PlateMixin:UpdateAuras()
+    local filterString = self:IsPlayer() and "HELPFUL|IMPORTANT" or "HELPFUL|INCLUDE_NAME_PLATE_ONLY"
+    self.Buffs:SetAuraGroupFilterString(self.Buffs.groupKey, filterString)
+    self.Buffs:SetEnabled(Settings.GetValue("NPLATES_SHOW_BUFFS"))
+
+    self.CCIcon:SetEnabled(Settings.GetValue("NPLATES_CROWD_CONTROL"))
 end
 
 function PlateMixin:UpdateDebuffLocation()
@@ -164,19 +172,18 @@ function PlateMixin:UpdateOptions()
     -- Coloring
     self.borderStyle = Settings.GetValue("NPLATES_BORDER_COLOR")
     self.healthStyle = Settings.GetValue("NPLATES_HEALTH_COLOR")
-    self.useSelectionColor = Settings.GetValue("NPLATES_SELECTION_COLOR")
-    self.useFocusColor = Settings.GetValue("NPLATES_FOCUS_COLOR")
     self.useClassColor = self:IsPlayer() or UnitInPartyIsAI(self.__unit)
-    -- self.useOffTankColor = Settings.GetValue("NPLATES_OFF_TANK_COLOR")
+    self.useFocusColor = Settings.GetValue("NPLATES_FOCUS_COLOR")
+    self.useSelectionColor = Settings.GetValue("NPLATES_SELECTION_COLOR")
 
     -- Health
-    self.statusTextStyle = Settings.GetValue("NPLATES_HEALTH_STYLE")
+    self.healthTag = Settings.GetValue("NPLATES_HEALTH_STYLE")
 
     -- Name
     self.alwaysShowName = Settings.GetValue("NPLATES_FORCE_NAME")
-    self.showLevel = Settings.GetValue("NPLATES_SHOWLEVEL")
     self.colorEnemyNames = Settings.GetValue("NPLATES_PLAYER_THREAT")
     self.nameOnly = Settings.GetValue("NPLATES_ONLYNAME")
+    self.showLevel = Settings.GetValue("NPLATES_SHOWLEVEL")
 end
 
 function PlateMixin:UpdateWidgets()
@@ -198,9 +205,6 @@ function PlateMixin:UpdateWidgets()
 		self:EnableElement("Castbar")
         self.Health:Show()
 	end
-
-    local filterString = self:IsPlayer() and "HELPFUL|IMPORTANT" or "HELPFUL|INCLUDE_NAME_PLATE_ONLY"
-    self.Buffs:SetAuraGroupFilterString(self.Buffs.groupKey, filterString)
 end
 
 function PlateMixin:ShouldShowName()
@@ -286,9 +290,10 @@ function PlateMixin:OnEvent(event, ...)
     end
 end
 
-nPlatesMixin = {}
+local nPlatesDriverMixin = {}
+nPlates.nPlatesDriverMixin = nPlatesDriverMixin
 
-function nPlatesMixin:OnLoad()
+function nPlatesDriverMixin:OnLoad()
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("PLAYER_LEVEL_UP")
 
@@ -299,34 +304,37 @@ function nPlatesMixin:OnLoad()
     end)
 end
 
-function nPlatesMixin:OnEvent(event, ...)
+function nPlatesDriverMixin:OnEvent(event, ...)
     if ( event == "PLAYER_ENTERING_WORLD" ) then
-        self:InInstance()
+        self:UpdateInstance()
         self:UpdateLevel()
     elseif ( event == "PLAYER_LEVEL_UP" ) then
         self:UpdateLevel()
     end
     end
 
-function nPlatesMixin:UpdateLevel()
+function nPlatesDriverMixin:UpdateLevel()
     self.playerLevel = UnitLevel("player")
 end
 
-function nPlatesMixin:GetPlayerLevel()
+function nPlatesDriverMixin:GetPlayerLevel()
     return self.playerLevel
 end
 
-function nPlatesMixin:InInstance()
+function nPlatesDriverMixin:UpdateInstance()
     local inInstance, instanceType = IsInInstance()
     local shouldShow = inInstance and (instanceType == "party" or instanceType == "raid")
     self.inInstance = shouldShow
 end
 
-function nPlatesMixin:Initialize()
-    -- nPlates.Media.OffTankColor = CreateColorFromHexString(Settings.GetValue("NPLATES_OFF_TANK_COLOR_HEX"))
-    nPlates.Media.SelectionColor = CreateColorFromHexString(Settings.GetValue("NPLATES_SELECTION_COLOR_HEX"))
-    nPlates.Media.FocusColor = CreateColorFromHexString(Settings.GetValue("NPLATES_FOCUS_COLOR_HEX"))
-    nPlates.Media.ImportantCastColor = CreateColorFromHexString(Settings.GetValue("NPLATES_IMPORTANT_CAST_COLOR_HEX"))
+function nPlatesDriverMixin:InInstance()
+    return self.inInstance == true
+end
+
+function nPlatesDriverMixin:Initialize()
+    nPlates.Colors.SelectionColor = CreateColorFromHexString(Settings.GetValue("NPLATES_SELECTION_COLOR_HEX"))
+    nPlates.Colors.FocusColor = CreateColorFromHexString(Settings.GetValue("NPLATES_FOCUS_COLOR_HEX"))
+    nPlates.Colors.ImportantCastColor = CreateColorFromHexString(Settings.GetValue("NPLATES_IMPORTANT_CAST_COLOR_HEX"))
 end
 
 local styleName = "nPlates3"
@@ -334,6 +342,7 @@ local styleName = "nPlates3"
 local function OnNamePlateAdded(nameplate)
     nameplate:UpdateOptions()
     nameplate:UpdateWidgets()
+    nameplate:UpdateAuras()
 
     nameplate:UpdateName()
     nameplate:UpdateNameLocation()

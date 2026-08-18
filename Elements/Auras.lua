@@ -1,5 +1,28 @@
 local _, nPlates = ...
 
+nPlates.PostCreateButton = function(element, button, options)
+    button.Cooldown:SetHideCountdownNumbers(false)
+    button.Cooldown:SetDrawEdge(true)
+    button.Cooldown:SetDrawSwipe(false)
+    button.Cooldown:SetReverse(true)
+    button.Cooldown:SetCountdownFont("nPlate_CooldownFont")
+    button.Cooldown:SetUseAuraDisplayTime(true)
+
+    button.Background = button:CreateTexture("$parentBackground", "BACKGROUND")
+    button.Background:SetAllPoints(button)
+    button.Background:SetColorTexture(0, 0, 0)
+
+    button.Count:SetFontObject("nPlate_CountFont")
+    button.Count:ClearAllPoints()
+    button.Count:SetPoint("CENTER", button.Icon, "TOPLEFT", 1, 1)
+    button.Count:SetJustifyH("RIGHT")
+
+    button.Icon:ClearAllPoints()
+    button.Icon:SetPoint("CENTER")
+    button.Icon:SetSize(18, 12)
+    button.Icon:SetTexCoord(0.05, 0.95, 0.1, 0.6)
+end
+
 function nPlates.CreateBuffs(self)
     local Buffs = self:CreateAuras()
     Buffs.showCount = true

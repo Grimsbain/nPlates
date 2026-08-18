@@ -10,7 +10,10 @@
 
     <Script file="nPlates.lua"/>
 
-    <Frame name="nPlatesDriverFrame" mixin="nPlatesMixin">
+    <Frame name="nPlatesDriverFrame">
+        <Mixins>
+            <Mixin key="nPlatesDriverMixin" source="local"/>
+        </Mixins>
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnEvent method="OnEvent"/>
